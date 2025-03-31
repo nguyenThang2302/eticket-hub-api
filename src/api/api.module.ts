@@ -6,9 +6,11 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { IsEmailExistedConstraint } from './common/decorators/is-email-existed';
 import { MediaModule } from './media/media.module';
 import { CloudinaryModule } from './media/cloudinary/cloudinary.module';
+import { ChatModule } from './chat/chat.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule],
+  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule, ChatModule, NotificationModule],
   controllers: [],
   providers: [
     IsEmailExistedConstraint,
