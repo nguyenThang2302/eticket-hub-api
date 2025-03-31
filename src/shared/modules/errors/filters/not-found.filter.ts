@@ -1,0 +1,48 @@
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  Inject,
+  NotFoundException,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { ErrorService } from '../error.service';
+import { I18nContext } from 'nestjs-i18n';
+import { LoggerService } from '../../logger/logger.service';
+import { JwtService } from '@nestjs/jwt';
+import { fullMaskingData } from 'src/api/utils/helpers';
+
+@Catch(NotFoundException)
+export class NotFoundExceptionFilter implements ExceptionFilter {
+  constructor(
+    private readonly errorService: ErrorService,
+    @Inject(LoggerService) private readonly loggerService: LoggerService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async catch(exception: NotFoundException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const req = ctx.getRequest<Request>();
+    const res = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const errors = exception.getResponse();
+    const i18n = I18nContext.current(host);
+    const stackTrace = exception.stack;
+
+    let userID: string;
+    if (!req.headers['authorization']) {
+      userID = ' ';
+    } else {
+      const token = req.headers['authorization'].split(' ')[1];
+      const payload = this.jwtService.decode(token);
+      userID = payload['sub'];
+    }
+
+    const instanceLogger = this.loggerService.Logger(req['requestId']);
+    instanceLogger.error(
+      `${req.method} ${req.url} ${userID} header=${JSON.stringify(fullMaskingData(req.headers))} body=${JSON.stringify(fullMaskingData(req.body))} exception=${JSON.stringify(exception)} trace=${stackTrace}}`,
+    );
+
+    res.status(status).json(this.errorService.message(errors, i18n));
+  }
+}

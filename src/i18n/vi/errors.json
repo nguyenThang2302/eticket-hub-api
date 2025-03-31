@@ -1,0 +1,135 @@
+{
+  "CUS-0401": {
+    "error_id": "CUS-0401",
+    "title": "Bad Request",
+    "message": "Thông tin không hợp lệ, vui lòng kiểm tra lại"
+  },
+  "CUS-0402": {
+    "error_id": "CUS-0402",
+    "title": "Forbidden",
+    "message": "Tài nguyên không được phép truy cập"
+  },
+  "CUS-0403": {
+    "error_id": "CUS-0403",
+    "title": "Not Found",
+    "message": "Trang không tìm thấy"
+  },
+  "CUS-0404": {
+    "error_id": "CUS-0404",
+    "title": "Bad Request",
+    "message": "Không tìm thấy kết quả"
+  },
+  "CUS-0405": {
+    "error_id": "CUS-0405",
+    "title": "Internal Server Error",
+    "message": "Hệ thống xảy ra sự cố, vui lòng thử lại sau"
+  },
+  "CUS-0406": {
+    "error_id": "CUS-0406",
+    "title": "Timeout",
+    "message": "Yêu cầu hết hạn, vui lòng thử lại"
+  },
+
+  "AUTH-0502": {
+    "error_id": "AUTH-0502",
+    "title": "Unauthorized",
+    "message": "Sai email hoặc mật khẩu"
+  },
+  "AUTH-0503": {
+    "error_id": "AUTH-0503",
+    "title": "Unauthorized",
+    "message": "Email chưa được xác thực"
+  },
+  "AUTH-0504": {
+    "error_id": "AUTH-0504",
+    "title": "Unauthorized",
+    "message": "Thông tin người dùng không hợp lệ"
+  },
+  "AUTH-0505": {
+    "error_id": "AUTH-0505",
+    "title": "Unauthorized",
+    "message": "Phiên đăng nhập đã hết hạn"
+  },
+  "AUTH-0506": {
+    "error_id": "AUTH-0506",
+    "title": "Unauthorized",
+    "message": "Có lỗĩ khi xác thực email, vui lòng thử lại"
+  },
+
+  "FIELD-0001": {
+    "error_id": "FIELD-0001",
+    "title": "Invalid Parameter",
+    "message": "Thông tin bắt buộc điền"
+  },
+  "FIELD-0002": {
+    "error_id": "FIELD-0002",
+    "title": "Invalid Parameter",
+    "message": "Bạn đã nhập sai định dạng"
+  },
+  "FIELD-0003": {
+    "error_id": "FIELD-0003",
+    "title": "Invalid Parameter",
+    "message": "Bạn đã nhập sai định dạng email"
+  },
+  "FIELD-0004": {
+    "error_id": "FIELD-0004",
+    "title": "Invalid Parameter",
+    "message": "Mật khẩu phải có ít nhất 1 kí tự thường, 1 kí tự hoa và 1 chữ số"
+  },
+  "FIELD-0005": {
+    "error_id": "FIELD-0005",
+    "title": "Invalid Parameter",
+    "message": "Chưa đủ yêu cầu tối thiểu"
+  },
+  "FIELD-0006": {
+    "error_id": "FIELD-0006",
+    "title": "Invalid Parameter",
+    "message": "Vượt quá yêu cầu tối đa"
+  },
+  "FIELD-0007": {
+    "error_id": "FIELD-0007",
+    "title": "Bad Request",
+    "message": "Mã giảm giá đã hết hạn hoặc không hợp lệ"
+  },
+  "FIELD-0008": {
+    "error_id": "FIELD-0008",
+    "title": "Bad Request",
+    "message": "Hiện tại xe chưa được phép thuê ở vị trí này"
+  },
+  "FIELD-0009": {
+    "error_id": "FIELD-0009",
+    "title": "Bad Request",
+    "message": "Đã có người đặt xe trong khoảng thời gian này"
+  },
+  "FIELD-0010": {
+    "error_id": "FIELD-0010",
+    "title": "Bad Request",
+    "message": "Email đã được đăng ký"
+  },
+  "FIELD-0011": {
+    "error_id": "FIELD-0011",
+    "title": "Bad Request",
+    "message": "Hệ thống đã thay đổi giá xe này, vui lòng thử lại"
+  },
+  "FIELD-0012": {
+    "error_id": "FIELD-0012",
+    "title": "Bad Request",
+    "message": "Xe không khả dụng"
+  },
+  "FIELD-0013": {
+    "error_id": "FIELD-0013",
+    "title": "Bad Request",
+    "message": "Ngày tháng không hợp lệ"
+  },
+
+  "PAY-0001": {
+    "error_id": "PAY-0001",
+    "title": "Bad Request",
+    "message": "Thanh toán không thành công. Vui lòng thử lại"
+  },
+  "PAY-0002": {
+    "error_id": "PAY-0002",
+    "title": "Bad Request",
+    "message": "Lỗi người dùng chưa thanh toán trên cổng thanh toán Paypal. Vui lòng thử lại"
+  }
+}

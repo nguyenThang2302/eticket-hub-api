@@ -1,0 +1,124 @@
+services:
+  maindb:
+    image: mysql:8.0.36
+    platform: linux/amd64
+    ports:
+      - 3309:3306
+    environment:
+      MYSQL_USER: eth_username
+      MYSQL_PASSWORD: eth_password
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eth_main
+      LANG: C.UTF-8
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - default
+  
+  maindb-dev:
+    image: mysql:8.0.36
+    platform: linux/amd64
+    environment:
+      MYSQL_USER: eth_username
+      MYSQL_PASSWORD: eth_password
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eth_main
+      LANG: C.UTF-8
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - default
+
+  dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - "8000:8000"
+        command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /data"
+        healthcheck:
+          test: [ "CMD-SHELL", "curl -v http://dynamodb:8000" ]
+          interval: 3s
+          timeout: 3s
+          retries: 5
+        volumes:
+          - ./docker/dynamodb/data:/data
+        networks:
+          - default
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - "8010:8001"
+    environment:
+      - DYNAMO_ENDPOINT="http://dynamodb:8000"
+      - AWS_REGION="ap-northeast-1"
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    depends_on:
+      - dynamodb
+
+  atlas:
+    image: arigaio/atlas:latest-alpine
+    depends_on:
+      maindb-dev:
+        condition: service_healthy
+      maindb:
+        condition: service_healthy
+    entrypoint: ["atlas"]
+    networks:
+      - default
+    volumes:
+      - ./misc/database/migrations:/migrations
+      - ./misc/database/schema.hcl:/schema.hcl
+  
+  schemacrawler:
+    image: schemacrawler/schemacrawler
+    volumes:
+      - ./misc/database/output/diagrams:/output
+      - ./misc/database/libraries/schemacrawler:/libraries
+    depends_on:
+      maindb:
+        condition: service_healthy
+    networks:
+      - default
+
+  schemaspy:
+    image: schemaspy/schemaspy
+    volumes:
+      - ./misc/database/output/documents:/output
+    depends_on:
+      maindb:
+        condition: service_healthy
+    networks:
+      - default
+  
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./docker/redis/data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - default
+
+volumes:
+  node_modules:
+  pnpm-store:
+
+networks:
+  default:

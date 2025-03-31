@@ -1,0 +1,135 @@
+{
+  "CUS-0401": {
+    "error_id": "CUS-0401",
+    "title": "Bad Request",
+    "message": "One or more field input values are invalid"
+  },
+  "CUS-0402": {
+    "error_id": "CUS-0402",
+    "title": "Forbidden",
+    "message": "You can't access this resource"
+  },
+  "CUS-0403": {
+    "error_id": "CUS-0403",
+    "title": "Not Found",
+    "message": "Page not found"
+  },
+  "CUS-0404": {
+    "error_id": "CUS-0404",
+    "title": "Bad Request",
+    "message": "No results found"
+  },
+  "CUS-0405": {
+    "error_id": "CUS-0405",
+    "title": "Internal Server Error",
+    "message": "An internal server error occurred. Please contact us if the problem is not solved"
+  },
+  "CUS-0406": {
+    "error_id": "CUS-0406",
+    "title": "Timeout",
+    "message": "Request timeout, please try again"
+  },
+
+  "AUTH-0502": {
+    "error_id": "AUTH-0502",
+    "title": "Unauthorized",
+    "message": "You have entered wrong email or password"
+  },
+  "AUTH-0503": {
+    "error_id": "AUTH-0503",
+    "title": "Unauthorized",
+    "message": "Your email is not verified"
+  },
+  "AUTH-0504": {
+    "error_id": "AUTH-0504",
+    "title": "Unauthorized",
+    "message": "Invalid user information"
+  },
+  "AUTH-0505": {
+    "error_id": "AUTH-0505",
+    "title": "Unauthorized",
+    "message": "Session expired"
+  },
+  "AUTH-0506": {
+    "error_id": "AUTH-0506",
+    "title": "Unauthorized",
+    "message": "There is an error when verify your email, please try again"
+  },
+
+  "FIELD-0001": {
+    "error_id": "FIELD-0001",
+    "title": "Invalid Parameter",
+    "message": "This field is required"
+  },
+  "FIELD-0002": {
+    "error_id": "FIELD-0002",
+    "title": "Invalid Parameter",
+    "message": "You have entered wrong value format"
+  },
+  "FIELD-0003": {
+    "error_id": "FIELD-0003",
+    "title": "Invalid Parameter",
+    "message": "You have entered invalid email"
+  },
+  "FIELD-0004": {
+    "error_id": "FIELD-0004",
+    "title": "Invalid Parameter",
+    "message": "Your password must be least 8 characters with 1 number, 1 lowercase, 1 uppercase"
+  },
+  "FIELD-0005": {
+    "error_id": "FIELD-0005",
+    "title": "Invalid Parameter",
+    "message": "Your field not reached minimum requirement"
+  },
+  "FIELD-0006": {
+    "error_id": "FIELD-0006",
+    "title": "Invalid Parameter",
+    "message": "Your field reached maximum requirement"
+  },
+  "FIELD-0007": {
+    "error_id": "FIELD-0007",
+    "title": "Bad Request",
+    "message": "The coupon has expired or invalid"
+  },
+  "FIELD-0008": {
+    "error_id": "FIELD-0008",
+    "title": "Bad Request",
+    "message": "You have entered invalid email"
+  },
+  "FIELD-0009": {
+    "error_id": "FIELD-0009",
+    "title": "Bad Request",
+    "message": "Someone has booked this car during this time period"
+  },
+  "FIELD-0010": {
+    "error_id": "FIELD-0010",
+    "title": "Bad Request",
+    "message": "This email has already been registered"
+  },
+  "FIELD-0011": {
+    "error_id": "FIELD-0011",
+    "title": "Bad Request",
+    "message": "The system has changed the price of this car, please try again"
+  },
+  "FIELD-0012": {
+    "error_id": "FIELD-0012",
+    "title": "Bad Request",
+    "message": "Car unavailable"
+  },
+  "FIELD-0013": {
+    "error_id": "FIELD-0013",
+    "title": "Bad Request",
+    "message": "Invalid date"
+  },
+
+  "PAY-0001": {
+    "error_id": "PAY-0001",
+    "title": "Bad Request",
+    "message": "Payment failed. Please try again"
+  },
+  "PAY-0002": {
+    "error_id": "PAY-0002",
+    "title": "Bad Request",
+    "message": "Unpaid user error on Paypal payment gateway. Please try again"
+  }
+}
