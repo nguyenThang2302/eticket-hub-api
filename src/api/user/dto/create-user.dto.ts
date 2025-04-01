@@ -9,4 +9,7 @@ export class CreateUserDto {
 
   @IsString({ message: 'ERR-0002' })
   password: string;
+
+  @IsString({ message: 'ERR-0002' })
+  role: string;
 }
