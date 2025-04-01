@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { ROLE } from 'src/api/common/constants';
 import { IsValidPassword } from 'src/api/utils/helpers';
 
 export class CreateAuthDto {
@@ -14,4 +15,8 @@ export class CreateAuthDto {
   @IsNotEmpty({ message: 'FIELD-0001' })
   @IsString({ message: 'FIELD-0002' })
   name: string;
+
+  @IsNotEmpty({ message: 'FIELD-0001' })
+  @IsString({ message: 'FIELD-0002' })
+  role: ROLE;
 }

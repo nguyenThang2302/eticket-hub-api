@@ -12,6 +12,7 @@ export const jwtConstants = {
 
 export enum ROLE {
   USER = 'user',
+  PROMOTER = 'promoter',
   ADMIN = 'admin',
 }
 

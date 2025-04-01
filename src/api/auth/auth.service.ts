@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async register(body: CreateAuthDto): Promise<any> {
-    const { name: fullName, email, password } = body;
+    const { name: fullName, email, password, role } = body;
 
     const existingUser = await this.userService.findExistingEmail(email);
     if (existingUser) throw new BadRequestException('FIELD-0010');
@@ -54,6 +54,7 @@ export class AuthService {
       name: fullName,
       email,
       password: hashPassword,
+      role,
     };
 
     const data = await this.userService.create(createUserDto);
