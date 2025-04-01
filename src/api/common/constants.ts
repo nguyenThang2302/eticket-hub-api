@@ -38,3 +38,9 @@ export enum SEX {
   MALE = 'male',
   FEMALE = 'female',
 }
+
+export enum REGISTER_ORGANIZATION_STATUS {
+  WAITING = 'waiting',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
