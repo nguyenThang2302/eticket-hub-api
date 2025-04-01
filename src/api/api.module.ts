@@ -8,9 +8,10 @@ import { MediaModule } from './media/media.module';
 import { CloudinaryModule } from './media/cloudinary/cloudinary.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationModule } from './notification/notification.module';
+import { OrganizeModule } from './organize/organize.module';
 
 @Module({
-  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule, ChatModule, NotificationModule],
+  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule, ChatModule, NotificationModule, OrganizeModule],
   controllers: [],
   providers: [
     IsEmailExistedConstraint,

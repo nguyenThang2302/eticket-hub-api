@@ -11,7 +11,7 @@ import { LoginDto } from './dto/login.dto';
 import { TokenDto } from './dto/token.dto';
 import { UserService } from '../user/user.service';
 import { User } from '../../database/entities/user.entity';
-import { BEARER, jwtConstants, PROVIDER } from '../common/constants';
+import { BEARER, jwtConstants, PROVIDER, ROLE } from '../common/constants';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccessToken, RefreshToken } from '../../database/entities';
@@ -54,7 +54,7 @@ export class AuthService {
       name: fullName,
       email,
       password: hashPassword,
-      role,
+      role: ROLE[`${role}`],
     };
 
     const data = await this.userService.create(createUserDto);

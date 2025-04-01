@@ -2,6 +2,7 @@ import { AccessToken, RefreshToken } from '../entities';
 import { PROVIDER, ROLE, SEX } from 'src/api/common/constants';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { Group } from './group.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -59,6 +60,9 @@ export class User extends BaseEntity {
   @OneToMany(() => AccessToken, (access_token) => access_token.user)
   access_tokens: AccessToken[];
 
-  @OneToMany(() => AccessToken, (refresh_token) => refresh_token.user)
+  @OneToMany(() => RefreshToken, (refresh_token) => refresh_token.user)
   refresh_token: RefreshToken[];
+
+  @OneToMany(() => Group, (group) => group.user)
+  groups: Group[];
 }
