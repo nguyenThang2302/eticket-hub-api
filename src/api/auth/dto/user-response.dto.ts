@@ -17,4 +17,13 @@ export class UserResponeDto {
 
   @Expose()
   avatar_url: string;
+
+  @Expose()
+  date_of_birth: Date;
+
+  @Expose()
+  phone_number: string;
+
+  @Expose()
+  sex: string;
 }

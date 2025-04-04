@@ -10,7 +10,7 @@ import { LoggerModule } from './shared/modules/logger/logger.module';
   providers: [SentryInterceptor],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
-  }
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  // }
 }
