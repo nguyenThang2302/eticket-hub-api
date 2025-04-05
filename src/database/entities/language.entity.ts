@@ -1,6 +1,9 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Organization } from './organization.entity';
 import { BaseEntity } from './base.entity';
+import { Venue } from './venue.entity';
+import { Ticket } from './ticket.entity';
+import { Event } from './event.entity';
 
 @Entity('languages')
 export class Language extends BaseEntity {
@@ -23,4 +26,13 @@ export class Language extends BaseEntity {
 
   @OneToMany(() => Organization, (organization) => organization.language)
   organizations: Organization[];
+
+  @OneToMany(() => Venue, (venue) => venue.language)
+  venues: Venue[];
+
+  @OneToMany(() => Ticket, (ticket) => ticket.language)
+  tickets: Ticket[];
+
+  @OneToMany(() => Event, (event) => event.language)
+  events: Event[];
 }

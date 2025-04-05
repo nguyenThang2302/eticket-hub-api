@@ -483,3 +483,445 @@ table "languages" {
     unique  = true
   }
 }
+
+table "events" {
+  schema  = schema.main_schema
+  comment = "Table for storing event information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the event"
+  }
+
+  column "organization_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the organization associated with the event"
+  }
+
+  column "venue_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the venue associated with the event"
+  }
+
+  column "payment_method_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the payment method associated with the event"
+  }
+
+  column "lang_code" {
+    type    = varchar(5)
+    null    = true
+    comment = "Language code associated with the event"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = false
+    comment = "Name of the event"
+  }
+
+  column "description" {
+    type    = text
+    null    = true
+    comment = "Description of the event"
+  }
+
+  column "type" {
+    type    = varchar(30)
+    null    = true
+    comment = "Type of the event"
+  }
+
+  column "logo_url" {
+    type    = varchar(255)
+    null    = true
+    comment = "URL of the event's logo"
+  }
+
+  column "poster_url" {
+    type    = varchar(255)
+    null    = true
+    comment = "URL of the event's poster"
+  }
+
+  column "start_datetime" {
+    type    = datetime
+    null    = false
+    comment = "Start date and time of the event"
+  }
+
+  column "status" {
+    type    = varchar(10)
+    null    = true
+    comment = "Status of the event"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the event was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the event was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the event"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the event"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the organization was deleted"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the organization"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_events_organizations" {
+    columns     = [column.organization_id]
+    ref_columns = [table.organizations.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_events_languages" {
+    columns     = [column.lang_code]
+    ref_columns = [table.languages.column.code]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_events_venues" {
+    columns     = [column.venue_id]
+    ref_columns = [table.venues.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}
+
+table "venues" {
+  schema  = schema.main_schema
+  comment = "Table for storing venue information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the venue"
+  }
+
+  column "lang_code" {
+    type    = varchar(5)
+    null    = true
+    comment = "Language code associated with the venue"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = false
+    comment = "Name of the venue"
+  }
+
+  column "address" {
+    type    = varchar(255)
+    null    = true
+    comment = "Address of the venue"
+  }
+
+  column "description" {
+    type    = varchar(255)
+    null    = true
+    comment = "Description of the venue"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the venue was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the venue was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the venue"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the venue"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the organization was deleted"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the organization"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_venues_languages" {
+    columns     = [column.lang_code]
+    ref_columns = [table.languages.column.code]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}
+
+table "tickets" {
+  schema  = schema.main_schema
+  comment = "Table for storing ticket information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the ticket"
+  }
+
+  column "lang_code" {
+    type    = varchar(5)
+    null    = true
+    comment = "Language code associated with the ticket"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = false
+    comment = "Name of the ticket"
+  }
+
+  column "price" {
+    type    = bigint
+    null    = false
+    comment = "Price of the ticket"
+  }
+
+  column "amount" {
+    type    = int
+    null    = false
+    comment = "Amount of tickets available"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the ticket was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the ticket was last updated"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the ticket was deleted"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the ticket"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the ticket"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the ticket"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_tickets_languages" {
+    columns     = [column.lang_code]
+    ref_columns = [table.languages.column.code]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}
+
+table "organization_tickets" {
+  schema  = schema.main_schema
+  comment = "Table for associating organizations with tickets"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the organization-ticket relationship"
+  }
+
+  column "organization_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the organization"
+  }
+
+  column "ticket_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the ticket"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the relationship"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the relationship"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_organization_tickets_organizations" {
+    columns     = [column.organization_id]
+    ref_columns = [table.organizations.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+
+  foreign_key "fk_organization_tickets_tickets" {
+    columns     = [column.ticket_id]
+    ref_columns = [table.tickets.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+}
+
+table "ticket_events" {
+  schema  = schema.main_schema
+  comment = "Table for associating tickets with events"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the ticket-event relationship"
+  }
+
+  column "event_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the event"
+  }
+
+  column "organization_ticket_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the organization ticket"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the relationship"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the relationship"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_ticket_events_events" {
+    columns     = [column.event_id]
+    ref_columns = [table.events.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+
+  foreign_key "fk_ticket_events_organization_tickets" {
+    columns     = [column.organization_ticket_id]
+    ref_columns = [table.organization_tickets.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+}
