@@ -9,9 +9,10 @@ import { CloudinaryModule } from './media/cloudinary/cloudinary.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationModule } from './notification/notification.module';
 import { OrganizeModule } from './organize/organize.module';
+import { EventModule } from './event/event.module';
 
 @Module({
-  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule, ChatModule, NotificationModule, OrganizeModule],
+  imports: [AuthModule, UserModule, MediaModule, CloudinaryModule, ChatModule, NotificationModule, OrganizeModule, EventModule],
   controllers: [],
   providers: [
     IsEmailExistedConstraint,
