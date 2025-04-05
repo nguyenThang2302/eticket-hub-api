@@ -4,6 +4,7 @@ import { BaseEntity } from './base.entity';
 import { Venue } from './venue.entity';
 import { Ticket } from './ticket.entity';
 import { Event } from './event.entity';
+import { Category } from './category.entity';
 
 @Entity('languages')
 export class Language extends BaseEntity {
@@ -35,4 +36,7 @@ export class Language extends BaseEntity {
 
   @OneToMany(() => Event, (event) => event.language)
   events: Event[];
+
+  @OneToMany(() => Category, (category) => category.language)
+  categories: Category[];
 }
