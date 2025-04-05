@@ -998,3 +998,152 @@ table "categories" {
     on_delete   = "SET_NULL"
   }
 }
+
+table "seats" {
+  schema  = schema.main_schema
+  comment = "Table for storing seat information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the seat"
+  }
+
+  column "row" {
+    type    = varchar(255)
+    null    = true
+    comment = "Row identifier for the seat"
+  }
+
+  column "label" {
+    type    = varchar(255)
+    null    = true
+    comment = "Label for the seat"
+  }
+
+  column "type" {
+    type    = varchar(255)
+    null    = true
+    comment = "Type of the seat (e.g., VIP, Regular)"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the seat was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the seat was last updated"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the seat was deleted"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the seat"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the seat"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the seat"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+}
+
+table "event_seats" {
+  schema  = schema.main_schema
+  comment = "Table for storing event seat information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the event seat"
+  }
+
+  column "event_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the event associated with the seat"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = true
+    comment = "Name of the event seat"
+  }
+
+  column "seat_map_data" {
+    type    = text
+    null    = true
+    comment = "Seat map data for the event"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the event seat was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the event seat was last updated"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the event seat was deleted"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the event seat"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the event seat"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the event seat"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_event_seats_events" {
+    columns     = [column.event_id]
+    ref_columns = [table.events.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}

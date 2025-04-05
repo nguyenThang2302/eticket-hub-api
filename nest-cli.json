@@ -6,7 +6,8 @@
     "deleteOutDir": true,
     "assets": [
       { "include": "api/mail/template/*.hbs", "watchAssets": true },
-      { "include": "i18n/**/*", "watchAssets": true }
+      { "include": "i18n/**/*", "watchAssets": true },
+      { "include": "database/data/*.json", "watchAssets": true}
     ]
   }
 }

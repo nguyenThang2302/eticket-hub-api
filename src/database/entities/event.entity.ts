@@ -5,6 +5,7 @@ import { Venue } from './venue.entity';
 import { Language } from './language.entity';
 import { TicketEvent } from './ticket_event.entity';
 import { Category } from './category.entity';
+import { EventSeat } from './event_seat.entity';
 
 @Entity('events')
 export class Event extends SoftDeleteBaseEntity {
@@ -77,6 +78,9 @@ export class Event extends SoftDeleteBaseEntity {
 
   @OneToMany(() => TicketEvent, (ticketEvent) => ticketEvent.event)
   ticketEvents: TicketEvent[];
+
+  @OneToMany(() => EventSeat, (eventSeat) => eventSeat.event)
+  eventSeats: EventSeat[];
 
   @Column({
     type: 'varchar',

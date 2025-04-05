@@ -11,6 +11,7 @@ import { NotificationModule } from './notification/notification.module';
 import { OrganizeModule } from './organize/organize.module';
 import { EventModule } from './event/event.module';
 import { CategoryModule } from './category/category.module';
+import { SeatModule } from './seat/seat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CategoryModule } from './category/category.module';
     OrganizeModule,
     EventModule,
     CategoryModule,
+    SeatModule,
   ],
   providers: [
     IsEmailExistedConstraint,
