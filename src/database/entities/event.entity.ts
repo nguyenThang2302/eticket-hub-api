@@ -4,6 +4,7 @@ import { Organization } from './organization.entity';
 import { Venue } from './venue.entity';
 import { Language } from './language.entity';
 import { TicketEvent } from './ticket_event.entity';
+import { Category } from './category.entity';
 
 @Entity('events')
 export class Event extends SoftDeleteBaseEntity {
@@ -21,14 +22,6 @@ export class Event extends SoftDeleteBaseEntity {
     comment: 'Description of the event',
   })
   description: string;
-
-  @Column({
-    type: 'varchar',
-    length: 30,
-    nullable: true,
-    comment: 'Type of the event',
-  })
-  type: string;
 
   @Column({
     type: 'varchar',
@@ -74,6 +67,13 @@ export class Event extends SoftDeleteBaseEntity {
   })
   @JoinColumn({ name: 'venue_id', referencedColumnName: 'id' })
   venue: Venue;
+
+  @ManyToOne(() => Category, (category) => category.events, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
+  category: Category;
 
   @OneToMany(() => TicketEvent, (ticketEvent) => ticketEvent.event)
   ticketEvents: TicketEvent[];

@@ -506,10 +506,10 @@ table "events" {
     comment = "Identifier of the venue associated with the event"
   }
 
-  column "payment_method_id" {
+  column "category_id" {
     type    = varchar(16)
     null    = true
-    comment = "Identifier of the payment method associated with the event"
+    comment = "Identifier of the category associated with the event"
   }
 
   column "lang_code" {
@@ -528,12 +528,6 @@ table "events" {
     type    = text
     null    = true
     comment = "Description of the event"
-  }
-
-  column "type" {
-    type    = varchar(30)
-    null    = true
-    comment = "Type of the event"
   }
 
   column "logo_url" {
@@ -619,6 +613,13 @@ table "events" {
   foreign_key "fk_events_venues" {
     columns     = [column.venue_id]
     ref_columns = [table.venues.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_events_categories" {
+    columns     = [column.category_id]
+    ref_columns = [table.categories.column.id]
     on_update   = "CASCADE"
     on_delete   = "SET_NULL"
   }
@@ -923,5 +924,77 @@ table "ticket_events" {
     ref_columns = [table.organization_tickets.column.id]
     on_update   = "CASCADE"
     on_delete   = "CASCADE"
+  }
+}
+
+table "categories" {
+  schema  = schema.main_schema
+  comment = "Table for storing category information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the category"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = false
+    comment = "Name of the category"
+  }
+
+  column "lang_code" {
+    type    = varchar(5)
+    null    = true
+    comment = "Language code associated with the category"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the category was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the category was last updated"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the category was deleted"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the category"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the category"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the category"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_categories_languages" {
+    columns     = [column.lang_code]
+    ref_columns = [table.languages.column.code]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
   }
 }

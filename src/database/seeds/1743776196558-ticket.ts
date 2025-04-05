@@ -11,8 +11,8 @@ export class Ticket1743776196558 implements Seeder {
     const ticketRepository = dataSource.getRepository(Ticket);
 
     const ticketNames = [
-      'Hạng VIP (Không dành cho trẻ em dưới 8 tuổi)',
-      'Hạng Regular (Không dành cho trẻ em dưới 8 tuổi)',
+      'VIP Class (No children under 8 years old)',
+      'Regular Class (No children under 8 years old)',
     ];
     const prices = [320000, 270000];
     const amounts = [80, 100];
@@ -23,7 +23,7 @@ export class Ticket1743776196558 implements Seeder {
         name: ticketNames[i],
         price: prices[i],
         amount: amounts[i],
-        lang_code: 'vi',
+        lang_code: 'en',
         created_at: new Date(),
         updated_at: new Date(),
       });
