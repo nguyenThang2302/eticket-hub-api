@@ -17,6 +17,7 @@ export class Seat1743852724331 implements Seeder {
       row: seat.row,
       label: seat.label,
       type: seat.type,
+      status: seat.status,
     }));
 
     await seatRepository.insert(seats);

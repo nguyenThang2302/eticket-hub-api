@@ -13,6 +13,9 @@ export class ListSeatResponseDto {
 
   @Expose()
   type: string;
+
+  @Expose()
+  status: string;
 }
 
 @Exclude()

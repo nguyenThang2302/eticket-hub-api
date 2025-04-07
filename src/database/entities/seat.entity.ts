@@ -33,4 +33,12 @@ export class Seat extends SoftDeleteBaseEntity {
     comment: 'Type of the seat (e.g., VIP, Regular)',
   })
   type: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+    comment: 'Status of the seat (e.g., Available, Booked)',
+  })
+  status: string;
 }

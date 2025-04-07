@@ -1027,6 +1027,12 @@ table "seats" {
     comment = "Type of the seat (e.g., VIP, Regular)"
   }
 
+  column "status" {
+    type    = varchar(10)
+    null    = true
+    comment = "Status of the seat (e.g., available, booked)"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false

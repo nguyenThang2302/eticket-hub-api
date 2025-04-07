@@ -4,12 +4,15 @@ import { plainToInstance } from 'class-transformer';
 import { Event } from 'src/database/entities/event.entity';
 import { Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
 
 @Injectable()
 export class EventService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(EventSeat)
+    private readonly eventSeatRepository: Repository<EventSeat>,
   ) {}
 
   async getEventDetails(eventId: string): Promise<EventDetailResponseDto> {
@@ -66,5 +69,29 @@ export class EventService {
       return '0';
     }
     return Math.min(...prices).toString();
+  }
+
+  async isExistingEvent(eventId: string): Promise<boolean> {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+    });
+    return !!event;
+  }
+
+  async getEventSeats(eventId: string): Promise<any> {
+    const isExistingEvent = await this.isExistingEvent(eventId);
+    if (!isExistingEvent) {
+      throw new BadRequestException('EVENT_NOT_FOUND');
+    }
+
+    const eventSeat = await this.eventSeatRepository.findOneBy({
+      event_id: eventId,
+    });
+
+    return {
+      id: eventSeat.event_id,
+      name: eventSeat.name,
+      seat_map_data: eventSeat.seat_map_data,
+    };
   }
 }
