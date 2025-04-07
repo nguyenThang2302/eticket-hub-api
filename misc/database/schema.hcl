@@ -1153,3 +1153,68 @@ table "event_seats" {
     on_delete   = "SET_NULL"
   }
 }
+
+table "payment_methods" {
+  schema  = schema.main_schema
+  comment = "Table for storing payment method information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the payment method"
+  }
+
+  column "name" {
+    type    = varchar(10)
+    null    = false
+    comment = "Name of the payment method"
+  }
+
+  column "logo_url" {
+    type    = varchar(255)
+    null    = true
+    comment = "URL of the payment method's logo"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the payment method was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the payment method was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the payment method"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the payment method"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the payment method was deleted"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the payment method"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+}
