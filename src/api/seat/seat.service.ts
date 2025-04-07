@@ -7,12 +7,18 @@ import {
   ListSeatResponseWrapperDto,
 } from './dto/list-seat-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { CreateSeatDto } from './dto/create-seat.dto';
+import { EventService } from '../event/event.service';
 
 @Injectable()
 export class SeatService {
   constructor(
     @InjectRepository(Seat)
     private readonly seatRepository: Repository<Seat>,
+    @InjectRepository(EventSeat)
+    private readonly eventSeatRepository: Repository<EventSeat>,
+    private readonly eventService: EventService,
   ) {}
 
   async getSeats(): Promise<ListSeatResponseWrapperDto> {
@@ -41,5 +47,18 @@ export class SeatService {
         excludeExtraneousValues: true,
       },
     );
+  }
+
+  async createSeat(body: CreateSeatDto) {
+    const { event_id } = body;
+    const isExistingEvent = await this.eventService.getEventDetails(event_id);
+    if (!isExistingEvent) {
+      throw new Error('EVENT_NOT_FOUND');
+    }
+    const eventSeat = this.eventSeatRepository.create(body);
+    const eventSeatSaved = await this.eventSeatRepository.save(eventSeat);
+    return {
+      id: eventSeatSaved[0].id,
+    };
   }
 }
