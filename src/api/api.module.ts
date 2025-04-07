@@ -12,6 +12,7 @@ import { OrganizeModule } from './organize/organize.module';
 import { EventModule } from './event/event.module';
 import { CategoryModule } from './category/category.module';
 import { SeatModule } from './seat/seat.module';
+import { PaymentMethodModule } from './payment-method/payment-method.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SeatModule } from './seat/seat.module';
     EventModule,
     CategoryModule,
     SeatModule,
+    PaymentMethodModule,
   ],
   providers: [
     IsEmailExistedConstraint,
