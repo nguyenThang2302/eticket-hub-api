@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { SoftDeleteBaseEntity } from './soft-delete-base.entity';
 import { Language } from './language.entity';
-import { OrganizationTicket } from './organization_ticket.entity';
+import { TicketEvent } from './ticket_event.entity';
+import { EventSeat } from './event_seat.entity';
 
 @Entity('tickets')
 export class Ticket extends SoftDeleteBaseEntity {
@@ -21,13 +22,6 @@ export class Ticket extends SoftDeleteBaseEntity {
   price: number;
 
   @Column({
-    type: 'int',
-    nullable: false,
-    comment: 'Amount of tickets available',
-  })
-  amount: number;
-
-  @Column({
     type: 'varchar',
     length: 5,
     nullable: true,
@@ -42,9 +36,13 @@ export class Ticket extends SoftDeleteBaseEntity {
   @JoinColumn({ name: 'lang_code', referencedColumnName: 'code' })
   language: Language;
 
-  @OneToMany(
-    () => OrganizationTicket,
-    (organizationTicket) => organizationTicket.ticket,
-  )
-  organizationTickets: OrganizationTicket[];
+  @OneToMany(() => TicketEvent, (ticketEvent) => ticketEvent.ticket, {
+    cascade: true,
+  })
+  ticketEvents: TicketEvent[];
+
+  @OneToMany(() => EventSeat, (eventSeat) => eventSeat.ticket, {
+    cascade: true,
+  })
+  eventSeats: EventSeat[];
 }

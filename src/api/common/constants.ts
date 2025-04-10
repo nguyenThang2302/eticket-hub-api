@@ -44,3 +44,9 @@ export enum REGISTER_ORGANIZATION_STATUS {
   APPROVED = 'approved',
   REJECTED = 'rejected',
 }
+
+export enum SEAT_STATUS {
+  AVAILABLE = 'available',
+  BOOKED = 'booked',
+  SELECTING = 'selecting',
+}
