@@ -20,7 +20,7 @@ export class EventController {
   }
 
   @Get(':event_id/seats')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getEventSeats(@Param('event_id') eventId: string) {
     return await this.eventService.getEventSeats(eventId);

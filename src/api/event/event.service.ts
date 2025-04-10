@@ -20,8 +20,7 @@ export class EventService {
       where: { id: eventId },
       relations: [
         'ticketEvents',
-        'ticketEvents.organizationTicket',
-        'ticketEvents.organizationTicket.ticket',
+        'ticketEvents.ticket',
         'organization',
         'venue',
       ],
@@ -46,8 +45,8 @@ export class EventService {
       price: this.calculateLowestTicketPrice(event),
       tickets:
         event.ticketEvents?.map((ticketEvent) => ({
-          name: ticketEvent.organizationTicket.ticket.name,
-          price: ticketEvent.organizationTicket.ticket.price.toString(),
+          name: ticketEvent.ticket.name,
+          price: ticketEvent.ticket.price.toString(),
         })) || [],
       organize: event.organization
         ? {
@@ -63,7 +62,7 @@ export class EventService {
 
   private calculateLowestTicketPrice(event: Event): string {
     const prices = event.ticketEvents?.map(
-      (ticketEvent) => ticketEvent.organizationTicket.ticket.price,
+      (ticketEvent) => ticketEvent.ticket.price,
     );
     if (!prices || prices.length === 0) {
       return '0';
@@ -84,14 +83,33 @@ export class EventService {
       throw new BadRequestException('EVENT_NOT_FOUND');
     }
 
-    const eventSeat = await this.eventSeatRepository.findOneBy({
-      event_id: eventId,
-    });
+    const eventSeats = await this.eventSeatRepository
+      .createQueryBuilder('eventSeat')
+      .leftJoinAndSelect('eventSeat.ticket', 'ticket')
+      .leftJoin('eventSeat.event', 'event')
+      .select([
+        'eventSeat.id',
+        'eventSeat.row',
+        'eventSeat.label',
+        'eventSeat.type',
+        'eventSeat.status',
+        'ticket.id',
+        'ticket.price',
+        'ticket.name',
+      ])
+      .where('eventSeat.event_id = :eventId', { eventId })
+      .orderBy('eventSeat.row', 'ASC')
+      .addOrderBy(
+        `
+        CASE 
+          WHEN eventSeat.label = '0' THEN 11.5
+          ELSE CAST(eventSeat.label AS UNSIGNED)
+        END
+      `,
+        'ASC',
+      )
+      .getMany();
 
-    return {
-      id: eventSeat.event_id,
-      name: eventSeat.name,
-      seat_map_data: eventSeat.seat_map_data,
-    };
+    return { items: eventSeats };
   }
 }

@@ -2,7 +2,6 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Group } from './group.entity';
 import { SoftDeleteBaseEntity } from './soft-delete-base.entity';
 import { Language } from './language.entity';
-import { OrganizationTicket } from './organization_ticket.entity';
 import { Event } from './event.entity';
 
 @Entity('organizations')
@@ -64,12 +63,6 @@ export class Organization extends SoftDeleteBaseEntity {
 
   @OneToMany(() => Group, (group) => group.organization)
   groups: Group[];
-
-  @OneToMany(
-    () => OrganizationTicket,
-    (organizationTicket) => organizationTicket.ticket,
-  )
-  organizationTickets: OrganizationTicket[];
 
   @OneToMany(() => Event, (event) => event.organization)
   events: Event[];

@@ -737,12 +737,6 @@ table "tickets" {
     comment = "Price of the ticket"
   }
 
-  column "amount" {
-    type    = int
-    null    = false
-    comment = "Amount of tickets available"
-  }
-
   column "created_at" {
     type    = datetime
     null    = false
@@ -793,73 +787,6 @@ table "tickets" {
   }
 }
 
-table "organization_tickets" {
-  schema  = schema.main_schema
-  comment = "Table for associating organizations with tickets"
-
-  column "id" {
-    type    = varchar(16)
-    null    = false
-    comment = "Unique identifier for the organization-ticket relationship"
-  }
-
-  column "organization_id" {
-    type    = varchar(16)
-    null    = false
-    comment = "Identifier of the organization"
-  }
-
-  column "ticket_id" {
-    type    = varchar(16)
-    null    = false
-    comment = "Identifier of the ticket"
-  }
-
-  column "created_at" {
-    type    = datetime
-    null    = false
-    default = sql("CURRENT_TIMESTAMP")
-    comment = "Timestamp when the relationship was created"
-  }
-
-  column "updated_at" {
-    type    = datetime
-    null    = true
-    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    comment = "Timestamp when the relationship was last updated"
-  }
-
-  column "created_by" {
-    type    = varchar(16)
-    null    = true
-    comment = "Identifier of the user who created the relationship"
-  }
-
-  column "updated_by" {
-    type    = varchar(16)
-    null    = true
-    comment = "Identifier of the user who last updated the relationship"
-  }
-
-  primary_key {
-    columns = [column.id]
-  }
-
-  foreign_key "fk_organization_tickets_organizations" {
-    columns     = [column.organization_id]
-    ref_columns = [table.organizations.column.id]
-    on_update   = "CASCADE"
-    on_delete   = "CASCADE"
-  }
-
-  foreign_key "fk_organization_tickets_tickets" {
-    columns     = [column.ticket_id]
-    ref_columns = [table.tickets.column.id]
-    on_update   = "CASCADE"
-    on_delete   = "CASCADE"
-  }
-}
-
 table "ticket_events" {
   schema  = schema.main_schema
   comment = "Table for associating tickets with events"
@@ -876,10 +803,10 @@ table "ticket_events" {
     comment = "Identifier of the event"
   }
 
-  column "organization_ticket_id" {
+  column "ticket_id" {
     type    = varchar(16)
     null    = false
-    comment = "Identifier of the organization ticket"
+    comment = "Identifier of the ticket"
   }
 
   column "created_at" {
@@ -919,9 +846,9 @@ table "ticket_events" {
     on_delete   = "CASCADE"
   }
 
-  foreign_key "fk_ticket_events_organization_tickets" {
-    columns     = [column.organization_ticket_id]
-    ref_columns = [table.organization_tickets.column.id]
+  foreign_key "fk_ticket_events_tickets" {
+    columns     = [column.ticket_id]
+    ref_columns = [table.tickets.column.id]
     on_update   = "CASCADE"
     on_delete   = "CASCADE"
   }
@@ -1092,16 +1019,34 @@ table "event_seats" {
     comment = "Identifier of the event associated with the seat"
   }
 
-  column "name" {
-    type    = varchar(255)
+  column "ticket_id" {
+    type    = varchar(16)
     null    = true
-    comment = "Name of the event seat"
+    comment = "Identifier of the ticket associated with the seat"
   }
 
-  column "seat_map_data" {
-    type    = text
+  column "row" {
+    type    = varchar(255)
     null    = true
-    comment = "Seat map data for the event"
+    comment = "Row identifier for the seat"
+  }
+
+  column "label" {
+    type    = varchar(255)
+    null    = true
+    comment = "Label for the seat"
+  }
+
+  column "type" {
+    type    = varchar(255)
+    null    = true
+    comment = "Type of the seat (e.g., VIP, Regular)"
+  }
+
+  column "status" {
+    type    = varchar(10)
+    null    = true
+    comment = "Status of the seat (e.g., available, booked)"
   }
 
   column "created_at" {
@@ -1149,6 +1094,13 @@ table "event_seats" {
   foreign_key "fk_event_seats_events" {
     columns     = [column.event_id]
     ref_columns = [table.events.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_event_seats_tickets" {
+    columns     = [column.ticket_id]
+    ref_columns = [table.tickets.column.id]
     on_update   = "CASCADE"
     on_delete   = "SET_NULL"
   }

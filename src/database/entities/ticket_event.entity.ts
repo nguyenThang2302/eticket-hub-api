@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Event } from './event.entity';
-import { OrganizationTicket } from './organization_ticket.entity';
+import { Ticket } from './ticket.entity';
 import { BaseEntity } from './base.entity';
 
 @Entity('ticket_events')
@@ -12,17 +12,6 @@ export class TicketEvent extends BaseEntity {
   @JoinColumn({ name: 'event_id', referencedColumnName: 'id' })
   event: Event;
 
-  @ManyToOne(
-    () => OrganizationTicket,
-    (organizationTicket) => organizationTicket.ticketEvents,
-    {
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-  )
-  @JoinColumn({ name: 'organization_ticket_id', referencedColumnName: 'id' })
-  organizationTicket: OrganizationTicket;
-
   @Column({
     type: 'varchar',
     length: 16,
@@ -31,11 +20,18 @@ export class TicketEvent extends BaseEntity {
   })
   event_id: string;
 
+  @ManyToOne(() => Ticket, (ticket) => ticket.id, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'ticket_id', referencedColumnName: 'id' })
+  ticket: Ticket;
+
   @Column({
     type: 'varchar',
     length: 16,
     nullable: false,
-    comment: 'Identifier of the organization ticket',
+    comment: 'Identifier of the ticket',
   })
-  organization_ticket_id: string;
+  ticket_id: string;
 }
