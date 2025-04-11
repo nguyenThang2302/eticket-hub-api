@@ -1308,3 +1308,250 @@ table "event_coupons" {
     on_delete   = "CASCADE"
   }
 }
+
+table "receive_infos" {
+  schema  = schema.main_schema
+  comment = "Table for storing receiver information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Primary key for the receive_infos table"
+  }
+
+  column "name" {
+    type    = varchar(255)
+    null    = true
+    comment = "Name of the receiver"
+  }
+
+  column "phone_number" {
+    type    = varchar(10)
+    null    = true
+    comment = "Phone number of the receiver"
+  }
+
+  column "email" {
+    type    = varchar(255)
+    null    = true
+    comment = "Email address of the receiver"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the record was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the record was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the record"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the record"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+}
+
+table "orders" {
+  schema  = schema.main_schema
+  comment = "Table for storing order information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Primary key for the orders table"
+  }
+
+  column "event_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the event associated with the order"
+  }
+
+  column "user_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the user who placed the order"
+  }
+
+  column "payment_method_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the payment method used for the order"
+  }
+
+  column "receive_info_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the receiver information for the order"
+  }
+
+  column "coupon_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the coupon applied to the order"
+  }
+
+  column "discount_price" {
+    type    = double
+    null    = true
+    comment = "Discount price applied to the order"
+  }
+
+  column "sub_total_price" {
+    type    = double
+    null    = true
+    comment = "Subtotal price before discounts"
+  }
+
+  column "total_price" {
+    type    = double
+    null    = true
+    comment = "Total price after discounts"
+  }
+
+  column "status" {
+    type    = varchar(20)
+    null    = true
+    comment = "Status of the order (e.g., pending, completed, canceled)"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the order was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the order was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the order"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the order"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_orders_events" {
+    columns     = [column.event_id]
+    ref_columns = [table.events.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_orders_users" {
+    columns     = [column.user_id]
+    ref_columns = [table.users.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_orders_payment_methods" {
+    columns     = [column.payment_method_id]
+    ref_columns = [table.payment_methods.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_orders_receive_infos" {
+    columns     = [column.receive_info_id]
+    ref_columns = [table.receive_infos.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_orders_coupons" {
+    columns     = [column.coupon_id]
+    ref_columns = [table.coupons.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}
+
+table "payment_orders" {
+  schema  = schema.main_schema
+  comment = "Table for storing payment order information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Primary key for the payment_orders table"
+  }
+
+  column "order_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the order associated with the payment order"
+  }
+
+  column "payment_order_id" {
+    type    = varchar(255)
+    null    = true
+    comment = "Identifier for the payment order"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the payment order was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the payment order was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the payment order"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the payment order"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_payment_orders_orders" {
+    columns     = [column.order_id]
+    ref_columns = [table.orders.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentMethod } from 'src/database/entities/payment-method.entity';
 import { Repository } from 'typeorm';
@@ -33,5 +33,17 @@ export class PaymentMethodService {
         excludeExtraneousValues: true,
       },
     );
+  }
+
+  async getPaymentMethodNameById(id: string) {
+    const paymentMethodName = await this.paymentMethodRepository.findOneBy({
+      id,
+    });
+
+    if (!paymentMethodName) {
+      throw new NotFoundException('PAYMENT_METHOD_NOT_FOUND');
+    }
+
+    return paymentMethodName.name;
   }
 }

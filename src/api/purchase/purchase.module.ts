@@ -5,9 +5,18 @@ import { EventModule } from '../event/event.module';
 import { CouponModule } from '../coupon/coupon.module';
 import { SeatModule } from '../seat/seat.module';
 import { TicketModule } from '../ticket/ticket.module';
+import { FactoryModule } from './factories/factory.module';
+import { PaymentMethodModule } from '../payment-method/payment-method.module';
 
 @Module({
-  imports: [EventModule, CouponModule, SeatModule, TicketModule],
+  imports: [
+    FactoryModule,
+    PaymentMethodModule,
+    EventModule,
+    CouponModule,
+    SeatModule,
+    TicketModule,
+  ],
   controllers: [PurchaseController],
   providers: [PurchaseService],
 })
