@@ -1170,3 +1170,141 @@ table "payment_methods" {
     columns = [column.id]
   }
 }
+
+table "coupons" {
+  schema  = schema.main_schema
+  comment = "Table for storing coupon information"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the coupon"
+  }
+
+  column "code" {
+    type    = varchar(7)
+    null    = false
+    comment = "Unique code for the coupon"
+  }
+
+  column "percent" {
+    type    = double
+    null    = true
+    comment = "Discount percentage of the coupon"
+  }
+
+  column "amount" {
+    type    = int
+    null    = true
+    comment = "Discount amount of the coupon"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the coupon was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the coupon was last updated"
+  }
+
+  column "deleted_at" {
+    type    = datetime
+    null    = true
+    comment = "Timestamp when the coupon was deleted"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the coupon"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the coupon"
+  }
+
+  column "deleted_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who deleted the coupon"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+}
+
+table "event_coupons" {
+  schema  = schema.main_schema
+  comment = "Table for associating events with coupons"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Unique identifier for the event-coupon relationship"
+  }
+
+  column "event_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the event"
+  }
+
+  column "coupon_id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Identifier of the coupon"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the relationship was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the relationship"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the relationship"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_event_coupons_events" {
+    columns     = [column.event_id]
+    ref_columns = [table.events.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+
+  foreign_key "fk_event_coupons_coupons" {
+    columns     = [column.coupon_id]
+    ref_columns = [table.coupons.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "CASCADE"
+  }
+}

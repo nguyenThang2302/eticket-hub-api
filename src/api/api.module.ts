@@ -13,6 +13,9 @@ import { EventModule } from './event/event.module';
 import { CategoryModule } from './category/category.module';
 import { SeatModule } from './seat/seat.module';
 import { PaymentMethodModule } from './payment-method/payment-method.module';
+import { PurchaseModule } from './purchase/purchase.module';
+import { CouponModule } from './coupon/coupon.module';
+import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { PaymentMethodModule } from './payment-method/payment-method.module';
     CategoryModule,
     SeatModule,
     PaymentMethodModule,
+    PurchaseModule,
+    CouponModule,
+    TicketModule,
   ],
   providers: [
     IsEmailExistedConstraint,

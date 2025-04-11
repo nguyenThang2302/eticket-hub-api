@@ -10,5 +10,6 @@ import { EventModule } from '../event/event.module';
   imports: [TypeOrmModule.forFeature([Seat, EventSeat]), EventModule],
   controllers: [SeatController],
   providers: [SeatService],
+  exports: [SeatService],
 })
 export class SeatModule {}
