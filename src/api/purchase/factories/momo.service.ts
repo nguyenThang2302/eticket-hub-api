@@ -20,10 +20,6 @@ export class MomoService implements IPayment {
     private readonly orderReposioty: Repository<Order>,
   ) {}
 
-  cancelOrder(orderID: string, paymentOrderID: string) {
-    throw new Error('Method not implemented.');
-  }
-
   async processingPayment(order: CreateOrderDto, orderID: string) {
     const requestId =
       this.configService.get<string>('momo_gateway.mm_partner_code') +
@@ -167,6 +163,22 @@ export class MomoService implements IPayment {
       })
       .getOne();
     order.status = ORDER_STATUS.PAID;
+    await this.orderReposioty.save(order);
+    return {
+      order_id: order.id,
+    };
+  }
+
+  async cancelOrder(orderID: string, orderPaymentID: string) {
+    const order = await this.orderReposioty
+      .createQueryBuilder('orders')
+      .innerJoin('orders.payment_orders', 'payment_orders')
+      .where('orders.id = :orderID', { orderID })
+      .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
+        orderPaymentID,
+      })
+      .getOne();
+    order.status = ORDER_STATUS.CANCELLED;
     await this.orderReposioty.save(order);
     return {
       order_id: order.id,

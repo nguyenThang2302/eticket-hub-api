@@ -162,7 +162,7 @@ export class PurchaseService {
     );
   }
 
-  async captureOrder(paymentOrderId: string, userId: string) {
+  async captureOrder(paymentOrderId: string) {
     const paymentMethod =
       await this.paymentMethodService.getPaymentMethodByPaymentOrderId(
         paymentOrderId,
@@ -171,6 +171,21 @@ export class PurchaseService {
     const order = await this.getOrderByPaymentOrderId(paymentOrderId);
     const orderId = order.id;
     return this.paymentFactory.createCaptureOrder(
+      paymentMethodName,
+      orderId,
+      paymentOrderId,
+    );
+  }
+
+  async cancelOrder(paymentOrderId: string) {
+    const paymentMethod =
+      await this.paymentMethodService.getPaymentMethodByPaymentOrderId(
+        paymentOrderId,
+      );
+    const paymentMethodName = paymentMethod.name;
+    const order = await this.getOrderByPaymentOrderId(paymentOrderId);
+    const orderId = order.id;
+    return this.paymentFactory.cancelOrder(
       paymentMethodName,
       orderId,
       paymentOrderId,
