@@ -19,7 +19,6 @@ export enum ROLE {
 export enum ORDER_STATUS {
   PENDING = 'pending',
   CANCELLED = 'cancelled',
-  OPEN = 'open',
   PAID = 'paid',
 }
 
@@ -49,4 +48,15 @@ export enum SEAT_STATUS {
   AVAILABLE = 'available',
   BOOKED = 'booked',
   SELECTING = 'selecting',
+}
+
+export enum PAYMENT_METHOD {
+  MOMO = 'Momo',
+  PAYPAL = 'Paypal',
+}
+
+export enum EVENT_STATUS {
+  ACTIVE = 'active',
+  IN_APPROVE = 'in_approve',
+  INACTIVE = 'inactive',
 }

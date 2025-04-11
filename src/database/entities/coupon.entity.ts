@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { SoftDeleteBaseEntity } from './soft-delete-base.entity';
 import { EventCoupon } from './event_coupon.entity';
+import { Order } from './order.entity';
 
 @Entity('coupons')
 export class Coupon extends SoftDeleteBaseEntity {
@@ -28,4 +29,7 @@ export class Coupon extends SoftDeleteBaseEntity {
 
   @OneToMany(() => EventCoupon, (eventCoupon) => eventCoupon.coupon)
   eventCoupons: EventCoupon[];
+
+  @OneToMany(() => Order, (order) => order.coupon)
+  orders: Order[];
 }

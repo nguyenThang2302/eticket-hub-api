@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { SoftDeleteBaseEntity } from './soft-delete-base.entity';
+import { Order } from './order.entity';
 
 @Entity('payment_methods')
 export class PaymentMethod extends SoftDeleteBaseEntity {
@@ -18,4 +19,7 @@ export class PaymentMethod extends SoftDeleteBaseEntity {
     comment: 'URL of the payment method logo',
   })
   logo_url: string;
+
+  @OneToMany(() => Order, (order) => order.paymet_method)
+  orders: Order[];
 }

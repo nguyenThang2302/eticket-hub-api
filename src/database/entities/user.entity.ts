@@ -3,6 +3,7 @@ import { PROVIDER, ROLE, SEX } from 'src/api/common/constants';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Group } from './group.entity';
+import { Order } from './order.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -65,4 +66,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Group, (group) => group.user)
   groups: Group[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
