@@ -7,9 +7,12 @@ import { SeatModule } from '../seat/seat.module';
 import { TicketModule } from '../ticket/ticket.module';
 import { FactoryModule } from './factories/factory.module';
 import { PaymentMethodModule } from '../payment-method/payment-method.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from 'src/database/entities/order.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Order]),
     FactoryModule,
     PaymentMethodModule,
     EventModule,

@@ -15,7 +15,7 @@ export class PaymentFactory {
     }
   }
 
-  createCaptureOrder(method: string, orderID: number, paymentOrderID: string) {
+  createCaptureOrder(method: string, orderID: string, paymentOrderID: string) {
     switch (method) {
       case `${PAYMENT_METHOD.MOMO}`:
         return this.momoService.captureOrder(orderID, paymentOrderID);
@@ -24,7 +24,7 @@ export class PaymentFactory {
     }
   }
 
-  cancelOrder(method: string, orderID: number, paymentOrderID: string) {
+  cancelOrder(method: string, orderID: string, paymentOrderID: string) {
     switch (method) {
       case `${PAYMENT_METHOD.MOMO}`:
         return this.momoService.cancelOrder(orderID, paymentOrderID);
