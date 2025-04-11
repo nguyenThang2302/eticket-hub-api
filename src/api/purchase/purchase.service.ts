@@ -9,11 +9,12 @@ import { PaymentMethodService } from '../payment-method/payment-method.service';
 import { PaymentFactory } from './factories/payment.factory';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from 'src/database/entities/order.entity';
-import { DataSource, In } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { EVENT_STATUS, ORDER_STATUS, SEAT_STATUS } from '../common/constants';
 import { ReceiveInfo } from 'src/database/entities/receive_info.entity';
 import { nanoid } from 'nanoid';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PurchaseService {
@@ -25,6 +26,8 @@ export class PurchaseService {
     private readonly paymentMethodService: PaymentMethodService,
     private readonly paymentFactory: PaymentFactory,
     private datasource: DataSource,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
   ) {}
 
   async calculatePrices(body: CalculatePriceRequestDto) {
@@ -157,5 +160,36 @@ export class PurchaseService {
       createOrderDto,
       order.id,
     );
+  }
+
+  async captureOrder(paymentOrderId: string, userId: string) {
+    const paymentMethod =
+      await this.paymentMethodService.getPaymentMethodByPaymentOrderId(
+        paymentOrderId,
+      );
+    const paymentMethodName = paymentMethod.name;
+    const order = await this.getOrderByPaymentOrderId(paymentOrderId);
+    const orderId = order.id;
+    return this.paymentFactory.createCaptureOrder(
+      paymentMethodName,
+      orderId,
+      paymentOrderId,
+    );
+  }
+
+  async getOrderByPaymentOrderId(paymentOrderId: string) {
+    const order = await this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.payment_orders', 'payment_orders')
+      .where('payment_orders.payment_order_id = :payment_order_id', {
+        payment_order_id: paymentOrderId,
+      })
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException('ORDER_NOT_FOUND');
+    }
+
+    return order;
   }
 }

@@ -3,7 +3,9 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { JwtPayload } from 'jsonwebtoken';
@@ -29,5 +31,16 @@ export class PurchaseController {
   async create(@Body() body: CreateOrderDto, @CurrentUser() user: JwtPayload) {
     const userId = user.sub;
     return await this.purchaseService.create(body, userId);
+  }
+
+  @Put(':payment_order_id/capture')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async capture(
+    @Param('payment_order_id') paymentOrderId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const userId = user.sub;
+    return await this.purchaseService.captureOrder(paymentOrderId, userId);
   }
 }

@@ -8,9 +8,7 @@ import { Repository } from 'typeorm';
 import { ORDER_STATUS, PAYMENT_METHOD } from 'src/api/common/constants';
 import { PaymentOrder } from 'src/database/entities/payment_order.entity';
 import { nanoid } from 'nanoid';
-// import { Order } from '@database/typeorm/entities/order.entity';
-// import { ORDER_STATUS } from '@shared/enum/order-status.enum';
-// import { PaymentMethod } from '@shared/enum/payment-method.enum';
+import { Order } from 'src/database/entities/order.entity';
 
 @Injectable()
 export class MomoService implements IPayment {
@@ -18,13 +16,14 @@ export class MomoService implements IPayment {
     private readonly configService: ConfigService,
     @InjectRepository(PaymentOrder)
     private readonly paymentOrder: Repository<PaymentOrder>,
+    @InjectRepository(Order)
+    private readonly orderReposioty: Repository<Order>,
   ) {}
-  captureOrder(orderID: number, orderPaymentID: string) {
+
+  cancelOrder(orderID: string, paymentOrderID: string) {
     throw new Error('Method not implemented.');
   }
-  cancelOrder(orderID: number, paymentOrderID: string) {
-    throw new Error('Method not implemented.');
-  }
+
   async processingPayment(order: CreateOrderDto, orderID: string) {
     const requestId =
       this.configService.get<string>('momo_gateway.mm_partner_code') +
@@ -158,12 +157,19 @@ export class MomoService implements IPayment {
     return await this.paymentOrder.save(paymentOrder);
   }
 
-  //   async updateStatusOrder(status: string, orderID: number) {
-  //     return await this.orderRepository
-  //       .createQueryBuilder('orders')
-  //       .update(Order)
-  //       .set({ status: status })
-  //       .where('orders.id = :order_id', { order_id: orderID })
-  //       .execute();
-  //   }
+  async captureOrder(orderID: string, orderPaymentID: string) {
+    const order = await this.orderReposioty
+      .createQueryBuilder('orders')
+      .innerJoin('orders.payment_orders', 'payment_orders')
+      .where('orders.id = :orderID', { orderID })
+      .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
+        orderPaymentID,
+      })
+      .getOne();
+    order.status = ORDER_STATUS.PAID;
+    await this.orderReposioty.save(order);
+    return {
+      order_id: order.id,
+    };
+  }
 }
