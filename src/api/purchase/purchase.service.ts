@@ -15,6 +15,7 @@ import { EVENT_STATUS, ORDER_STATUS, SEAT_STATUS } from '../common/constants';
 import { ReceiveInfo } from 'src/database/entities/receive_info.entity';
 import { nanoid } from 'nanoid';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
 
 @Injectable()
 export class PurchaseService {
@@ -89,7 +90,6 @@ export class PurchaseService {
               status: EVENT_STATUS.ACTIVE,
               eventSeats: {
                 id: In(seatIds),
-                status: SEAT_STATUS.AVAILABLE,
                 event_id: createOrderDto.event_id,
                 ticket: {
                   id: In(ticketIds),
@@ -100,8 +100,23 @@ export class PurchaseService {
             lock: { mode: 'pessimistic_write' },
           });
           if (!event) {
-            throw new BadRequestException('EVENT_NOT_FOUND');
+            throw new BadRequestException('PURCHASE_INAVAILABLE');
           }
+          const eventSeats = event.eventSeats;
+          const eventSeatIds = eventSeats.map((seat) => seat.id);
+          await transactionalEntityManager.update(
+            EventSeat,
+            {
+              id: In(eventSeatIds),
+              event_id: event.id,
+            },
+            {
+              status: SEAT_STATUS.SELECTING,
+            },
+          );
+          eventSeats.forEach((seat) => {
+            seat.status = 'booked';
+          });
           const tickets = event.eventSeats.map((seat) => seat.ticket);
           const totalPriceActual = tickets.reduce(
             (total, ticket) => total + parseInt(ticket.price.toString(), 10),
@@ -139,6 +154,7 @@ export class PurchaseService {
             coupon_id: couponId,
             user_id: userId,
             status: ORDER_STATUS.PENDING,
+            seat_info: JSON.stringify(eventSeats),
           });
 
           const savedOrder = await queryRunner.manager.save(Order, {
@@ -162,7 +178,7 @@ export class PurchaseService {
     );
   }
 
-  async captureOrder(paymentOrderId: string) {
+  async captureOrder(paymentOrderId: string, userId: string) {
     const paymentMethod =
       await this.paymentMethodService.getPaymentMethodByPaymentOrderId(
         paymentOrderId,
@@ -174,10 +190,11 @@ export class PurchaseService {
       paymentMethodName,
       orderId,
       paymentOrderId,
+      userId,
     );
   }
 
-  async cancelOrder(paymentOrderId: string) {
+  async cancelOrder(paymentOrderId: string, userId: string) {
     const paymentMethod =
       await this.paymentMethodService.getPaymentMethodByPaymentOrderId(
         paymentOrderId,
@@ -189,6 +206,7 @@ export class PurchaseService {
       paymentMethodName,
       orderId,
       paymentOrderId,
+      userId,
     );
   }
 

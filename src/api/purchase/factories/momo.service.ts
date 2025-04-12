@@ -1,14 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { IPayment } from './payment.interface';
 import { ConfigService } from '@nestjs/config';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ORDER_STATUS, PAYMENT_METHOD } from 'src/api/common/constants';
+import { In, Repository } from 'typeorm';
+import {
+  ORDER_STATUS,
+  PAYMENT_METHOD,
+  SEAT_STATUS,
+} from 'src/api/common/constants';
 import { PaymentOrder } from 'src/database/entities/payment_order.entity';
 import { nanoid } from 'nanoid';
 import { Order } from 'src/database/entities/order.entity';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
 
 @Injectable()
 export class MomoService implements IPayment {
@@ -18,6 +23,8 @@ export class MomoService implements IPayment {
     private readonly paymentOrder: Repository<PaymentOrder>,
     @InjectRepository(Order)
     private readonly orderReposioty: Repository<Order>,
+    @InjectRepository(EventSeat)
+    private readonly eventSeatRepository: Repository<EventSeat>,
   ) {}
 
   async processingPayment(order: CreateOrderDto, orderID: string) {
@@ -126,24 +133,6 @@ export class MomoService implements IPayment {
     );
   }
 
-  //   async cancelOrder(orderID: number, paymentOrderID: string) {
-  //     await this.updateStatusOrder(ORDER_STATUS.CANCELLED, orderID);
-
-  //     return {
-  //       payment_method_name: PaymentMethod.MOMO,
-  //       order_id: orderID,
-  //       payment_order_id: paymentOrderID,
-  //     };
-  //   }
-
-  //   async captureOrder(orderID: number, orderPaymentID: string) {
-  //     await this.updateStatusOrder(ORDER_STATUS.PAID, orderID);
-
-  //     return {
-  //       status: 'success',
-  //     };
-  //   }
-
   async createPaymentOrder(orderId: string, paymentOrderId: string) {
     const paymentOrder = this.paymentOrder.create({
       id: nanoid(16),
@@ -153,31 +142,49 @@ export class MomoService implements IPayment {
     return await this.paymentOrder.save(paymentOrder);
   }
 
-  async captureOrder(orderID: string, orderPaymentID: string) {
+  async captureOrder(orderID: string, orderPaymentID: string, userID: string) {
     const order = await this.orderReposioty
       .createQueryBuilder('orders')
       .innerJoin('orders.payment_orders', 'payment_orders')
       .where('orders.id = :orderID', { orderID })
+      .andWhere('orders.user_id = :userID', { userID })
       .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
         orderPaymentID,
       })
       .getOne();
     order.status = ORDER_STATUS.PAID;
+    const seatInfo = JSON.parse(order.seat_info);
+    const seatIds = seatInfo.map((seat) => seat.id);
+    await this.eventSeatRepository.update(
+      {
+        id: In(seatIds),
+      },
+      {
+        status: SEAT_STATUS.BOOKED,
+      },
+    );
     await this.orderReposioty.save(order);
     return {
       order_id: order.id,
     };
   }
 
-  async cancelOrder(orderID: string, orderPaymentID: string) {
+  async cancelOrder(orderID: string, orderPaymentID: string, userID: string) {
     const order = await this.orderReposioty
       .createQueryBuilder('orders')
       .innerJoin('orders.payment_orders', 'payment_orders')
       .where('orders.id = :orderID', { orderID })
+      .andWhere('orders.user_id = :userID', { userID })
+      .andWhere('orders.status != :status', {
+        status: ORDER_STATUS.PAID,
+      })
       .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
         orderPaymentID,
       })
       .getOne();
+    if (!order) {
+      throw new BadRequestException('ORDER_IS_PAID');
+    }
     order.status = ORDER_STATUS.CANCELLED;
     await this.orderReposioty.save(order);
     return {

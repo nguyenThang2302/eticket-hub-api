@@ -1430,6 +1430,12 @@ table "orders" {
     comment = "Status of the order (e.g., pending, completed, canceled)"
   }
 
+  column "seat_info" {
+    type    = text
+    null    = true
+    comment = "Information about the seats associated with the order"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false
