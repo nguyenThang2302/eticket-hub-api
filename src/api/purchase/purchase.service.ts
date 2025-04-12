@@ -16,6 +16,9 @@ import { ReceiveInfo } from 'src/database/entities/receive_info.entity';
 import { nanoid } from 'nanoid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { HoldOrderDto } from './dto/hold-order.dto';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class PurchaseService {
@@ -29,6 +32,9 @@ export class PurchaseService {
     private datasource: DataSource,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(EventSeat)
+    private readonly eventSeatRepository: Repository<EventSeat>,
+    @InjectQueue('holding-seats') private readonly holdingQueue: Queue,
   ) {}
 
   async calculatePrices(body: CalculatePriceRequestDto) {
@@ -224,5 +230,31 @@ export class PurchaseService {
     }
 
     return order;
+  }
+
+  async hold(body: HoldOrderDto, userId: string) {
+    const { event_id: eventId, seats } = body;
+    const seatIds = seats.map((seat) => seat.id);
+    await this.eventSeatRepository.update(
+      {
+        id: In(seatIds),
+        event_id: eventId,
+      },
+      {
+        status: SEAT_STATUS.SELECTING,
+      },
+    );
+    await this.holdingQueue.add(
+      'release-seats',
+      {
+        seatIds,
+        eventId,
+        userId,
+      },
+      { delay: 10 * 60 * 1000 },
+    );
+    return {
+      message: 'success',
+    };
   }
 }

@@ -22,6 +22,9 @@ import { BullModule } from '@nestjs/bull';
       {
         name: 'imageProcessing',
       },
+      {
+        name: 'holding-seats',
+      },
     ),
   ],
   exports: [BullModule],

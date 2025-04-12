@@ -9,10 +9,12 @@ import { FactoryModule } from './factories/factory.module';
 import { PaymentMethodModule } from '../payment-method/payment-method.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/database/entities/order.entity';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { SeatProcessor } from './processor/release-seat.processor';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]),
+    TypeOrmModule.forFeature([Order, EventSeat]),
     FactoryModule,
     PaymentMethodModule,
     EventModule,
@@ -21,6 +23,6 @@ import { Order } from 'src/database/entities/order.entity';
     TicketModule,
   ],
   controllers: [PurchaseController],
-  providers: [PurchaseService],
+  providers: [PurchaseService, SeatProcessor],
 })
 export class PurchaseModule {}
