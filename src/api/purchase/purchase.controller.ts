@@ -37,14 +37,22 @@ export class PurchaseController {
   @Put(':payment_order_id/capture')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async capture(@Param('payment_order_id') paymentOrderId: string) {
-    return await this.purchaseService.captureOrder(paymentOrderId);
+  async capture(
+    @Param('payment_order_id') paymentOrderId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const userId = user.sub;
+    return await this.purchaseService.captureOrder(paymentOrderId, userId);
   }
 
   @Delete(':payment_order_id/cancel')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async cancel(@Param('payment_order_id') paymentOrderId: string) {
-    return await this.purchaseService.cancelOrder(paymentOrderId);
+  async cancel(
+    @Param('payment_order_id') paymentOrderId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const userId = user.sub;
+    return await this.purchaseService.cancelOrder(paymentOrderId, userId);
   }
 }

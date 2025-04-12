@@ -15,19 +15,29 @@ export class PaymentFactory {
     }
   }
 
-  createCaptureOrder(method: string, orderID: string, paymentOrderID: string) {
+  createCaptureOrder(
+    method: string,
+    orderID: string,
+    paymentOrderID: string,
+    userID: string,
+  ) {
     switch (method) {
       case `${PAYMENT_METHOD.MOMO}`:
-        return this.momoService.captureOrder(orderID, paymentOrderID);
+        return this.momoService.captureOrder(orderID, paymentOrderID, userID);
       default:
         throw new Error('Invalid implementation payment');
     }
   }
 
-  cancelOrder(method: string, orderID: string, paymentOrderID: string) {
+  cancelOrder(
+    method: string,
+    orderID: string,
+    paymentOrderID: string,
+    userID: string,
+  ) {
     switch (method) {
       case `${PAYMENT_METHOD.MOMO}`:
-        return this.momoService.cancelOrder(orderID, paymentOrderID);
+        return this.momoService.cancelOrder(orderID, paymentOrderID, userID);
       default:
         throw new Error('Invalid implementation payment');
     }

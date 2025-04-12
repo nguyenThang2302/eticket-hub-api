@@ -76,6 +76,9 @@ export class Order extends BaseEntity {
   @Column({ type: 'varchar', length: 20, nullable: true })
   status: string;
 
+  @Column({ type: 'text', nullable: true })
+  seat_info: string;
+
   @OneToMany(() => PaymentOrder, (payment_order) => payment_order.order)
   payment_orders: PaymentOrder[];
 }
