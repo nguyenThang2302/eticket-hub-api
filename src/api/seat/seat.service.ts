@@ -64,11 +64,10 @@ export class SeatService {
 
   async isValidSeat(seats: any): Promise<boolean> {
     for (const seat of seats) {
-      const { id, status, type } = seat;
+      const { id, type } = seat;
       const existingSeat = await this.eventSeatRepository
         .createQueryBuilder('event_seat')
         .where('event_seat.id = :id', { id })
-        .andWhere('event_seat.status = :status', { status })
         .andWhere('event_seat.type = :type', { type })
         .getOne();
 
