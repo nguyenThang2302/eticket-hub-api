@@ -19,6 +19,11 @@ import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { HoldOrderDto } from './dto/hold-order.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { plainToClass } from 'class-transformer';
+import {
+  OrderHistoryResponseDto,
+  Pagination,
+} from './dto/order-history-response.dto';
 
 @Injectable()
 export class PurchaseService {
@@ -255,6 +260,53 @@ export class PurchaseService {
     );
     return {
       message: 'success',
+    };
+  }
+
+  async getHistories(page: string, limit: string, userId: string) {
+    const totalOrders = await this.orderRepository.countBy({
+      user_id: userId,
+    });
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .where('orders.user_id = :user_id', { user_id: userId })
+      .orderBy('orders.created_at', 'DESC')
+      .limit(parseInt(limit))
+      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .select(['orders', 'paymentMethod.name'])
+      .getMany();
+
+    const totalPages = Math.ceil(totalOrders / parseInt(limit));
+
+    const paginations = {
+      total: totalOrders,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+    };
+
+    if (!orders) {
+      throw new BadRequestException('ORDER_NOT_FOUND');
+    }
+
+    const items = orders.map((order) =>
+      plainToClass(OrderHistoryResponseDto, {
+        id: order.id,
+        payment_method: order.paymet_method?.name || null,
+        total_price: order.total_price,
+        status: order.status,
+        created_at: order.created_at,
+      }),
+    );
+
+    return {
+      items,
+      paginations: plainToClass(Pagination, paginations),
     };
   }
 }
