@@ -21,4 +21,12 @@ export class MediaService {
     });
     return { message: 'Success' };
   }
+
+  async uploadQRTicket(qrCodeTicket: string, orderId: string, ticketInfo: any) {
+    await this.imageQueue.add('UploadQRTicketToCloudinary', {
+      qrCodeTicket,
+      orderId,
+      ticketInfo,
+    });
+  }
 }

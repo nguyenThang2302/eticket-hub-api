@@ -1561,3 +1561,81 @@ table "payment_orders" {
     on_delete   = "SET_NULL"
   }
 }
+
+table "order_ticket_images" {
+  schema  = schema.main_schema
+  comment = "Table for storing ticket images associated with orders"
+
+  column "id" {
+    type    = varchar(16)
+    null    = false
+    comment = "Primary key for the order_ticket_images table"
+  }
+
+  column "order_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the order associated with the ticket image"
+  }
+
+  column "code" {
+    type    = varchar(16)
+    null    = true
+    comment = "Unique code for the ticket image"
+  }
+
+  column "ticket_name" {
+    type    = varchar(255)
+    null    = true
+    comment = "Name of the ticket"
+  }
+
+  column "seat_location" {
+    type    = varchar(255)
+    null    = true
+    comment = "Location of the seat associated with the ticket"
+  }
+
+  column "qr_ticket_url" {
+    type    = varchar(255)
+    null    = true
+    comment = "URL of the QR code for the ticket"
+  }
+
+  column "created_at" {
+    type    = datetime
+    null    = false
+    default = sql("CURRENT_TIMESTAMP")
+    comment = "Timestamp when the ticket image was created"
+  }
+
+  column "updated_at" {
+    type    = datetime
+    null    = true
+    default = sql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    comment = "Timestamp when the ticket image was last updated"
+  }
+
+  column "created_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who created the ticket image"
+  }
+
+  column "updated_by" {
+    type    = varchar(16)
+    null    = true
+    comment = "Identifier of the user who last updated the ticket image"
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  foreign_key "fk_order_ticket_images_orders" {
+    columns     = [column.order_id]
+    ref_columns = [table.orders.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+}

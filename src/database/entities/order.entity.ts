@@ -6,6 +6,7 @@ import { PaymentMethod } from './payment-method.entity';
 import { Event } from './event.entity';
 import { Coupon } from './coupon.entity';
 import { PaymentOrder } from './payment_order.entity';
+import { OrderTicketImage } from './order_ticket_image.entity';
 
 @Entity('orders')
 export class Order extends BaseEntity {
@@ -81,4 +82,10 @@ export class Order extends BaseEntity {
 
   @OneToMany(() => PaymentOrder, (payment_order) => payment_order.order)
   payment_orders: PaymentOrder[];
+
+  @OneToMany(
+    () => OrderTicketImage,
+    (order_ticket_image) => order_ticket_image.order,
+  )
+  order_ticket_images: OrderTicketImage[];
 }

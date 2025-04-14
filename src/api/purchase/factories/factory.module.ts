@@ -7,9 +7,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/database/entities/order.entity';
 import { PaymentOrder } from 'src/database/entities/payment_order.entity';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { QRTicketService } from './qr-ticket.service';
+import { MediaModule } from 'src/api/media/media.module';
 
 @Module({
   imports: [
+    MediaModule,
     ConfigModule,
     TypeOrmModule.forFeature([Order, PaymentOrder, EventSeat]),
     ConfigModule.forRoot({
@@ -17,7 +20,7 @@ import { EventSeat } from 'src/database/entities/event_seat.entity';
     }),
   ],
   controllers: [],
-  providers: [MomoService, PaymentFactory],
-  exports: [MomoService, PaymentFactory],
+  providers: [MomoService, QRTicketService, PaymentFactory],
+  exports: [MomoService, QRTicketService, PaymentFactory],
 })
 export class FactoryModule {}
