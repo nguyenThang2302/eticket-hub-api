@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtPayload } from 'jsonwebtoken';
@@ -25,6 +27,15 @@ export class PurchaseController {
   @HttpCode(HttpStatus.OK)
   async calculatePrices(@Body() body: CalculatePriceRequestDto) {
     return await this.purchaseService.calculatePrices(body);
+  }
+
+  @Get('histories')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getHistories(@CurrentUser() user: JwtPayload, @Query() params: any) {
+    const { page = 1 as number, limit = 10 as number } = params;
+    const userId = user.sub;
+    return await this.purchaseService.getHistories(page, limit, userId);
   }
 
   @Post('')
