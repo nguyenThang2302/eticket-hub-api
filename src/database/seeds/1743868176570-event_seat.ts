@@ -51,7 +51,7 @@ export class EventSeat1743868176570 implements Seeder {
           row: seat.row,
           label: seat.label,
           type: seat.type,
-          status: getRandomSeatStatus(),
+          status: SEAT_STATUS.AVAILABLE,
           created_at: new Date(),
           updated_at: new Date(),
         };
@@ -66,7 +66,7 @@ export class EventSeat1743868176570 implements Seeder {
           row: seat.row,
           label: seat.label,
           type: seat.type,
-          status: getRandomSeatStatus(),
+          status: SEAT_STATUS.AVAILABLE,
           created_at: new Date(),
           updated_at: new Date(),
         };

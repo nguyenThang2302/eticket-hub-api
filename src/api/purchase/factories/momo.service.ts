@@ -14,6 +14,10 @@ import { PaymentOrder } from 'src/database/entities/payment_order.entity';
 import { nanoid } from 'nanoid';
 import { Order } from 'src/database/entities/order.entity';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { QRTicketService } from './qr-ticket.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { CloudinaryService } from 'src/api/media/cloudinary/cloudinary.service';
 
 @Injectable()
 export class MomoService implements IPayment {
@@ -25,6 +29,9 @@ export class MomoService implements IPayment {
     private readonly orderReposioty: Repository<Order>,
     @InjectRepository(EventSeat)
     private readonly eventSeatRepository: Repository<EventSeat>,
+    private readonly qrticketService: QRTicketService,
+    @InjectQueue('emailSending') private readonly emailQueue: Queue,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async processingPayment(order: CreateOrderDto, orderID: string) {
@@ -146,15 +153,22 @@ export class MomoService implements IPayment {
     const order = await this.orderReposioty
       .createQueryBuilder('orders')
       .innerJoin('orders.payment_orders', 'payment_orders')
+      .innerJoin('orders.receive_info', 'receive_info') // Join with receive_info
       .where('orders.id = :orderID', { orderID })
       .andWhere('orders.user_id = :userID', { userID })
       .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
         orderPaymentID,
       })
+      .select([
+        'orders',
+        'receive_info.name',
+        'receive_info.phone_number',
+        'receive_info.email',
+      ])
       .getOne();
     order.status = ORDER_STATUS.PAID;
     const seatInfo = JSON.parse(order.seat_info);
-    const seatIds = seatInfo.map((seat) => seat.id);
+    const seatIds = seatInfo.map((seat: any) => seat.id);
     await this.eventSeatRepository.update(
       {
         id: In(seatIds),
@@ -164,6 +178,44 @@ export class MomoService implements IPayment {
       },
     );
     await this.orderReposioty.save(order);
+    for (const seat of seatInfo) {
+      const code = nanoid(16);
+      const url = this.configService.get<string>(
+        'nestmailer.urlConfirmQRTicket',
+      );
+      const qrCodeTicket = await this.qrticketService.generateQRCode(
+        `${url}?code=${code}`,
+      );
+      const ticketInfo = {
+        code: code,
+        ticketName: seat.ticket.name,
+        seatName: `${seat.row}-${seat.label}`,
+      };
+      await this.cloudinaryService.uploadQRTicket(
+        qrCodeTicket,
+        order.id,
+        ticketInfo,
+      );
+    }
+    const emailContent = {
+      from: this.configService.get<object>('nestmailer.fromMailVerification'),
+      recipients: [
+        {
+          name: order.receive_info.name,
+          address: order.receive_info.email,
+        },
+      ],
+      subject: 'Cormfirmation of your order',
+      context: {
+        orderId: order.id,
+        userId: order.user_id,
+        name: order.receive_info.name,
+        email: order.receive_info.email,
+        phoneNumber: order.receive_info.phone_number,
+      },
+      template: 'send-confirm-order',
+    };
+    await this.emailQueue.add('SendEmailConfirmOrder', emailContent);
     return {
       order_id: order.id,
     };

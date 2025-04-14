@@ -13,6 +13,22 @@ export class UploadImageProcessor {
       return await this.cloudinaryService.uploadImage(file, userId);
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  }
+
+  @Process('UploadQRTicketToCloudinary')
+  async UploadQRTicketToCloudinary(dataJob: Job<any>) {
+    const { qrCodeTicket, orderId, ticketInfo } = dataJob.data;
+    try {
+      return await this.cloudinaryService.uploadQRTicket(
+        qrCodeTicket,
+        orderId,
+        ticketInfo,
+      );
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
   }
 }

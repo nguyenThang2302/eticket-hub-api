@@ -4,9 +4,12 @@ import { BullModule } from '@nestjs/bull';
 import { EmailProcessor } from './mail.processor';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([OrderTicketImage]),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

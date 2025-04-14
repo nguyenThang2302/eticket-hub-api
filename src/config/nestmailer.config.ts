@@ -4,7 +4,7 @@ import { join } from 'path';
 
 export default registerAs('nestmailer', () => ({
   fromMailVerification: {
-    name: process.env.MAIL_NAME,
+    name: process.env.APP_NAME,
     address: process.env.DEFAULT_MAIL_FROM,
   },
   contextMailVerification: {
@@ -17,6 +17,7 @@ export default registerAs('nestmailer', () => ({
     shopLogo: process.env.SHOP_LOGO,
   },
   urlVerificationMail: process.env.URL_VERIFICATION_MAIL,
+  urlConfirmQRTicket: process.env.URL_CONFIRM_QR_TICKET,
   nestMailerConfig: {
     transport: {
       host: process.env.MAILDEV_INCOMING_HOST,
