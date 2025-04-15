@@ -38,6 +38,17 @@ export class PurchaseController {
     return await this.purchaseService.getHistories(page, limit, userId);
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getPurchaseDetails(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const userId = user.sub;
+    return await this.purchaseService.getPurchase(id, userId);
+  }
+
   @Post('')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)

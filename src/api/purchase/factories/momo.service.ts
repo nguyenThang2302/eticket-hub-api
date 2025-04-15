@@ -190,6 +190,7 @@ export class MomoService implements IPayment {
         code: code,
         ticketName: seat.ticket.name,
         seatName: `${seat.row}-${seat.label}`,
+        ticketPrice: seat.ticket.price,
       };
       await this.cloudinaryService.uploadQRTicket(
         qrCodeTicket,
