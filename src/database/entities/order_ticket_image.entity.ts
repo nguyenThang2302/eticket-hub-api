@@ -51,4 +51,11 @@ export class OrderTicketImage extends BaseEntity {
     comment: 'URL of the QR code for the ticket',
   })
   qr_ticket_url: string;
+
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    comment: 'Price of the ticket',
+  })
+  price: number;
 }

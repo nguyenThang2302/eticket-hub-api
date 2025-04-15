@@ -24,6 +24,7 @@ import {
   OrderHistoryResponseDto,
   Pagination,
 } from './dto/order-history-response.dto';
+import { GetOrderDetailResponseDto } from './dto/get-order-detail-response.dto';
 
 @Injectable()
 export class PurchaseService {
@@ -308,5 +309,72 @@ export class PurchaseService {
       items,
       paginations: plainToClass(Pagination, paginations),
     };
+  }
+
+  async getPurchase(id: string, userId: string) {
+    const order = await this.orderRepository
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
+      .leftJoinAndSelect('orders.event', 'event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('orders.coupon', 'coupon')
+      .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
+      .where('orders.user_id = :user_id', { user_id: userId })
+      .andWhere('orders.id = :id', { id })
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException('ORDER_NOT_FOUND');
+    }
+
+    // Map seat information from ticket images
+    const seatInfo = order.order_ticket_images.map((ticket) => ({
+      location: ticket.seat_location,
+      ticket_name: ticket.ticket_name,
+      ticket_price: ticket.price,
+      ticket_url: ticket.qr_ticket_url,
+      ticket_code: ticket.code,
+    }));
+
+    // Transform the order into the response DTO
+    const response = plainToClass(GetOrderDetailResponseDto, {
+      id: order.id,
+      tracking_user: userId, // Assuming tracking order is the same as order ID
+      payment_method_name: order.paymet_method?.name || null,
+      coupon: order.coupon
+        ? {
+            code: order.coupon.code,
+            percent: order.coupon.percent,
+          }
+        : null,
+      receive_infos: order.receive_info
+        ? {
+            name: order.receive_info.name,
+            email: order.receive_info.email,
+            phone_number: order.receive_info.phone_number,
+          }
+        : null,
+      discount_price: order.discount_price,
+      sub_total_price: order.sub_total_price,
+      total_price: order.total_price,
+      event: order.event
+        ? {
+            name: order.event.name,
+            start_time: order.event.start_datetime,
+            venue: order.event.venue
+              ? {
+                  name: order.event.venue.name,
+                  address: order.event.venue.address,
+                }
+              : null,
+          }
+        : null,
+      seat_info: seatInfo,
+      status: order.status,
+      created_at: order.created_at,
+    });
+
+    return response;
   }
 }

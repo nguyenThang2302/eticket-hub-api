@@ -1602,6 +1602,12 @@ table "order_ticket_images" {
     comment = "URL of the QR code for the ticket"
   }
 
+  column "price" {
+    type    = bigint
+    null    = true
+    comment = "Price of the ticket"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false

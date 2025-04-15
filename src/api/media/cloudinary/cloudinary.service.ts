@@ -67,6 +67,7 @@ export class CloudinaryService {
           orderTicketImage.code = ticketInfo.code;
           orderTicketImage.ticket_name = ticketInfo.ticketName;
           orderTicketImage.seat_location = ticketInfo.seatName;
+          orderTicketImage.price = parseInt(ticketInfo.ticketPrice, 10);
           this.orderTicketImageRepository.save(orderTicketImage);
           resolve(result);
         },
