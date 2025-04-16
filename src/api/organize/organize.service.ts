@@ -39,4 +39,10 @@ export class OrganizeService {
       id: data.id,
     };
   }
+
+  async getOrganizationById(id: string): Promise<Organization> {
+    return await this.organizeRepository.findOne({
+      where: { id },
+    });
+  }
 }

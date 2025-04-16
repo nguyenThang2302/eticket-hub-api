@@ -58,4 +58,11 @@ export class OrderTicketImage extends BaseEntity {
     comment: 'Price of the ticket',
   })
   price: number;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+    comment: 'Indicates if the ticket is used',
+  })
+  is_scanned: boolean;
 }

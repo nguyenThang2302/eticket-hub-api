@@ -1608,6 +1608,12 @@ table "order_ticket_images" {
     comment = "Price of the ticket"
   }
 
+  column "is_scanned" {
+    type    = varchar(10)
+    null    = true
+    comment = "Flag indicating if the ticket has been scanned"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false
