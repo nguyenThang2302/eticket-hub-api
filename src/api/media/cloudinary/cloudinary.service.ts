@@ -58,7 +58,7 @@ export class CloudinaryService {
           folder: 'tickets',
           public_id: `ticket-${orderId}-${Date.now()}`,
         },
-        (error, result) => {
+        async (error, result) => {
           if (error) return reject(error);
           const url = result.secure_url;
           const orderTicketImage = new OrderTicketImage();
@@ -69,7 +69,7 @@ export class CloudinaryService {
           orderTicketImage.seat_location = ticketInfo.seatName;
           orderTicketImage.price = parseInt(ticketInfo.ticketPrice, 10);
           orderTicketImage.is_scanned = false;
-          this.orderTicketImageRepository.save(orderTicketImage);
+          await this.orderTicketImageRepository.save(orderTicketImage);
           resolve(result);
         },
       );
