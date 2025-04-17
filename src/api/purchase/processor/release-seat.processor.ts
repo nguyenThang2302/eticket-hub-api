@@ -20,6 +20,7 @@ export class SeatProcessor {
       {
         id: In(seatIds),
         event_id: eventId,
+        status: SEAT_STATUS.SELECTING,
       },
       {
         status: SEAT_STATUS.AVAILABLE,

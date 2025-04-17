@@ -180,12 +180,7 @@ export class MomoService implements IPayment {
     await this.orderReposioty.save(order);
     for (const seat of seatInfo) {
       const code = nanoid(16);
-      const url = this.configService.get<string>(
-        'nestmailer.urlConfirmQRTicket',
-      );
-      const qrCodeTicket = await this.qrticketService.generateQRCode(
-        `${url}?code=${code}`,
-      );
+      const qrCodeTicket = await this.qrticketService.generateQRCode(code);
       const ticketInfo = {
         code: code,
         ticketName: seat.ticket.name,
@@ -238,6 +233,19 @@ export class MomoService implements IPayment {
     if (!order) {
       throw new BadRequestException('ORDER_IS_PAID');
     }
+    const seatInfo = JSON.parse(order.seat_info);
+    const seatIds = seatInfo.map((seat: any) => seat.id);
+    const eventId = order.event_id;
+    await this.eventSeatRepository.update(
+      {
+        id: In(seatIds),
+        event_id: eventId,
+        status: SEAT_STATUS.SELECTING,
+      },
+      {
+        status: SEAT_STATUS.AVAILABLE,
+      },
+    );
     order.status = ORDER_STATUS.CANCELLED;
     await this.orderReposioty.save(order);
     return {
