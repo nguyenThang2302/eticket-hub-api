@@ -57,6 +57,14 @@ export class Event extends SoftDeleteBaseEntity {
   })
   status: string;
 
+  @Column({
+    default: false,
+    type: 'boolean',
+    nullable: false,
+    comment: 'Flag indicating if the event is active',
+  })
+  allow_scan_ticket: boolean;
+
   @ManyToOne(() => Organization, (organization) => organization.events, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
