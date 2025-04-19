@@ -112,4 +112,19 @@ export class EventService {
 
     return { items: eventSeats };
   }
+
+  async changeStatusScan(eventId: string): Promise<any> {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+    });
+
+    if (!event) {
+      throw new BadRequestException('EVENT_NOT_FOUND');
+    }
+
+    event.allow_scan_ticket = !event.allow_scan_ticket;
+    await this.eventRepository.save(event);
+
+    return { id: event.id, allow_scan_ticket: event.allow_scan_ticket };
+  }
 }
