@@ -179,7 +179,7 @@ export class MomoService implements IPayment {
     );
     await this.orderReposioty.save(order);
     for (const seat of seatInfo) {
-      const code = nanoid(16);
+      const code = Math.floor(10000 + Math.random() * 90000).toString();
       const qrCodeTicket = await this.qrticketService.generateQRCode(code);
       const ticketInfo = {
         code: code,

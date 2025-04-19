@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +12,8 @@ export class TicketService {
     private readonly ticketRepository: Repository<Ticket>,
     @InjectRepository(OrderTicketImage)
     private readonly orderTicketImageRepository: Repository<OrderTicketImage>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 
   async calculateTicketPrice(tickets: any) {
@@ -33,20 +36,30 @@ export class TicketService {
     return totalPrice;
   }
 
-  async verifyQRTicket(code: string, eventId: string) {
+  async verifyQRTicket(code: string) {
     const ticket = await this.orderTicketImageRepository
       .createQueryBuilder('ticket')
       .innerJoinAndSelect('ticket.order', 'order')
       .where('ticket.code = :code', { code })
-      .andWhere('order.event_id = :eventId', { eventId })
       .getOne();
 
     if (!ticket) {
       throw new BadRequestException('TICKET_NOT_FOUND');
     }
-
     if (ticket.is_scanned) {
       throw new BadRequestException('TICKET_ALREADY_SCANNED');
+    }
+
+    const orderID = ticket.order_id;
+
+    const event = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoinAndSelect('event.orders', 'order')
+      .where('order.id = :id', { id: orderID })
+      .getOne();
+
+    if (!event.allow_scan_ticket) {
+      throw new BadRequestException('TICKET_NOT_ALLOW_SCAN');
     }
 
     ticket.is_scanned = true;
@@ -58,6 +71,10 @@ export class TicketService {
       seat_location: ticket.seat_location,
       qr_ticket_url: ticket.qr_ticket_url,
       price: ticket.price,
+      event: {
+        name: event.name,
+        start_datetime: event.start_datetime,
+      },
     };
   }
 }

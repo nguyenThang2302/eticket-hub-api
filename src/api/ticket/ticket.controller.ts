@@ -3,7 +3,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -18,15 +17,12 @@ import { TicketService } from './ticket.service';
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
-  @Get(':event_id/verify')
+  @Get('verifies')
   @Roles(ROLE.PROMOTER)
   @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
   @HttpCode(HttpStatus.OK)
-  async verifyTicket(
-    @Query('code') code: string,
-    @Param('event_id') eventId: string,
-  ) {
-    const data = await this.ticketService.verifyQRTicket(code, eventId);
+  async verifyTicket(@Query('code') code: string) {
+    const data = await this.ticketService.verifyQRTicket(code);
     return data;
   }
 }

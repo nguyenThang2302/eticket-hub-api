@@ -554,6 +554,13 @@ table "events" {
     comment = "Status of the event"
   }
 
+  column "allow_scan_ticket" {
+    type    = boolean
+    null    = false
+    default = false
+    comment = "Flag indicating if ticket scanning is allowed"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false
