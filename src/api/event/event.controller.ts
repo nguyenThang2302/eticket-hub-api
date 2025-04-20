@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
@@ -17,6 +18,12 @@ import { ROLE } from '../common/constants';
 @Controller('events')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
+
+  @Get('search')
+  @HttpCode(HttpStatus.OK)
+  async searchEvents(@Query() params: any) {
+    return await this.eventService.searchEvents(params);
+  }
 
   @Get(':event_id')
   @HttpCode(HttpStatus.OK)

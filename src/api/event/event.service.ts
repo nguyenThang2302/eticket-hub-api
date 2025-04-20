@@ -127,4 +127,48 @@ export class EventService {
 
     return { id: event.id, allow_scan_ticket: event.allow_scan_ticket };
   }
+
+  async searchEvents(params: any): Promise<any> {
+    const totalEvents = await this.eventRepository.countBy({
+      category: {
+        name: params.cate,
+      },
+    });
+
+    const { cate, page = 1, limit = 4 } = params;
+    const events = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoinAndSelect('event.category', 'category')
+      .innerJoinAndSelect('event.ticketEvents', 'ticketEvent')
+      .innerJoinAndSelect('ticketEvent.ticket', 'ticket')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .where('category.name = :categoryName', { categoryName: cate })
+      .limit(parseInt(limit))
+      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .getMany();
+
+    const totalPages = Math.ceil(totalEvents / parseInt(limit));
+
+    const paginations = {
+      total: totalEvents,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+    };
+    return {
+      items: events.map((event) => ({
+        id: event.id,
+        name: event.name,
+        start_time: event.start_datetime,
+        logo_url: event.logo_url,
+        price: this.calculateLowestTicketPrice(event),
+        venue: event.venue.name,
+      })),
+      paginations: paginations,
+    };
+  }
 }
