@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -33,5 +34,15 @@ export class OrganizeController {
       languageCode,
       body,
     );
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async getOrganizations(@Req() req: Request): Promise<any> {
+    const userId = req.user['sub'];
+    const languageCode = req.headers['accept-language'];
+    return this.organizeService.getOrganizations(userId, languageCode);
   }
 }
