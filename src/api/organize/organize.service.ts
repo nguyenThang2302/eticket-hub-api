@@ -45,4 +45,29 @@ export class OrganizeService {
       where: { id },
     });
   }
+
+  async getOrganizations(userId: string, languageCode: string): Promise<any> {
+    const organizations = await this.organizeRepository
+      .createQueryBuilder('organization')
+      .innerJoin('organization.groups', 'group')
+      .where('group.user_id = :userId', { userId })
+      .andWhere('organization.lang_code = :languageCode', { languageCode })
+      .andWhere('organization.is_active = :isActive', { isActive: true })
+      .select([
+        'organization.id',
+        'organization.name',
+        'organization.description',
+        'organization.logo_url',
+        'organization.status',
+        'organization.lang_code',
+        'group.is_owner',
+      ])
+      .addSelect('group.user_id', 'userId')
+      .getRawMany();
+    const result = organizations.map((org) => ({
+      id: org.organization_id,
+      name: org.organization_name,
+    }));
+    return { items: result };
+  }
 }
