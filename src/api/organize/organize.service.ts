@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
 import { REGISTER_ORGANIZATION_STATUS } from '../common/constants';
 import { Group } from 'src/database/entities/group.entity';
+import { Event } from 'src/database/entities/event.entity';
 
 @Injectable()
 export class OrganizeService {
@@ -13,6 +14,8 @@ export class OrganizeService {
     private readonly organizeRepository: Repository<Organization>,
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 
   async registerOrganization(
@@ -69,5 +72,68 @@ export class OrganizeService {
       name: org.organization_name,
     }));
     return { items: result };
+  }
+
+  async checkUserInOrganize(
+    userId: string,
+    organizeId: string,
+  ): Promise<boolean> {
+    const group = await this.groupRepository.findOne({
+      where: {
+        user_id: userId,
+        organization_id: organizeId,
+      },
+    });
+    return !!group;
+  }
+
+  async getEvents(organizeId: string, params: any): Promise<any> {
+    const totalEvents = await this.eventRepository.countBy({
+      organization: { id: organizeId },
+    });
+    const { page = 1, limit = 10 } = params;
+    const events = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.organization', 'organization')
+      .innerJoin('event.venue', 'venue')
+      .where('organization.id = :organizeId', { organizeId })
+      .select([
+        'event.id',
+        'event.name',
+        'event.start_datetime',
+        'event.status',
+        'event.allow_scan_ticket',
+        'venue.name',
+        'venue.address',
+      ])
+      .limit(parseInt(limit))
+      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .getMany();
+
+    const totalPages = Math.ceil(totalEvents / parseInt(limit));
+
+    const paginations = {
+      total: totalEvents,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+    };
+
+    const result = events.map((event) => ({
+      id: event.id,
+      name: event.name,
+      start_datetime: event.start_datetime,
+      status: event.status,
+      allow_scan_ticket: event.allow_scan_ticket,
+      venue: {
+        name: event.venue?.name,
+        address: event.venue?.address,
+      },
+    }));
+    return { items: result, paginations };
   }
 }

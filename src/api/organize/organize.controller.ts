@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { ROLE } from '../common/constants';
 import { JwtAuthGuard, RolesGuard } from '../common/guard';
 import { OrganizeService } from './organize.service';
+import { OrganizeGuard } from '../common/guard/organnize.guard';
+import { UserInOrganize } from '../common/guard/user-in-organize.guard';
 
 @Controller('organizes')
 export class OrganizeController {
@@ -44,5 +47,14 @@ export class OrganizeController {
     const userId = req.user['sub'];
     const languageCode = req.headers['accept-language'];
     return this.organizeService.getOrganizations(userId, languageCode);
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserInOrganize)
+  @HttpCode(HttpStatus.OK)
+  @Get('events')
+  async getEvents(@Req() req: Request, @Query() params: any): Promise<any> {
+    const organizeId = req['auth']['organizeConfig']['organizeId'];
+    return this.organizeService.getEvents(organizeId, params);
   }
 }
