@@ -1616,7 +1616,7 @@ table "order_ticket_images" {
   }
 
   column "is_scanned" {
-    type    = varchar(10)
+    type    = boolean
     null    = true
     comment = "Flag indicating if the ticket has been scanned"
   }
