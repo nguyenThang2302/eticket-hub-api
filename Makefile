@@ -1,14 +1,12 @@
+include .env
+export $(shell sed 's/=.*//' .env)
 COMPOSE_RUN=docker-compose run --rm
 
-MYSQL_USERNAME=eth_username
-MYSQL_PASSWORD=eth_password
-MYSQL_ROOT_PASSWORD=root
-MYSQL_HOST=maindb
-MYSQL_DEV_HOST=maindb-dev
-MYSQL_SCHEMA=eth_main
+MYSQL_URL=mysql://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)
+MYSQL_DEV_URL=mysql://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_DEV_HOST):$(DB_PORT)/$(DB_NAME)
 
-MYSQL_URL=mysql://$(MYSQL_USERNAME):$(MYSQL_PASSWORD)@$(MYSQL_HOST):3306/$(MYSQL_SCHEMA)
-MYSQL_DEV_URL=mysql://$(MYSQL_USERNAME):$(MYSQL_PASSWORD)@$(MYSQL_DEV_HOST):3306/$(MYSQL_SCHEMA)
+MYSQL_LOCAL_URL=mysql://$(DB_USERNAME):$(DB_PASSWORD)@maindb:3306/$(DB_NAME)
+MYSQL_LOCAL_DEV_URL=mysql://$(DB_USERNAME):$(DB_PASSWORD)@maindb-dev:3306/$(DB_NAME)
 
 .PHONY: up down hash migrate diff generate-schema-doc generate-page-doc generate-doc migrate-generate-doc clean help
 
@@ -29,27 +27,37 @@ down:
 start-db:
 	docker-compose start maindb maindb-dev dynamodb
 
+seed-maindb:
+	npm run seed:run
+
 migrate-maindb:
-	$(COMPOSE_RUN) atlas migrate apply --dir file:///migrations --url $(MYSQL_URL)
+	atlas migrate apply --dir file://misc/database/migrations --url $(MYSQL_URL)
+
+migrate-maindb-local:
+	$(COMPOSE_RUN) atlas migrate apply --dir file:///migrations --url $(MYSQL_LOCAL_URL)
 
 diff-maindb:
-	$(COMPOSE_RUN) atlas migrate diff --to file:///schema.hcl --dir file:///migrations --dev-url $(MYSQL_DEV_URL)
+	atlas migrate diff --to file://misc/database/schema.hcl --dir file://misc/database/migrations --dev-url $(MYSQL_DEV_URL)
+	atlas migrate hash --dir file://misc/database/migrations
+
+diff-maindb-local:
+	$(COMPOSE_RUN) atlas migrate diff --to file:///schema.hcl --dir file:///migrations --dev-url $(MYSQL_LOCAL_DEV_URL)
 	$(COMPOSE_RUN) atlas migrate hash --dir file:///migrations
 
-rollback-maindb:
-	$(COMPOSE_RUN) atlas migrate down --dir file:///migrations --url $(MYSQL_URL) --dev-url $(MYSQL_DEV_URL)
+rollback-maindb-local:
+	$(COMPOSE_RUN) atlas migrate down --dir file:///migrations --url $(MYSQL_LOCAL_URL) --dev-url $(MYSQL_LOCAL_DEV_URL)
 
-re-hash-maindb:
+re-hash-maindb-local:
 	$(COMPOSE_RUN) atlas migrate hash --dir file:///migrations
 
-generate-graph-maindb:
-	$(COMPOSE_RUN) schemacrawler /opt/schemacrawler/bin/schemacrawler.sh \
+generate-graph-maindb-local:
+	$(COMPOSE_RUN) -e JAVA_TOOL_OPTIONS="$(JAVA_TOOL_OPTIONS)" schemacrawler /opt/schemacrawler/bin/schemacrawler.sh \
 		--server mysql \
-		--host $(MYSQL_HOST) \
+		--host maindb \
 		--port 3306 \
-		--user $(MYSQL_USERNAME) \
-		--password $(MYSQL_PASSWORD) \
-		--database $(MYSQL_SCHEMA) \
+		--user $(DB_USERNAME) \
+		--password $(DB_PASSWORD) \
+		--database $(DB_NAME) \
 		--info-level=maximum \
 		$(if $(filter $(outputFormat),markdown), \
 			--command script \
@@ -70,10 +78,13 @@ generate-graph-maindb:
 			--output-format=${outputFormat} \
 			--output-file=/output/schema.$(outputFormat))))
 
-generate-page-maindb:
-	$(COMPOSE_RUN) schemaspy -t mysql -db $(MYSQL_SCHEMA) -s $(MYSQL_SCHEMA) -host $(MYSQL_HOST) -u $(MYSQL_USERNAME) -p $(MYSQL_PASSWORD)
+generate-page-maindb-local:
+	$(COMPOSE_RUN) schemaspy -t mysql -db $(DB_NAME) -s $(DB_NAME) -host maindb -u $(DB_USERNAME) -p $(DB_PASSWORD)
 
-generate-doc-maindb: generate-graph-maindb generate-page-maindb
+generate-doc-maindb:
+	$(MAKE) generate-graph-maindb-local outputFormat=markdown
+	$(MAKE) generate-graph-maindb-local outputFormat=png
+	$(MAKE) generate-page-maindb-local
 
 clean:
 	rm -rf output/*
