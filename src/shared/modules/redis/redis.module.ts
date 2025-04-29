@@ -5,15 +5,20 @@ import { BullModule } from '@nestjs/bull';
 @Global()
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        redis: {
-          host: configService.get<string>('redis.host'),
-          port: configService.get<number>('redis.port'),
-        },
-      }),
+      useFactory(configService: ConfigService) {
+        return {
+          redis: {
+            host: configService.get<string>('redis.host'),
+            port: +configService.get<number>('redis.port'),
+            password: configService.get<string>('redis.password'),
+            reconnectOnError: () => true,
+          },
+        };
+      },
     }),
     BullModule.registerQueue(
       {
