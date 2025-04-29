@@ -13,6 +13,14 @@ import { BullModule } from '@nestjs/bull';
           host: configService.get<string>('redis.host'),
           port: configService.get<number>('redis.port'),
         },
+        onClientReady: (client) => {
+          client.on('connect', () => {
+            console.log('Redis connection established successfully.');
+          });
+          client.on('error', (err) => {
+            console.error('Redis connection error:', err);
+          });
+        },
       }),
     }),
     BullModule.registerQueue(
