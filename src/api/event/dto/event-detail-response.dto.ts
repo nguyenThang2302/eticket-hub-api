@@ -21,6 +21,9 @@ class Venue {
 @Exclude()
 class Organize {
   @Expose()
+  id: string;
+
+  @Expose()
   name: string;
 
   @Expose()

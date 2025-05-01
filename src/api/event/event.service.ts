@@ -50,6 +50,7 @@ export class EventService {
         })) || [],
       organize: event.organization
         ? {
+            id: event.organization.id,
             name: event.organization.name,
             description: event.organization.description,
             logo_url: event.organization.logo_url,
