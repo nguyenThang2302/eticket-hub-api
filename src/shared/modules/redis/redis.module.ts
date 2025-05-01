@@ -30,6 +30,9 @@ import { BullModule } from '@nestjs/bull';
       {
         name: 'holding-seats',
       },
+      {
+        name: 'chatProcessing',
+      },
     ),
   ],
   exports: [BullModule],

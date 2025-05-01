@@ -66,4 +66,5 @@ export class Organization extends SoftDeleteBaseEntity {
 
   @OneToMany(() => Event, (event) => event.organization)
   events: Event[];
+  avatar_url: string;
 }

@@ -10,6 +10,7 @@ import googleConfig from '../../config/google.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import mailerConfig from 'src/config/nestmailer.config';
 import bcryptConfig from 'src/config/bcrypt.config';
+import mongoConfig from 'src/config/mongo.config';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { ErrorModule } from './errors/error.module';
 import * as path from 'path';
@@ -21,6 +22,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import paypalConfig from 'src/config/paypal.config';
 import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';
+import { MongooseModule } from '@nestjs/mongoose';
 import('dayjs/locale/vi');
 
 dayjs.extend(localizedFormat);
@@ -42,6 +44,7 @@ import { SentryInterceptor } from './interceptor/sentry.interceptor';
         sentryConfig,
         cloudinaryConfig,
         googleConfig,
+        mongoConfig,
       ],
     }),
     TypeOrmModule.forRootAsync({
@@ -49,6 +52,13 @@ import { SentryInterceptor } from './interceptor/sentry.interceptor';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         configService.get('database'),
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('mongo.url'),
+      }),
     }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
