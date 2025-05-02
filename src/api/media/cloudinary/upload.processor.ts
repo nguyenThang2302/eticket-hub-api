@@ -31,4 +31,15 @@ export class UploadImageProcessor {
       throw error;
     }
   }
+
+  @Process('UploadEventImageToCloudinary')
+  async UploadEventImageToCloudinary(dataJob: Job<any>) {
+    const { file, eventId } = dataJob.data;
+    try {
+      return await this.cloudinaryService.uploadPosterEvent(file, eventId);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }

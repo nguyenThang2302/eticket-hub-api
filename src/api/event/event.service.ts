@@ -5,6 +5,14 @@ import { Event } from 'src/database/entities/event.entity';
 import { Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
+import { CreateEventRequestDto } from './dto/create-event-request.dto';
+import { Venue } from 'src/database/entities/venue.entity';
+import { Ticket } from 'src/database/entities/ticket.entity';
+import { EVENT_STATUS } from '../common/constants';
+import { Category } from 'src/database/entities/category.entity';
+import { Organization } from 'src/database/entities/organization.entity';
+import { TicketEvent } from 'src/database/entities/ticket_event.entity';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class EventService {
@@ -13,6 +21,17 @@ export class EventService {
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(EventSeat)
     private readonly eventSeatRepository: Repository<EventSeat>,
+    @InjectRepository(Venue)
+    private readonly venueRepository: Repository<Venue>,
+    @InjectRepository(Ticket)
+    private readonly ticketRepository: Repository<Ticket>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
+    @InjectRepository(TicketEvent)
+    private readonly ticketEventRepository: Repository<TicketEvent>,
+    private readonly mediaService: MediaService,
   ) {}
 
   async getEventDetails(eventId: string): Promise<EventDetailResponseDto> {
@@ -170,6 +189,92 @@ export class EventService {
         venue: event.venue.name,
       })),
       paginations: paginations,
+    };
+  }
+
+  async createEvent(
+    body: CreateEventRequestDto,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    const venue = {
+      name: body.address.name,
+      city: body.address.city,
+      district: body.address.district,
+      ward: body.address.ward,
+      street: body.address.street,
+    };
+    const tickets = body.tickets;
+    const venueSaved = new Venue();
+    venueSaved.name = venue.name;
+    venueSaved.address = `${venue.street}, ${venue.ward}, ${venue.district}, ${venue.city}`;
+    venueSaved.lang_code = 'en';
+    const venueCreated = await this.venueRepository.save(venueSaved);
+
+    const existingCategory = await this.categoryRepository.findOne({
+      where: { id: body.category },
+    });
+    if (!existingCategory) {
+      throw new BadRequestException('CATEGORY_NOT_FOUND');
+    }
+
+    const existingOrganizer = await this.organizationRepository.findOne({
+      where: { id: body.organizer_name },
+    });
+    if (!existingOrganizer) {
+      throw new BadRequestException('ORGANIZER_NOT_FOUND');
+    }
+
+    const savedTickets = [];
+    for (const ticket of tickets) {
+      const ticketEntity = new Ticket();
+      ticketEntity.name = ticket.name;
+      ticketEntity.price = ticket.price;
+      ticketEntity.quantity = ticket.quantity;
+      ticketEntity.min_quantity = ticket.min_quantity;
+      ticketEntity.max_quantity = ticket.max_quantity;
+      ticketEntity.lang_code = 'en';
+      ticketEntity.created_at = new Date();
+      ticketEntity.updated_at = new Date();
+
+      const savedTicket = await this.ticketRepository.save(ticketEntity);
+      savedTickets.push(savedTicket);
+    }
+
+    const event = new Event();
+    event.name = body.name;
+    event.organization = existingOrganizer;
+    event.category = existingCategory;
+    event.venue = venueCreated;
+    event.lang_code = 'en';
+    event.name = body.name;
+    event.description = body.description;
+    event.type = body.type;
+    event.start_datetime = new Date(body.start_datetime);
+    event.end_datetime = new Date(body.end_datetime);
+    event.privacy = body.privacy;
+    event.status = EVENT_STATUS.IN_REVIEW;
+    event.account_owner = body.account_owner;
+    event.account_number = body.account_number;
+    event.bank = body.bank;
+    event.business_type = body.business_type;
+    event.full_name = body.full_name;
+    event.address_business = body.address_business;
+    event.tax_code = body.tax_code;
+    event.created_at = new Date();
+    event.updated_at = new Date();
+    const eventSaved = await this.eventRepository.save(event);
+
+    await this.mediaService.uploadEventImage(file, eventSaved.id);
+
+    for (const savedTicket of savedTickets) {
+      const ticketEvent = new TicketEvent();
+      ticketEvent.ticket = savedTicket;
+      ticketEvent.event = eventSaved;
+      await this.ticketEventRepository.save(ticketEvent);
+    }
+
+    return {
+      id: eventSaved.id,
     };
   }
 }

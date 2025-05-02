@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import { v2 as cloudinary } from 'cloudinary';
 import { UserService } from 'src/api/user/user.service';
+import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Readable } from 'stream';
 import { Repository } from 'typeorm';
@@ -13,6 +14,8 @@ export class CloudinaryService {
     private readonly userService: UserService,
     @InjectRepository(OrderTicketImage)
     private readonly orderTicketImageRepository: Repository<OrderTicketImage>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 
   async uploadImage(
@@ -25,10 +28,10 @@ export class CloudinaryService {
           folder: 'profiles',
           public_id: `avatar-${userId}-${Date.now()}`,
         },
-        (error, result) => {
+        async (error, result) => {
           if (error) return reject(error);
           const url = result.secure_url;
-          this.userService.updateAvatarUrl(userId, url);
+          await this.userService.updateAvatarUrl(userId, url);
         },
       );
 
@@ -76,6 +79,33 @@ export class CloudinaryService {
 
       const stream = new Readable();
       stream.push(buffer);
+      stream.push(null);
+
+      stream.pipe(upload);
+    });
+  }
+
+  async uploadPosterEvent(
+    file: Express.Multer.File,
+    eventId: string,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      const upload = cloudinary.uploader.upload_stream(
+        {
+          folder: 'events',
+          public_id: `poster-${eventId}-${Date.now()}`,
+        },
+        async (error, result) => {
+          if (error) return reject(error);
+          const url = result.secure_url;
+          await this.eventRepository.update(eventId, {
+            poster_url: url,
+          });
+        },
+      );
+
+      const stream = new Readable();
+      stream.push(Buffer.from(file.buffer));
       stream.push(null);
 
       stream.pipe(upload);

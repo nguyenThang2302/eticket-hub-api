@@ -1,12 +1,17 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { JwtAuthGuard, RolesGuard } from '../common/guard';
@@ -14,10 +19,33 @@ import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { UserEventOrganizeGuard } from '../common/guard/user-event-organize.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ROLE } from '../common/constants';
+import { CreateEventRequestDto } from './dto/create-event-request.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Controller('events')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
+
+  @Post()
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file'))
+  async createEvent(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('data') data: string,
+  ) {
+    const parsedData = JSON.parse(data);
+    const dto = plainToInstance(CreateEventRequestDto, parsedData);
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
+    return await this.eventService.createEvent(parsedData, file);
+  }
 
   @Get('search')
   @HttpCode(HttpStatus.OK)
