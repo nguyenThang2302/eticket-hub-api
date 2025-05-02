@@ -193,6 +193,7 @@ export class EventService {
   }
 
   async createEvent(
+    organizeId: string,
     body: CreateEventRequestDto,
     file: Express.Multer.File,
   ): Promise<any> {
@@ -218,7 +219,7 @@ export class EventService {
     }
 
     const existingOrganizer = await this.organizationRepository.findOne({
-      where: { id: body.organizer_name },
+      where: { id: organizeId },
     });
     if (!existingOrganizer) {
       throw new BadRequestException('ORGANIZER_NOT_FOUND');

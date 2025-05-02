@@ -23,6 +23,7 @@ import { CreateEventRequestDto } from './dto/create-event-request.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { CurrentOrganizer } from '../common/decorators/current-organizer.decorator';
 
 @Controller('events')
 export class EventController {
@@ -34,9 +35,11 @@ export class EventController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file'))
   async createEvent(
+    @CurrentOrganizer() organizer: any,
     @UploadedFile() file: Express.Multer.File,
     @Body('data') data: string,
   ) {
+    const organizeId = organizer.organizeId;
     const parsedData = JSON.parse(data);
     const dto = plainToInstance(CreateEventRequestDto, parsedData);
 
@@ -44,7 +47,7 @@ export class EventController {
     if (errors.length > 0) {
       throw new BadRequestException(errors);
     }
-    return await this.eventService.createEvent(parsedData, file);
+    return await this.eventService.createEvent(organizeId, parsedData, file);
   }
 
   @Get('search')
