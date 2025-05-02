@@ -29,4 +29,11 @@ export class MediaService {
       ticketInfo,
     });
   }
+
+  async uploadEventImage(file: Express.Multer.File, eventId: string) {
+    await this.imageQueue.add('UploadEventImageToCloudinary', {
+      file,
+      eventId,
+    });
+  }
 }
