@@ -57,6 +57,22 @@ export enum PAYMENT_METHOD {
 
 export enum EVENT_STATUS {
   ACTIVE = 'active',
-  IN_APPROVE = 'in_approve',
+  IN_REVIEW = 'in_review',
+  APPROVED = 'approved',
   INACTIVE = 'inactive',
+}
+
+export enum EVENT_PRIVACY {
+  PRIVATE = 'private',
+  PUBLIC = 'public',
+}
+
+export enum EVENT_TYPE {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+}
+
+export enum BUSINESS_TYPE {
+  COMPANY = 'company',
+  INDIVIDUAL = 'individual',
 }

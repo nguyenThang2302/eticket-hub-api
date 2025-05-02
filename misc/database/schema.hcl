@@ -548,6 +548,66 @@ table "events" {
     comment = "Start date and time of the event"
   }
 
+  column "end_datetime" {
+    type    = datetime
+    null    = true
+    comment = "End date and time of the event"
+  }
+
+  column "type" {
+    type    = varchar(30)
+    null    = true
+    comment = "Type of the event"
+  }
+
+  column "privacy" {
+    type    = varchar(30)
+    null    = true
+    comment = "Privacy setting of the event"
+  }
+
+  column "account_owner" {
+    type    = varchar(255)
+    null    = true
+    comment = "Owner of the account associated with the event"
+  }
+
+  column "account_number" {
+    type    = varchar(255)
+    null    = true
+    comment = "Account number associated with the event"
+  }
+
+  column "bank" {
+    type    = varchar(255)
+    null    = true
+    comment = "Bank associated with the event"
+  }
+
+  column "business_type" {
+    type    = varchar(255)
+    null    = true
+    comment = "Type of business associated with the event"
+  }
+
+  column "full_name" {
+    type    = varchar(255)
+    null    = true
+    comment = "Full name of the event organizer"
+  }
+
+  column "address_business" {
+    type    = varchar(255)
+    null    = true
+    comment = "Business address associated with the event"
+  }
+
+  column "tax_code" {
+    type    = varchar(255)
+    null    = true
+    comment = "Tax code associated with the event"
+  }
+
   column "status" {
     type    = varchar(10)
     null    = true
@@ -660,12 +720,6 @@ table "venues" {
     comment = "Address of the venue"
   }
 
-  column "description" {
-    type    = varchar(255)
-    null    = true
-    comment = "Description of the venue"
-  }
-
   column "created_at" {
     type    = datetime
     null    = false
@@ -742,6 +796,26 @@ table "tickets" {
     type    = bigint
     null    = false
     comment = "Price of the ticket"
+  }
+
+  column "quantity" {
+    type    = int
+    null    = false
+    comment = "Quantity of tickets available"
+  }
+
+  column "min_quantity" {
+    type    = int
+    null    = false
+    default = 1
+    comment = "Minimum quantity of tickets that can be purchased"
+  }
+
+  column "max_quantity" {
+    type    = int
+    null    = false
+    default = 1
+    comment = "Maximum quantity of tickets that can be purchased"
   }
 
   column "created_at" {

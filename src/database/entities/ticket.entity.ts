@@ -22,6 +22,29 @@ export class Ticket extends SoftDeleteBaseEntity {
   price: number;
 
   @Column({
+    type: 'int',
+    nullable: false,
+    comment: 'Quantity of tickets available',
+  })
+  quantity: number;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+    default: 1,
+    comment: 'Minimum quantity of tickets that can be purchased',
+  })
+  min_quantity: number;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+    default: 1,
+    comment: 'Maximum quantity of tickets that can be purchased',
+  })
+  max_quantity: number;
+
+  @Column({
     type: 'varchar',
     length: 5,
     nullable: true,

@@ -1,0 +1,6 @@
+-- Modify "events" table
+ALTER TABLE `events` ADD COLUMN `end_datetime` datetime NULL COMMENT "End date and time of the event", ADD COLUMN `type` varchar(30) NULL COMMENT "Type of the event", ADD COLUMN `privacy` varchar(30) NULL COMMENT "Privacy setting of the event", ADD COLUMN `account_owner` varchar(255) NULL COMMENT "Owner of the account associated with the event", ADD COLUMN `account_number` varchar(255) NULL COMMENT "Account number associated with the event", ADD COLUMN `bank` varchar(255) NULL COMMENT "Bank associated with the event", ADD COLUMN `business_type` varchar(255) NULL COMMENT "Type of business associated with the event", ADD COLUMN `full_name` varchar(255) NULL COMMENT "Full name of the event organizer", ADD COLUMN `address_business` varchar(255) NULL COMMENT "Business address associated with the event", ADD COLUMN `tax_code` varchar(255) NULL COMMENT "Tax code associated with the event";
+-- Modify "tickets" table
+ALTER TABLE `tickets` ADD COLUMN `quantity` int NOT NULL COMMENT "Quantity of tickets available", ADD COLUMN `min_quantity` int NOT NULL DEFAULT 1 COMMENT "Minimum quantity of tickets that can be purchased", ADD COLUMN `max_quantity` int NOT NULL DEFAULT 1 COMMENT "Maximum quantity of tickets that can be purchased";
+-- Modify "venues" table
+ALTER TABLE `venues` DROP COLUMN `description`;

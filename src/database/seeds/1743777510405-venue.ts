@@ -18,7 +18,6 @@ export class Venue1743777510405 implements Seeder {
         name: 'IDECAF Drama Theatre',
         address:
           'No. 28 Le Thanh Ton, Ben Nghe Ward, District 1, Ho Chi Minh City',
-        description: 'A spacious venue suitable for conferences and events.',
         lang_code: 'en',
       },
       {
@@ -26,7 +25,6 @@ export class Venue1743777510405 implements Seeder {
         name: 'Ho Chi Minh City Youth Cultural House',
         address:
           '4 Pham Ngoc Thach, Ben Nghe, Ben Nghe Ward, District 1, Ho Chi Minh City',
-        description: 'An outdoor venue for concerts and performances.',
         lang_code: 'en',
       },
     ];
