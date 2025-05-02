@@ -31,11 +31,6 @@ export class Event1743777731297 implements Seeder {
         lang_code: 'en',
       },
     });
-    const organizationIds = organizations.map(
-      (organization) => organization.id,
-    );
-    const venueIds = venues.map((venue) => venue.id);
-    const categoryIds = categories.map((category) => category.id);
 
     const events = [
       {

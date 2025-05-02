@@ -47,6 +47,9 @@ diff-maindb-local:
 rollback-maindb-local:
 	$(COMPOSE_RUN) atlas migrate down --dir file:///migrations --url $(MYSQL_LOCAL_URL) --dev-url $(MYSQL_LOCAL_DEV_URL)
 
+re-hash-maindb:
+	atlas migrate hash --dir file://misc/database/migrations
+
 re-hash-maindb-local:
 	$(COMPOSE_RUN) atlas migrate hash --dir file:///migrations
 

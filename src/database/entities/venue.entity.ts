@@ -23,14 +23,6 @@ export class Venue extends SoftDeleteBaseEntity {
 
   @Column({
     type: 'varchar',
-    length: 255,
-    nullable: true,
-    comment: 'Description of the venue',
-  })
-  description: string;
-
-  @Column({
-    type: 'varchar',
     length: 5,
     nullable: true,
     comment: 'Language code associated with the venue',

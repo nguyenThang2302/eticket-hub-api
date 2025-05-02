@@ -50,6 +50,85 @@ export class Event extends SoftDeleteBaseEntity {
   start_datetime: Date;
 
   @Column({
+    type: 'datetime',
+    nullable: true,
+    comment: 'End date and time of the event',
+  })
+  end_datetime: Date;
+
+  @Column({
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    comment: 'Type of the event',
+  })
+  type: string;
+
+  @Column({
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    comment: 'Privacy setting of the event',
+  })
+  privacy: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Owner of the account associated with the event',
+  })
+  account_owner: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Account number associated with the event',
+  })
+  account_number: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Bank associated with the event',
+  })
+  bank: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Type of business associated with the event',
+  })
+  business_type: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Full name of the event organizer',
+  })
+  full_name: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Business address associated with the event',
+  })
+  address_business: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Tax code associated with the event',
+  })
+  tax_code: string;
+
+  @Column({
     type: 'varchar',
     length: 10,
     nullable: true,
