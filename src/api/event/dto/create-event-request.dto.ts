@@ -75,10 +75,6 @@ export class CreateEventRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  organizer_name: string;
-
-  @IsString()
-  @IsNotEmpty()
   start_datetime: string;
 
   @IsString()
