@@ -50,6 +50,18 @@ export class EventController {
     return await this.eventService.createEvent(organizeId, parsedData, file);
   }
 
+  @Get('pending')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async getPendingEvents(
+    @CurrentOrganizer() organizer: any,
+    @Query() params: any,
+  ) {
+    const organizeId = organizer.organizeId;
+    return await this.eventService.getPendingEvents(organizeId, params);
+  }
+
   @Get('search')
   @HttpCode(HttpStatus.OK)
   async searchEvents(@Query() params: any) {
