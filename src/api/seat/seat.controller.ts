@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { SeatService } from './seat.service';
@@ -15,6 +16,7 @@ import { ROLE } from '../common/constants';
 import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { JwtAuthGuard, RolesGuard } from '../common/guard';
 import { UserEventOrganizeGuard } from '../common/guard/user-event-organize.guard';
+import { CreateSeatMapDto } from './dto/create-seat-map.dto';
 
 @Controller('seats')
 export class SeatController {
@@ -29,6 +31,17 @@ export class SeatController {
     @Param('event_id') eventId: string,
   ) {
     return this.seatService.createSeats(body, eventId);
+  }
+
+  @Put(':event_id/map')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async createSeatsMap(
+    @Body() body: CreateSeatMapDto,
+    @Param('event_id') eventId: string,
+  ) {
+    return this.seatService.createSeatsMap(body, eventId);
   }
 
   @Get()
