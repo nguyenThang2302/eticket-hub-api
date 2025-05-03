@@ -137,6 +137,17 @@ export class SeatService {
     };
   }
 
+  async getSeatMapInitials(eventId: string) {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+    });
+    if (!event) {
+      throw new NotFoundException('EVENT_NOT_FOUND');
+    }
+
+    return event.seats;
+  }
+
   private async getUniqueTickets(seats: any[]) {
     const uniqueTicketsMap = new Map();
 

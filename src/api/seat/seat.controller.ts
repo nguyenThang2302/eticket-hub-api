@@ -22,6 +22,14 @@ import { CreateSeatMapDto } from './dto/create-seat-map.dto';
 export class SeatController {
   constructor(private readonly seatService: SeatService) {}
 
+  @Get(':event_id/initials')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
+  @HttpCode(HttpStatus.OK)
+  async getSeatMapInitials(@Param('event_id') eventId: string) {
+    return this.seatService.getSeatMapInitials(eventId);
+  }
+
   @Post(':event_id')
   @Roles(ROLE.PROMOTER)
   @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
