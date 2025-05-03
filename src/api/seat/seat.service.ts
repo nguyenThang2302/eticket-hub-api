@@ -11,7 +11,8 @@ import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateSeatDto } from './dto/create-seat.dto';
 import { EventService } from '../event/event.service';
 import { Ticket } from 'src/database/entities/ticket.entity';
-import { nanoid } from 'nanoid';
+import { CreateSeatMapDto } from './dto/create-seat-map.dto';
+import { Event } from 'src/database/entities/event.entity';
 
 @Injectable()
 export class SeatService {
@@ -23,6 +24,8 @@ export class SeatService {
     private readonly eventService: EventService,
     @InjectRepository(Ticket)
     private readonly ticketRepository: Repository<Ticket>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 
   async getSeats(): Promise<ListSeatResponseWrapperDto> {
@@ -72,6 +75,13 @@ export class SeatService {
   async createSeats(body: CreateSeatDto, eventId: string) {
     const { seats } = body;
 
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+    });
+    if (!event) {
+      throw new NotFoundException('EVENT_NOT_FOUND');
+    }
+
     const tickets = await this.getUniqueTickets(seats);
     const ticketIds = tickets.map((ticket) => ticket.id);
     for (const ticket of tickets) {
@@ -105,6 +115,25 @@ export class SeatService {
     }
     return {
       message: 'Created successfully',
+    };
+  }
+
+  async createSeatsMap(body: CreateSeatMapDto, eventId: string) {
+    const { data } = body;
+
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+    });
+    if (!event) {
+      throw new NotFoundException('EVENT_NOT_FOUND');
+    }
+
+    await this.eventRepository.update(eventId, {
+      seats: data,
+    });
+
+    return {
+      id: event.id,
     };
   }
 
