@@ -113,6 +113,7 @@ export class EventService {
         'eventSeat.label',
         'eventSeat.type',
         'eventSeat.status',
+        'eventSeat.background_color',
         'ticket.id',
         'ticket.price',
         'ticket.name',
@@ -130,7 +131,21 @@ export class EventService {
       )
       .getMany();
 
-    return { items: eventSeats };
+    const items = eventSeats.map((eventSeat) => ({
+      id: eventSeat.id,
+      row: eventSeat.row,
+      label: eventSeat.label,
+      type: eventSeat.type,
+      status: eventSeat.status,
+      ticket: {
+        id: eventSeat.ticket.id,
+        price: eventSeat.ticket.price.toString(),
+        name: eventSeat.ticket.name,
+        background_color: eventSeat.background_color,
+      },
+    }));
+
+    return { items: items };
   }
 
   async changeStatusScan(eventId: string): Promise<any> {
