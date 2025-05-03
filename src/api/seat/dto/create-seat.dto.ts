@@ -1,15 +1,59 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class CreateSeatDto {
-  @IsNotEmpty({ message: 'FIELD-0001' })
-  @IsString({ message: 'FIELD-0002' })
-  event_id: string;
+class TicketDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 
-  @IsNotEmpty({ message: 'FIELD-0001' })
-  @IsString({ message: 'FIELD-0002' })
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'FIELD-0001' })
-  @IsString({ message: 'FIELD-0002' })
-  seat_map_data: string;
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
+
+  @IsNotEmpty()
+  @IsString()
+  backgroundColor: string;
+}
+
+class SeatDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  row: string;
+
+  @IsNotEmpty()
+  @IsString()
+  label: string;
+
+  @IsNotEmpty()
+  @IsString()
+  type: string;
+
+  @IsNotEmpty()
+  @IsString()
+  status: string;
+
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => TicketDto)
+  ticket: TicketDto;
+}
+
+export class CreateSeatDto {
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => SeatDto)
+  seats: SeatDto[];
 }

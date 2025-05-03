@@ -137,6 +137,13 @@ export class Event extends SoftDeleteBaseEntity {
   status: string;
 
   @Column({
+    type: 'text',
+    nullable: true,
+    comment: 'JSON representation of the seats associated with the event',
+  })
+  seats: string;
+
+  @Column({
     default: false,
     type: 'boolean',
     nullable: false,
