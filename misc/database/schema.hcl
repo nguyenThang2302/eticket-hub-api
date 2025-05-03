@@ -614,6 +614,12 @@ table "events" {
     comment = "Status of the event"
   }
 
+  column "seats" {
+    type    = text
+    null    = true
+    comment = "JSON representation of the seats associated with the event"
+  }
+
   column "allow_scan_ticket" {
     type    = boolean
     null    = false
@@ -1128,6 +1134,12 @@ table "event_seats" {
     type    = varchar(10)
     null    = true
     comment = "Status of the seat (e.g., available, booked)"
+  }
+
+  column "background_color" {
+    type    = varchar(30)
+    null    = true
+    comment = "Background color of the seat"
   }
 
   column "created_at" {

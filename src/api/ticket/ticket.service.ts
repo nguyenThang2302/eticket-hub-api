@@ -77,4 +77,23 @@ export class TicketService {
       },
     };
   }
+
+  async getTickets(organizeId: string, eventId: string) {
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .innerJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
+      .innerJoinAndSelect('ticketEvent.event', 'event')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .getMany();
+
+    const items = tickets.map((ticket) => ({
+      id: ticket.id,
+      name: ticket.name,
+      price: ticket.price,
+      quantity: ticket.quantity,
+    }));
+
+    return { items: items };
+  }
 }

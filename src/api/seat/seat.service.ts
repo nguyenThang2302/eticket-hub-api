@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seat } from 'src/database/entities/seat.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   ListSeatResponseDto,
   ListSeatResponseWrapperDto,
@@ -10,6 +10,8 @@ import { plainToInstance } from 'class-transformer';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateSeatDto } from './dto/create-seat.dto';
 import { EventService } from '../event/event.service';
+import { Ticket } from 'src/database/entities/ticket.entity';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class SeatService {
@@ -19,6 +21,8 @@ export class SeatService {
     @InjectRepository(EventSeat)
     private readonly eventSeatRepository: Repository<EventSeat>,
     private readonly eventService: EventService,
+    @InjectRepository(Ticket)
+    private readonly ticketRepository: Repository<Ticket>,
   ) {}
 
   async getSeats(): Promise<ListSeatResponseWrapperDto> {
@@ -49,19 +53,6 @@ export class SeatService {
     );
   }
 
-  async createSeat(body: CreateSeatDto) {
-    const { event_id } = body;
-    const isExistingEvent = await this.eventService.getEventDetails(event_id);
-    if (!isExistingEvent) {
-      throw new Error('EVENT_NOT_FOUND');
-    }
-    const eventSeat = this.eventSeatRepository.create(body);
-    const eventSeatSaved = await this.eventSeatRepository.save(eventSeat);
-    return {
-      id: eventSeatSaved[0].id,
-    };
-  }
-
   async isValidSeat(seats: any): Promise<boolean> {
     for (const seat of seats) {
       const { id, type } = seat;
@@ -76,5 +67,57 @@ export class SeatService {
       }
     }
     return true;
+  }
+
+  async createSeats(body: CreateSeatDto, eventId: string) {
+    const { seats } = body;
+
+    const tickets = await this.getUniqueTickets(seats);
+    const ticketIds = tickets.map((ticket) => ticket.id);
+    for (const ticket of tickets) {
+      const ticketExists = await this.ticketRepository.findOne({
+        where: { id: ticket.id },
+      });
+      if (!ticketExists) {
+        throw new NotFoundException('TICKET_NOT_FOUND');
+      }
+    }
+    const eventSeats = await this.eventSeatRepository.find({
+      where: {
+        event_id: eventId,
+        ticket_id: In(ticketIds),
+      },
+    });
+    if (eventSeats.length > 0) {
+      await this.eventSeatRepository.remove(eventSeats);
+    }
+    for (const seat of seats) {
+      const createSeatTicket = this.eventSeatRepository.create({
+        event_id: eventId,
+        ticket_id: seat.ticket.id,
+        row: seat.row,
+        label: seat.label,
+        type: seat.type,
+        status: seat.status,
+        background_color: seat.ticket.backgroundColor,
+      });
+      await this.eventSeatRepository.save(createSeatTicket);
+    }
+    return {
+      message: 'Created successfully',
+    };
+  }
+
+  private async getUniqueTickets(seats: any[]) {
+    const uniqueTicketsMap = new Map();
+
+    for (const seat of seats) {
+      const ticket = seat.ticket;
+      if (!uniqueTicketsMap.has(ticket.id)) {
+        uniqueTicketsMap.set(ticket.id, ticket);
+      }
+    }
+
+    return Array.from(uniqueTicketsMap.values());
   }
 }

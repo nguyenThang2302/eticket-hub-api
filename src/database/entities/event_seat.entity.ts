@@ -60,6 +60,14 @@ export class EventSeat extends SoftDeleteBaseEntity {
   })
   status: string;
 
+  @Column({
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    comment: 'Color of the seat (e.g., Red, Green)',
+  })
+  background_color: string;
+
   @ManyToOne(() => Ticket, (ticket) => ticket.eventSeats, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
