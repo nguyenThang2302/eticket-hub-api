@@ -1274,6 +1274,18 @@ table "coupons" {
     comment = "Unique identifier for the coupon"
   }
 
+  column "campaign_name" {
+    type    = varchar(255)
+    null    = true
+    comment = "Name of the campaign associated with the coupon"
+  }
+
+  column "type" {
+    type    = varchar(30)
+    null    = true
+    comment = "Type of the coupon (e.g., discount, promo)"
+  }
+
   column "code" {
     type    = varchar(7)
     null    = false
@@ -1286,10 +1298,16 @@ table "coupons" {
     comment = "Discount percentage of the coupon"
   }
 
-  column "amount" {
-    type    = int
+  column "start_datetime" {
+    type    = datetime
     null    = true
-    comment = "Discount amount of the coupon"
+    comment = "Start date and time of the coupon"
+  }
+
+  column "end_datetime" {
+    type    = datetime
+    null    = true
+    comment = "End date and time of the coupon"
   }
 
   column "created_at" {
