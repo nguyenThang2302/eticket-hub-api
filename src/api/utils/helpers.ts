@@ -43,7 +43,7 @@ export function calculateDiscount(
     return +((price * coupons.amount) / 100).toFixed(2);
   }
 
-  if (coupons.type === COUPON_TYPE.NUMERIC) {
+  if (coupons.type === COUPON_TYPE.FIXED) {
     return +coupons.amount.toFixed(2);
   }
 }

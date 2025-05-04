@@ -1310,6 +1310,12 @@ table "coupons" {
     comment = "End date and time of the coupon"
   }
 
+  column "status" {
+    type    = varchar(10)
+    null    = true
+    comment = "Status of the coupon (e.g., active, expired)"
+  }
+
   column "created_at" {
     type    = datetime
     null    = false
