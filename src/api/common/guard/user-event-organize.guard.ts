@@ -21,7 +21,7 @@ export class UserEventOrganizeGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const userID = _.get(request, 'user.sub', null);
-    const { event_id: eventId } = request.params;
+    const { event_id: eventId } = request.params || request.body;
     const organizeId = _.get(request, 'auth.organizeConfig.organizeId', null);
     const userInOrganize = await this.groupRepository.findOne({
       where: {

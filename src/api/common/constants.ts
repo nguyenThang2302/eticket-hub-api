@@ -22,11 +22,6 @@ export enum ORDER_STATUS {
   PAID = 'paid',
 }
 
-export enum COUPON_TYPE {
-  PERCENTAGE = 'percentage',
-  NUMERIC = 'numeric',
-}
-
 export enum PROVIDER {
   GOOGLE = 'google',
   FACEBOOK = 'facebook',
@@ -75,4 +70,14 @@ export enum EVENT_TYPE {
 export enum BUSINESS_TYPE {
   COMPANY = 'company',
   INDIVIDUAL = 'individual',
+}
+
+export enum COUPON_TYPE {
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed',
+}
+
+export enum COUPON_STATUS {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
 }

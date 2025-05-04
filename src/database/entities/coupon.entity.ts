@@ -50,6 +50,13 @@ export class Coupon extends SoftDeleteBaseEntity {
   })
   end_datetime: Date;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    comment: 'Status of the coupon',
+  })
+  status: string;
+
   @OneToMany(() => EventCoupon, (eventCoupon) => eventCoupon.coupon)
   eventCoupons: EventCoupon[];
 
