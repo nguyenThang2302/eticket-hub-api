@@ -145,7 +145,7 @@ export class SeatService {
       throw new NotFoundException('EVENT_NOT_FOUND');
     }
 
-    return event.seats;
+    return event.seats || '';
   }
 
   private async getUniqueTickets(seats: any[]) {
