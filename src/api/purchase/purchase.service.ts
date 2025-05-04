@@ -11,7 +11,13 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from 'src/database/entities/order.entity';
 import { DataSource, In, Repository } from 'typeorm';
 import { Event } from 'src/database/entities/event.entity';
-import { EVENT_STATUS, ORDER_STATUS, SEAT_STATUS } from '../common/constants';
+import {
+  COUPON_STATUS,
+  COUPON_TYPE,
+  EVENT_STATUS,
+  ORDER_STATUS,
+  SEAT_STATUS,
+} from '../common/constants';
 import { ReceiveInfo } from 'src/database/entities/receive_info.entity';
 import { nanoid } from 'nanoid';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -70,10 +76,24 @@ export class PurchaseService {
     if (!coupon) {
       throw new BadRequestException('COUPON_NOT_AVAILABLE');
     }
-    const totalPice = subTotalPrice - subTotalPrice * coupon.percent;
+    if (
+      (coupon.start_datetime && coupon.start_datetime > new Date()) ||
+      coupon.status === COUPON_STATUS.INACTIVE
+    ) {
+      throw new BadRequestException('COUPON_NOT_AVAILABLE');
+    }
+    let totalPice;
+    if (coupon.type === COUPON_TYPE.PERCENTAGE) {
+      totalPice = subTotalPrice - subTotalPrice * coupon.percent;
+    } else {
+      totalPice = subTotalPrice - coupon.percent;
+    }
     return {
       sub_total_price: subTotalPrice,
-      discount_price: subTotalPrice * coupon.percent,
+      discount_price:
+        coupon.type === COUPON_TYPE.PERCENTAGE
+          ? subTotalPrice * coupon.percent
+          : coupon.percent,
       total_price: totalPice,
     };
   }
@@ -140,7 +160,16 @@ export class PurchaseService {
             const coupon = await this.couponService.getCouponAvaiable(
               createOrderDto.coupon_code,
             );
-            discountPrice = totalPriceActual * coupon.percent;
+            if (
+              (coupon.start_datetime && coupon.start_datetime > new Date()) ||
+              coupon.status === COUPON_STATUS.INACTIVE
+            ) {
+              throw new BadRequestException('COUPON_NOT_AVAILABLE');
+            }
+            discountPrice =
+              coupon.type === COUPON_TYPE.PERCENTAGE
+                ? totalPriceActual * coupon.percent
+                : coupon.percent;
             couponId = coupon.id;
           }
           if (
@@ -178,7 +207,6 @@ export class PurchaseService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
     } catch (error) {
-      console.error('Error during transaction:', error);
       await queryRunner.rollbackTransaction();
       throw error;
     }
