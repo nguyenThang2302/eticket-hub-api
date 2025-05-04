@@ -17,19 +17,16 @@ export class Coupon1744292273512 implements Seeder {
         id: nanoid(16),
         code: 'SAVE10',
         percent: 0.1,
-        amount: 10,
       },
       {
         id: nanoid(16),
         code: 'EXTRA10',
         percent: 0.05,
-        amount: 10,
       },
       {
         id: nanoid(16),
         code: 'WELCOME',
         percent: 0.15,
-        amount: 10,
       },
     ];
 

@@ -1,0 +1,2 @@
+-- Modify "coupons" table
+ALTER TABLE `coupons` DROP COLUMN `amount`, ADD COLUMN `campaign_name` varchar(255) NULL COMMENT "Name of the campaign associated with the coupon", ADD COLUMN `type` varchar(30) NULL COMMENT "Type of the coupon (e.g., discount, promo)", ADD COLUMN `start_datetime` datetime NULL COMMENT "Start date and time of the coupon", ADD COLUMN `end_datetime` datetime NULL COMMENT "End date and time of the coupon";

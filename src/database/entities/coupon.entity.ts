@@ -7,6 +7,22 @@ import { Order } from './order.entity';
 export class Coupon extends SoftDeleteBaseEntity {
   @Column({
     type: 'varchar',
+    length: 255,
+    nullable: true,
+    comment: 'Name of the campaign associated with the coupon',
+  })
+  campaign_name: string;
+
+  @Column({
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    comment: 'Type of the coupon',
+  })
+  type: string;
+
+  @Column({
+    type: 'varchar',
     length: 7,
     nullable: false,
     comment: 'Unique code for the coupon',
@@ -21,11 +37,18 @@ export class Coupon extends SoftDeleteBaseEntity {
   percent: number;
 
   @Column({
-    type: 'int',
+    type: 'datetime',
     nullable: true,
-    comment: 'Discount amount of the coupon',
+    comment: 'Start date of the coupon validity',
   })
-  amount: number;
+  start_datetime: Date;
+
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    comment: 'End date of the coupon validity',
+  })
+  end_datetime: Date;
 
   @OneToMany(() => EventCoupon, (eventCoupon) => eventCoupon.coupon)
   eventCoupons: EventCoupon[];
