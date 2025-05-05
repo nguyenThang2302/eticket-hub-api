@@ -98,6 +98,7 @@ export class CloudinaryService {
         async (error, result) => {
           if (error) return reject(error);
           const url = result.secure_url;
+          console.log('url', url);
           await this.eventRepository.update(eventId, {
             poster_url: url,
           });

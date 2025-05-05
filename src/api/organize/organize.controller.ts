@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,9 +7,12 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
@@ -20,6 +24,10 @@ import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { UserInOrganize } from '../common/guard/user-in-organize.guard';
 import { UserEventOrganizeGuard } from '../common/guard/user-event-organize.guard';
 import { CurrentOrganizer } from '../common/decorators/current-organizer.decorator';
+import { plainToInstance } from 'class-transformer';
+import { UpdateEventRequestDto } from './dto/update-event-organizer.dto';
+import { validate } from 'class-validator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('organizes')
 export class OrganizeController {
@@ -71,11 +79,44 @@ export class OrganizeController {
   )
   @HttpCode(HttpStatus.OK)
   @Get('events/:event_id')
-  async getEvent(
+  async getEventByOrganizer(
     @CurrentOrganizer() organizer: any,
     @Param('event_id') eventId: string,
   ): Promise<any> {
     const organizeId = organizer.organizeId;
     return this.organizeService.getEventByOrganizer(organizeId, eventId);
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
+  @Put('events/:event_id')
+  async updateEventByOrganizer(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('data') data: string,
+  ): Promise<any> {
+    const parsedData = JSON.parse(data);
+    const dto = plainToInstance(UpdateEventRequestDto, parsedData);
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
+    const organizeId = organizer.organizeId;
+    return this.organizeService.updateEventByOrganizer(
+      organizeId,
+      eventId,
+      dto,
+      file,
+    );
   }
 }
