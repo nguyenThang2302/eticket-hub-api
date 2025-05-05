@@ -1,11 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
 import { REGISTER_ORGANIZATION_STATUS } from '../common/constants';
 import { Group } from 'src/database/entities/group.entity';
 import { Event } from 'src/database/entities/event.entity';
+import { UpdateEventRequestDto } from './dto/update-event-organizer.dto';
+import { Ticket } from 'src/database/entities/ticket.entity';
+import { TicketEvent } from 'src/database/entities/ticket_event.entity';
+import { Venue } from 'src/database/entities/venue.entity';
+import { Category } from 'src/database/entities/category.entity';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class OrganizeService {
@@ -16,6 +23,15 @@ export class OrganizeService {
     private readonly groupRepository: Repository<Group>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Ticket)
+    private readonly ticketRepository: Repository<Ticket>,
+    @InjectRepository(TicketEvent)
+    private readonly ticketEventRepository: Repository<TicketEvent>,
+    @InjectRepository(Venue)
+    private readonly venueRepository: Repository<Venue>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    private readonly mediaService: MediaService,
   ) {}
 
   async registerOrganization(
@@ -147,6 +163,7 @@ export class OrganizeService {
       .innerJoinAndSelect('ticket_event.ticket', 'ticket')
       .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.id = :eventId', { eventId })
+      .andWhere('ticket.deleted_at IS NULL')
       .select()
       .getOne();
     if (!event) {
@@ -190,6 +207,100 @@ export class OrganizeService {
         address: event.address_business,
         tax_code: event.tax_code,
       },
+    };
+  }
+
+  async updateEventByOrganizer(
+    organizeId: string,
+    eventId: string,
+    data: UpdateEventRequestDto,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    const event = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.organization', 'organization')
+      .innerJoinAndSelect('event.ticketEvents', 'ticket_event')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .innerJoinAndSelect('ticket_event.ticket', 'ticket')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .select()
+      .getOne();
+    if (!event) {
+      throw new BadRequestException('EVENT_NOT_FOUND');
+    }
+
+    const category = await this.categoryRepository.findOne({
+      where: { id: data.category },
+    });
+    if (!category) {
+      throw new BadRequestException('CATEGORY_NOT_FOUND');
+    }
+
+    if (file) {
+      await this.mediaService.uploadEventImage(file, event.id);
+    }
+
+    if (event.ticketEvents.length > 0) {
+      const tickets = event.ticketEvents.map((ticketEvent) => ({
+        id: ticketEvent.ticket.id,
+        name: ticketEvent.ticket.name,
+        price: Number(ticketEvent.ticket.price),
+        quantity: ticketEvent.ticket.quantity,
+        max_quantity: ticketEvent.ticket.max_quantity,
+        min_quantity: ticketEvent.ticket.min_quantity,
+      }));
+      const ticketIds = tickets.map((ticket) => ticket.id);
+      await this.ticketEventRepository.delete({
+        event_id: eventId,
+        ticket_id: In(ticketIds),
+      });
+      await this.ticketRepository.softDelete({
+        id: In(ticketIds),
+      });
+    }
+    data.tickets.forEach(async (ticket) => {
+      const createTicket = this.ticketRepository.create({
+        name: ticket.name,
+        price: ticket.price,
+        quantity: ticket.quantity,
+        max_quantity: ticket.max_quantity,
+        min_quantity: ticket.min_quantity,
+      });
+      await this.ticketRepository.save(createTicket);
+      const createTicketEvent = this.ticketEventRepository.create({
+        event: event,
+        ticket: createTicket,
+      });
+      await this.ticketEventRepository.save(createTicketEvent);
+    });
+
+    const venueId = event.venue.id;
+    const updateVenue = {
+      name: data.address.name,
+      address: `${data.address.street}, ${data.address.ward}, ${data.address.district}, ${data.address.city}`,
+    };
+    await this.venueRepository.update(venueId, updateVenue);
+    const updatedEvent = {
+      name: data.name,
+      type: data.type,
+      category: { id: data.category },
+      description: data.description,
+      start_datetime: data.start_datetime,
+      end_datetime: data.end_datetime,
+      privacy: data.privacy,
+      account_owner: data.account_owner,
+      account_number: data.account_number,
+      bank: data.bank,
+      business_type: data.business_type,
+      full_name: data.full_name,
+      address_business: data.address_business,
+      tax_code: data.tax_code,
+    };
+    await this.eventRepository.update(eventId, updatedEvent);
+
+    return {
+      id: eventId,
     };
   }
 }
