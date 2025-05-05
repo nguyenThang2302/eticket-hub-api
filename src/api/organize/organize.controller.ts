@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   Req,
@@ -17,6 +18,8 @@ import { JwtAuthGuard, RolesGuard } from '../common/guard';
 import { OrganizeService } from './organize.service';
 import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { UserInOrganize } from '../common/guard/user-in-organize.guard';
+import { UserEventOrganizeGuard } from '../common/guard/user-event-organize.guard';
+import { CurrentOrganizer } from '../common/decorators/current-organizer.decorator';
 
 @Controller('organizes')
 export class OrganizeController {
@@ -56,5 +59,23 @@ export class OrganizeController {
   async getEvents(@Req() req: Request, @Query() params: any): Promise<any> {
     const organizeId = req['auth']['organizeConfig']['organizeId'];
     return this.organizeService.getEvents(organizeId, params);
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id')
+  async getEvent(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getEventByOrganizer(organizeId, eventId);
   }
 }

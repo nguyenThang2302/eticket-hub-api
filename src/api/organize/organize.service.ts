@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
 import { Repository } from 'typeorm';
@@ -135,5 +135,61 @@ export class OrganizeService {
       },
     }));
     return { items: result, paginations };
+  }
+
+  async getEventByOrganizer(organizeId: string, eventId: string): Promise<any> {
+    const event = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.organization', 'organization')
+      .innerJoinAndSelect('event.category', 'category')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .innerJoinAndSelect('event.ticketEvents', 'ticket_event')
+      .innerJoinAndSelect('ticket_event.ticket', 'ticket')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .select()
+      .getOne();
+    if (!event) {
+      throw new BadRequestException('EVENT_NOT_FOUND');
+    }
+    const tickets = event.ticketEvents.map((ticketEvent) => ({
+      id: ticketEvent.ticket.id,
+      name: ticketEvent.ticket.name,
+      price: Number(ticketEvent.ticket.price),
+      quantity: ticketEvent.ticket.quantity,
+      max_quantity: ticketEvent.ticket.max_quantity,
+      min_quantity: ticketEvent.ticket.min_quantity,
+    }));
+    return {
+      id: event.id,
+      name: event.name,
+      poster_url: event.poster_url,
+      type: event.type,
+      venue: {
+        id: event.venue?.id,
+        name: event.venue?.name,
+        address: event.venue?.address,
+      },
+      category: {
+        id: event.category?.id,
+        name: event.category?.name,
+      },
+      description: event.description,
+      start_datetime: event.start_datetime,
+      end_datetime: event.end_datetime,
+      tickets,
+      privacy: event.privacy,
+      banks: {
+        name: event.bank,
+        account_number: event.account_number,
+        account_name: event.account_owner,
+      },
+      business: {
+        type: event.business_type,
+        full_name: event.full_name,
+        address: event.address_business,
+        tax_code: event.tax_code,
+      },
+    };
   }
 }
