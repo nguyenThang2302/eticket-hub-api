@@ -53,13 +53,37 @@ export class EventController {
   @Get('pending')
   @Roles(ROLE.PROMOTER)
   @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async getPendingEvents(
     @CurrentOrganizer() organizer: any,
     @Query() params: any,
   ) {
     const organizeId = organizer.organizeId;
     return await this.eventService.getPendingEvents(organizeId, params);
+  }
+
+  @Get('upcoming')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getUpcomingEvents(
+    @CurrentOrganizer() organizer: any,
+    @Query() params: any,
+  ) {
+    const organizeId = organizer.organizeId;
+    return await this.eventService.getUpcomingEvents(organizeId, params);
+  }
+
+  @Get('past')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getPastEvents(
+    @CurrentOrganizer() organizer: any,
+    @Query() params: any,
+  ) {
+    const organizeId = organizer.organizeId;
+    return await this.eventService.getPastEvents(organizeId, params);
   }
 
   @Get('search')
