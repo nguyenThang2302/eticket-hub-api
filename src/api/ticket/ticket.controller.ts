@@ -19,6 +19,15 @@ import { CurrentOrganizer } from '../common/decorators/current-organizer.decorat
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
+  @Get('verifies')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
+  @HttpCode(HttpStatus.OK)
+  async verifyTicket(@Query('code') code: string) {
+    const data = await this.ticketService.verifyQRTicket(code);
+    return data;
+  }
+
   @Get(':event_id')
   @Roles(ROLE.PROMOTER)
   @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
@@ -29,14 +38,5 @@ export class TicketController {
   ) {
     const organizeId = organizer.organizeId;
     return await this.ticketService.getTickets(organizeId, eventId);
-  }
-
-  @Get('verifies')
-  @Roles(ROLE.PROMOTER)
-  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
-  @HttpCode(HttpStatus.OK)
-  async verifyTicket(@Query('code') code: string) {
-    const data = await this.ticketService.verifyQRTicket(code);
-    return data;
   }
 }
