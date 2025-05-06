@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Event } from 'src/database/entities/event.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateEventRequestDto } from './dto/create-event-request.dto';
@@ -36,7 +36,11 @@ export class EventService {
 
   async getEventDetails(eventId: string): Promise<EventDetailResponseDto> {
     const event = await this.eventRepository.findOne({
-      where: { id: eventId },
+      where: {
+        id: eventId,
+        status: EVENT_STATUS.ACTIVE,
+        end_datetime: MoreThan(new Date()),
+      },
       relations: [
         'ticketEvents',
         'ticketEvents.ticket',
@@ -44,6 +48,8 @@ export class EventService {
         'venue',
       ],
     });
+
+    console.log('event', event);
 
     if (!event) {
       throw new BadRequestException('EVENT_NOT_FOUND');
@@ -324,6 +330,114 @@ export class EventService {
       id: event.id,
       name: event.name,
       start_time: event.start_datetime,
+      end_time: event.end_datetime,
+      poster_url: event.poster_url,
+      venue: {
+        name: event.venue.name,
+        address: event.venue.address,
+      },
+    }));
+
+    const paginations = {
+      total: totalEvents,
+      limit: pageSize,
+      page: currentPage,
+      current_page: currentPage,
+      total_page: totalPages,
+      has_next_page: currentPage < totalPages,
+      has_previous_page: currentPage > 1,
+      next_page: currentPage < totalPages ? currentPage + 1 : null,
+    };
+
+    return { items, paginations };
+  }
+
+  async getUpcomingEvents(organizeId: string, params: any): Promise<any> {
+    const { page = 1, limit = 4 } = params;
+    const currentPage = parseInt(page.toString(), 10);
+    const pageSize = parseInt(limit.toString(), 10);
+
+    const totalEvents = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.organization', 'organization')
+      .where('organization.id = :organizeId', { organizeId })
+      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .getCount();
+
+    const totalPages = Math.ceil(totalEvents / pageSize);
+    const offset = (currentPage - 1) * pageSize;
+
+    const events = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoinAndSelect('event.organization', 'organization')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .where('organization.id = :organizeId', { organizeId })
+      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .andWhere('event.end_datetime > NOW()')
+      .orderBy('event.start_datetime', 'ASC')
+      .skip(offset)
+      .take(pageSize)
+      .getMany();
+
+    const items = events.map((event) => ({
+      id: event.id,
+      name: event.name,
+      start_time: event.start_datetime,
+      end_time: event.end_datetime,
+      poster_url: event.poster_url,
+      venue: {
+        name: event.venue.name,
+        address: event.venue.address,
+      },
+    }));
+
+    const paginations = {
+      total: totalEvents,
+      limit: pageSize,
+      page: currentPage,
+      current_page: currentPage,
+      total_page: totalPages,
+      has_next_page: currentPage < totalPages,
+      has_previous_page: currentPage > 1,
+      next_page: currentPage < totalPages ? currentPage + 1 : null,
+    };
+
+    return { items, paginations };
+  }
+
+  async getPastEvents(organizeId: string, params: any): Promise<any> {
+    const { page = 1, limit = 4 } = params;
+    const currentPage = parseInt(page.toString(), 10);
+    const pageSize = parseInt(limit.toString(), 10);
+
+    const totalEvents = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.organization', 'organization')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.end_datetime < NOW()')
+      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .getCount();
+
+    const totalPages = Math.ceil(totalEvents / pageSize);
+    const offset = (currentPage - 1) * pageSize;
+
+    const events = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoinAndSelect('event.organization', 'organization')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .andWhere('event.end_datetime < NOW()')
+      .orderBy('event.start_datetime', 'ASC')
+      .skip(offset)
+      .take(pageSize)
+      .getMany();
+
+    const items = events.map((event) => ({
+      id: event.id,
+      name: event.name,
+      start_time: event.start_datetime,
+      end_time: event.end_datetime,
       poster_url: event.poster_url,
       venue: {
         name: event.venue.name,

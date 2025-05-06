@@ -4,7 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
 import { In, Repository } from 'typeorm';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
-import { REGISTER_ORGANIZATION_STATUS } from '../common/constants';
+import {
+  EVENT_STATUS,
+  REGISTER_ORGANIZATION_STATUS,
+} from '../common/constants';
 import { Group } from 'src/database/entities/group.entity';
 import { Event } from 'src/database/entities/event.entity';
 import { UpdateEventRequestDto } from './dto/update-event-organizer.dto';
@@ -113,6 +116,11 @@ export class OrganizeService {
       .innerJoin('event.organization', 'organization')
       .innerJoin('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
+      .andWhere('event.deleted_at IS NULL')
+      .andWhere('event.status = :status', {
+        status: EVENT_STATUS.ACTIVE,
+      })
+      .andWhere('event.end_datetime > NOW()')
       .select([
         'event.id',
         'event.name',
