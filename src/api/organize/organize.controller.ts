@@ -152,4 +152,23 @@ export class OrganizeController {
     const organizeId = organizer.organizeId;
     return this.organizeService.getOrderReports(organizeId, eventId, params);
   }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/ticket-reports')
+  async getTicketReport(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @Query() params: any,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getTicketReport(organizeId, eventId, params);
+  }
 }
