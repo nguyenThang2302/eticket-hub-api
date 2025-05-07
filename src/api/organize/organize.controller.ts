@@ -119,4 +119,37 @@ export class OrganizeController {
       file,
     );
   }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/orders/:order_id')
+  async getOrderByOrganizer(@Param('order_id') orderId: string): Promise<any> {
+    return this.organizeService.getOrderByOrganizer(orderId);
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/order-reports')
+  async getOrderReports(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @Query() params: any,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getOrderReports(organizeId, eventId, params);
+  }
 }

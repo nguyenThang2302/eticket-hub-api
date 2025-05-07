@@ -16,6 +16,10 @@ import { TicketEvent } from 'src/database/entities/ticket_event.entity';
 import { Venue } from 'src/database/entities/venue.entity';
 import { Category } from 'src/database/entities/category.entity';
 import { MediaService } from '../media/media.service';
+import { Order } from 'src/database/entities/order.entity';
+import { plainToClass } from 'class-transformer';
+import { GetOrderDetailResponseDto } from '../purchase/dto/get-order-detail-response.dto';
+import { maskEmail, maskPhoneNumber } from '../utils/helpers';
 
 @Injectable()
 export class OrganizeService {
@@ -35,6 +39,8 @@ export class OrganizeService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly mediaService: MediaService,
+    @InjectRepository(Order)
+    private readonly orderRepositoty: Repository<Order>,
   ) {}
 
   async registerOrganization(
@@ -310,5 +316,126 @@ export class OrganizeService {
     return {
       id: eventId,
     };
+  }
+
+  async getOrderReports(
+    organizeId: string,
+    eventId: string,
+    params: any,
+  ): Promise<any> {
+    const totalOrders = await this.orderRepositoty.countBy({
+      event_id: eventId,
+    });
+    const { page = 1, limit = 10 } = params;
+
+    const orders = await this.orderRepositoty
+      .createQueryBuilder('order')
+      .innerJoinAndSelect('order.event', 'event')
+      .leftJoinAndSelect('order.coupon', 'coupon')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .select([
+        'order.id',
+        'order.seat_info',
+        'order.status',
+        'order.total_price',
+        'event.id',
+        'coupon.code',
+      ])
+      .orderBy('order.created_at', 'DESC')
+      .limit(parseInt(limit))
+      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .getMany();
+
+    const totalPages = Math.ceil(totalOrders / parseInt(limit));
+
+    const paginations = {
+      total: totalOrders,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+    };
+
+    const result = orders.map((order) => ({
+      id: order.id,
+      ticket: JSON.parse(order.seat_info).map((ticket: any) => ({
+        id: ticket.id,
+        row: ticket.row,
+        label: ticket.label,
+      })),
+      total_price: order.total_price,
+      coupon: order.coupon || null,
+    }));
+    return { items: result, paginations };
+  }
+
+  async getOrderByOrganizer(id: string) {
+    const order = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
+      .leftJoinAndSelect('orders.event', 'event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('orders.coupon', 'coupon')
+      .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
+      .where('orders.id = :id', { id })
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException('ORDER_NOT_FOUND');
+    }
+
+    // Map seat information from ticket images
+    const seatInfo = order.order_ticket_images.map((ticket) => ({
+      location: ticket.seat_location,
+      ticket_name: ticket.ticket_name,
+      ticket_price: ticket.price,
+      ticket_url: ticket.qr_ticket_url,
+      ticket_code: ticket.code,
+    }));
+
+    // Transform the order into the response DTO
+    const response = plainToClass(GetOrderDetailResponseDto, {
+      id: order.id,
+      tracking_user: order.user_id, // Assuming tracking order is the same as order ID
+      payment_method_name: order.paymet_method?.name || null,
+      coupon: order.coupon
+        ? {
+            code: order.coupon.code,
+            percent: order.coupon.percent,
+          }
+        : null,
+      receive_infos: order.receive_info
+        ? {
+            name: order.receive_info.name,
+            email: maskEmail(order.receive_info.email),
+            phone_number: maskPhoneNumber(order.receive_info.phone_number),
+          }
+        : null,
+      discount_price: order.discount_price,
+      sub_total_price: order.sub_total_price,
+      total_price: order.total_price,
+      event: order.event
+        ? {
+            name: order.event.name,
+            start_time: order.event.start_datetime,
+            venue: order.event.venue
+              ? {
+                  name: order.event.venue.name,
+                  address: order.event.venue.address,
+                }
+              : null,
+          }
+        : null,
+      seat_info: seatInfo,
+      status: order.status,
+      created_at: order.created_at,
+    });
+
+    return response;
   }
 }

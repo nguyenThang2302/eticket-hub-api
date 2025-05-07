@@ -78,3 +78,18 @@ export function isApiSkipped(endpoint: string, method: string): boolean {
   }
   return false;
 }
+
+export function maskEmail(email: string): string {
+  const [localPart, domain] = email.split('@');
+  const maskedLocalPart =
+    localPart.slice(0, 2) + '*'.repeat(localPart.length - 2);
+  return `${maskedLocalPart}@${domain}`;
+}
+
+export function maskPhoneNumber(phoneNumber: string): string {
+  return (
+    phoneNumber.slice(0, 2) +
+    '*'.repeat(phoneNumber.length - 4) +
+    phoneNumber.slice(-2)
+  );
+}

@@ -11,6 +11,7 @@ import { TicketEvent } from 'src/database/entities/ticket_event.entity';
 import { Venue } from 'src/database/entities/venue.entity';
 import { Category } from 'src/database/entities/category.entity';
 import { MediaModule } from '../media/media.module';
+import { Order } from 'src/database/entities/order.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MediaModule } from '../media/media.module';
       TicketEvent,
       Venue,
       Category,
+      Order,
     ]),
     UserModule,
     MediaModule,
