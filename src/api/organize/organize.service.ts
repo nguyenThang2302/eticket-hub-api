@@ -533,4 +533,57 @@ export class OrganizeService {
       },
     };
   }
+
+  async getGrossSales(
+    organizeId: string,
+    eventId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<any> {
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+
+    const ticket = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .leftJoinAndSelect('ticket.ticketEvents', 'ticket_event')
+      .where('ticket_event.event_id = :eventId', { eventId })
+      .getMany();
+    const ticketsWithCapacity = ticket.map((t) => ({
+      ...t,
+      capacity: parseInt(t.price as unknown as string, 10) * t.quantity,
+    }));
+    const totalCapacity = ticketsWithCapacity.reduce(
+      (sum, t) => sum + t.capacity,
+      0,
+    );
+
+    const salesByDay = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .select('DATE(orders.created_at)', 'date')
+      .addSelect('SUM(orders.total_price)', 'total_price')
+      .leftJoin('orders.event', 'event')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
+        startDate: startDateTime,
+        endDate: endDateTime,
+      })
+      .groupBy('DATE(orders.created_at)')
+      .orderBy('DATE(orders.created_at)', 'ASC')
+      .getRawMany();
+
+    if (!salesByDay.length) {
+      return { items: [] };
+    }
+
+    const response = salesByDay.map((sale) => ({
+      date: sale.date,
+      total_price: Math.round(sale.total_price / 1000),
+    }));
+
+    return {
+      items: response,
+      total_capacity: totalCapacity,
+    };
+  }
 }

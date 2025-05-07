@@ -171,4 +171,29 @@ export class OrganizeController {
     const organizeId = organizer.organizeId;
     return this.organizeService.getTicketReport(organizeId, eventId, params);
   }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/gross-sales')
+  async getGrossSales(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getGrossSales(
+      organizeId,
+      eventId,
+      startDate,
+      endDate,
+    );
+  }
 }
