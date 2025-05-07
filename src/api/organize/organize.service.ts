@@ -438,4 +438,99 @@ export class OrganizeService {
 
     return response;
   }
+
+  async getTicketReport(
+    organizeId: string,
+    eventId: string,
+    params: any,
+  ): Promise<any> {
+    const { page = 1, limit = 10 } = params;
+
+    const [orders, total] = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
+      .leftJoinAndSelect('orders.event', 'event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('orders.coupon', 'coupon')
+      .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
+      .where('orders.event_id = :eventId', { eventId })
+      .andWhere('event.organization_id = :organizeId', { organizeId })
+      .take(limit) // Limit the number of results
+      .skip((page - 1) * limit) // Skip results for pagination
+      .getManyAndCount(); // Get both the results and the total count
+
+    if (!orders.length) {
+      throw new BadRequestException('ORDERS_NOT_FOUND');
+    }
+
+    // Map orders into the response DTO
+    const response = orders.map((order) => {
+      const seatInfo = order.order_ticket_images.map((ticket) => ({
+        location: ticket.seat_location,
+        ticket_name: ticket.ticket_name,
+        ticket_price: ticket.price,
+        ticket_url: ticket.qr_ticket_url,
+        ticket_code: ticket.code,
+      }));
+
+      return plainToClass(GetOrderDetailResponseDto, {
+        id: order.id,
+        tracking_user: order.user_id,
+        payment_method_name: order.paymet_method?.name || null,
+        coupon: order.coupon
+          ? {
+              code: order.coupon.code,
+              percent: order.coupon.percent,
+            }
+          : null,
+        receive_infos: order.receive_info
+          ? {
+              name: order.receive_info.name,
+              email: maskEmail(order.receive_info.email),
+              phone_number: maskPhoneNumber(order.receive_info.phone_number),
+            }
+          : null,
+        discount_price: order.discount_price,
+        sub_total_price: order.sub_total_price,
+        total_price: order.total_price,
+        event: order.event
+          ? {
+              name: order.event.name,
+              start_time: order.event.start_datetime,
+              venue: order.event.venue
+                ? {
+                    name: order.event.venue.name,
+                    address: order.event.venue.address,
+                  }
+                : null,
+            }
+          : null,
+        seat_info: seatInfo,
+        status: order.status,
+        created_at: order.created_at,
+      });
+    });
+
+    // Calculate pagination details
+    const totalPage = Math.ceil(total / limit);
+    const currentPage = parseInt(page, 10);
+    const hasNextPage = currentPage < totalPage;
+    const hasPreviousPage = currentPage > 1;
+    const nextPage = hasNextPage ? currentPage + 1 : null;
+
+    return {
+      items: response,
+      paginations: {
+        total,
+        limit: parseInt(limit, 10),
+        page: currentPage,
+        current_page: currentPage,
+        total_page: totalPage,
+        has_next_page: hasNextPage,
+        has_previous_page: hasPreviousPage,
+        next_page: nextPage,
+      },
+    };
+  }
 }
