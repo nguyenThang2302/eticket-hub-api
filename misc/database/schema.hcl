@@ -1695,6 +1695,12 @@ table "order_ticket_images" {
     comment = "Foreign key referencing the order associated with the ticket image"
   }
 
+  column "ticket_id" {
+    type    = varchar(16)
+    null    = true
+    comment = "Foreign key referencing the ticket associated with the image"
+  }
+
   column "code" {
     type    = varchar(16)
     null    = true
@@ -1764,6 +1770,13 @@ table "order_ticket_images" {
   foreign_key "fk_order_ticket_images_orders" {
     columns     = [column.order_id]
     ref_columns = [table.orders.column.id]
+    on_update   = "CASCADE"
+    on_delete   = "SET_NULL"
+  }
+
+  foreign_key "fk_order_ticket_images_tickets" {
+    columns     = [column.ticket_id]
+    ref_columns = [table.tickets.column.id]
     on_update   = "CASCADE"
     on_delete   = "SET_NULL"
   }

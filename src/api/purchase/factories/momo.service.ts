@@ -183,6 +183,7 @@ export class MomoService implements IPayment {
       const qrCodeTicket = await this.qrticketService.generateQRCode(code);
       const ticketInfo = {
         code: code,
+        ticketId: seat.ticket_id,
         ticketName: seat.ticket.name,
         seatName: `${seat.row}-${seat.label}`,
         ticketPrice: seat.ticket.price,

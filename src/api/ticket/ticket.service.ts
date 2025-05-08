@@ -4,6 +4,7 @@ import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { Repository } from 'typeorm';
+import moment from 'moment';
 
 @Injectable()
 export class TicketService {
@@ -60,6 +61,17 @@ export class TicketService {
 
     if (!event.allow_scan_ticket) {
       throw new BadRequestException('TICKET_NOT_ALLOW_SCAN');
+    }
+
+    const currentTime = moment();
+    const eventStartTime = moment(event.start_datetime);
+    const oneDayBeforeEvent = eventStartTime.clone().subtract(1, 'days');
+
+    if (
+      currentTime.isBefore(oneDayBeforeEvent) ||
+      currentTime.isAfter(eventStartTime)
+    ) {
+      throw new BadRequestException('TICKET_SCAN_TIME_INVALID');
     }
 
     ticket.is_scanned = true;
