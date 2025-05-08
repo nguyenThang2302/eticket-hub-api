@@ -66,6 +66,7 @@ export class CloudinaryService {
           const url = result.secure_url;
           const orderTicketImage = new OrderTicketImage();
           orderTicketImage.order_id = orderId;
+          orderTicketImage.ticket_id = ticketInfo.ticketId;
           orderTicketImage.qr_ticket_url = url;
           orderTicketImage.code = ticketInfo.code;
           orderTicketImage.ticket_name = ticketInfo.ticketName;

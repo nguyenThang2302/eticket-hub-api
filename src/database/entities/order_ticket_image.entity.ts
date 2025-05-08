@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Order } from './order.entity';
+import { Ticket } from './ticket.entity';
 
 @Entity('order_ticket_images')
 export class OrderTicketImage extends BaseEntity {
@@ -11,6 +12,13 @@ export class OrderTicketImage extends BaseEntity {
   @JoinColumn({ name: 'order_id', referencedColumnName: 'id' })
   order: Order;
 
+  @ManyToOne(() => Ticket, (ticket) => ticket.order_ticket_images, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'ticket_id', referencedColumnName: 'id' })
+  ticket: Ticket;
+
   @Column({
     type: 'varchar',
     length: 16,
@@ -19,6 +27,14 @@ export class OrderTicketImage extends BaseEntity {
       'Foreign key referencing the order associated with the ticket image',
   })
   order_id: string;
+
+  @Column({
+    type: 'varchar',
+    length: 16,
+    nullable: true,
+    comment: 'Foreign key referencing the ticket associated with the image',
+  })
+  ticket_id: string;
 
   @Column({
     type: 'varchar',

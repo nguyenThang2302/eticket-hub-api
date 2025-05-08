@@ -3,6 +3,7 @@ import { SoftDeleteBaseEntity } from './soft-delete-base.entity';
 import { Language } from './language.entity';
 import { TicketEvent } from './ticket_event.entity';
 import { EventSeat } from './event_seat.entity';
+import { OrderTicketImage } from './order_ticket_image.entity';
 
 @Entity('tickets')
 export class Ticket extends SoftDeleteBaseEntity {
@@ -68,4 +69,10 @@ export class Ticket extends SoftDeleteBaseEntity {
     cascade: true,
   })
   eventSeats: EventSeat[];
+
+  @OneToMany(
+    () => OrderTicketImage,
+    (orderTicketImage) => orderTicketImage.ticket,
+  )
+  order_ticket_images: OrderTicketImage[];
 }
