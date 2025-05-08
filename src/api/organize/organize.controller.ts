@@ -196,4 +196,47 @@ export class OrganizeController {
       endDate,
     );
   }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/sold-ticket')
+  async getSoldTicket(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getSoldTicket(
+      organizeId,
+      eventId,
+      startDate,
+      endDate,
+    );
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/summary-tickets')
+  async getSummaryTickets(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getSummaryTickets(organizeId, eventId);
+  }
 }

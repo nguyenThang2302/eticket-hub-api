@@ -559,7 +559,10 @@ export class OrganizeService {
 
     const salesByDay = await this.orderRepositoty
       .createQueryBuilder('orders')
-      .select('DATE(orders.created_at)', 'date')
+      .select(
+        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
+        'date',
+      )
       .addSelect('SUM(orders.total_price)', 'total_price')
       .leftJoin('orders.event', 'event')
       .where('event.organization_id = :organizeId', { organizeId })
@@ -568,8 +571,13 @@ export class OrganizeService {
         startDate: startDateTime,
         endDate: endDateTime,
       })
-      .groupBy('DATE(orders.created_at)')
-      .orderBy('DATE(orders.created_at)', 'ASC')
+      .groupBy(
+        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
+      )
+      .orderBy(
+        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
+        'ASC',
+      )
       .getRawMany();
 
     if (!salesByDay.length) {
@@ -585,5 +593,119 @@ export class OrganizeService {
       items: response,
       total_capacity: totalCapacity,
     };
+  }
+
+  async getSoldTicket(
+    organizeId: string,
+    eventId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<any> {
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+    endDateTime.setHours(23, 59, 59, 999);
+    const salesByDay = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoin('orders.event', 'event')
+      .select([
+        'orders.id AS order_id',
+        'orders.seat_info AS seat_info',
+        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', @@session.time_zone), '%Y-%m-%d') AS date",
+      ])
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
+        startDate: startDateTime,
+        endDate: endDateTime,
+      })
+      .getRawMany();
+
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .leftJoin('ticket.ticketEvents', 'ticket_event')
+      .where('ticket_event.event_id = :eventId', { eventId })
+      .getMany();
+
+    const totalTickets = tickets.reduce((sum, ticket) => {
+      return sum + Number(ticket.quantity);
+    }, 0);
+
+    if (!salesByDay.length) {
+      return { items: [] };
+    }
+
+    const result = {};
+
+    salesByDay.forEach((sale) => {
+      const date = sale.date;
+      const seatInfo = JSON.parse(sale.seat_info);
+
+      seatInfo.forEach((seat) => {
+        const ticketId = seat.ticket_id;
+        const ticketName = seat.ticket.name;
+
+        if (!result[date]) {
+          result[date] = {};
+        }
+        if (!result[date][ticketId]) {
+          result[date][ticketId] = {
+            ticket_name: ticketName,
+            sold_quantity: 0,
+          };
+        }
+
+        result[date][ticketId].sold_quantity += 1;
+      });
+    });
+
+    const formattedResult = Object.entries(result)
+      .map(([date, tickets]) => ({
+        date,
+        tickets: Object.values(tickets),
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    return { items: formattedResult, total_tickets: totalTickets };
+  }
+
+  async getSummaryTickets(organizeId: string, eventId: string): Promise<any> {
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .leftJoinAndSelect('ticket.ticketEvents', 'ticket_event')
+      .where('ticket_event.event_id = :eventId', { eventId })
+      .getMany();
+
+    const orders = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoin('orders.event', 'event')
+      .select(['orders.seat_info AS seat_info'])
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .getRawMany();
+
+    const soldTickets = orders.reduce(
+      (acc, order) => {
+        const seatInfo = JSON.parse(order.seat_info);
+        seatInfo.forEach((seat) => {
+          const ticketId = seat.ticket_id;
+          if (!acc[ticketId]) {
+            acc[ticketId] = 0;
+          }
+          acc[ticketId] += 1;
+        });
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    const result = tickets.map((ticket) => ({
+      id: ticket.id,
+      name: ticket.name,
+      price: Number(ticket.price),
+      quantity: ticket.quantity,
+      sold: soldTickets[ticket.id] || 0,
+    }));
+
+    return { items: result };
   }
 }
