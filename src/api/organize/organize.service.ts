@@ -21,6 +21,8 @@ import { Order } from 'src/database/entities/order.entity';
 import { plainToClass } from 'class-transformer';
 import { GetOrderDetailResponseDto } from '../purchase/dto/get-order-detail-response.dto';
 import { maskEmail, maskPhoneNumber } from '../utils/helpers';
+import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
 
 @Injectable()
 export class OrganizeService {
@@ -42,6 +44,10 @@ export class OrganizeService {
     private readonly mediaService: MediaService,
     @InjectRepository(Order)
     private readonly orderRepositoty: Repository<Order>,
+    @InjectRepository(OrderTicketImage)
+    private readonly orderTicketImageRepository: Repository<OrderTicketImage>,
+    @InjectRepository(EventSeat)
+    private readonly eventSeatRepository: Repository<EventSeat>,
   ) {}
 
   async registerOrganization(
@@ -707,5 +713,102 @@ export class OrganizeService {
     }));
 
     return { items: result };
+  }
+
+  async getCheckInEventReport(
+    organizeId: string,
+    eventId: string,
+  ): Promise<any> {
+    const totalCheckIn = await this.orderTicketImageRepository
+      .createQueryBuilder('ticket')
+      .innerJoinAndSelect('ticket.order', 'order')
+      .innerJoinAndSelect('order.event', 'event')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .andWhere('ticket.is_scanned = :isScanned', { isScanned: true })
+      .getCount();
+
+    const soldOutTickets = await this.orderTicketImageRepository
+      .createQueryBuilder('ticket')
+      .innerJoinAndSelect('ticket.order', 'order')
+      .innerJoinAndSelect('order.event', 'event')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .getCount();
+
+    const totalNoCheckIn = await this.orderTicketImageRepository
+      .createQueryBuilder('ticket')
+      .innerJoinAndSelect('ticket.order', 'order')
+      .innerJoinAndSelect('order.event', 'event')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .andWhere('ticket.is_scanned = :isScanned', { isScanned: false })
+      .getCount();
+
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .innerJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
+      .innerJoinAndSelect('ticketEvent.event', 'event')
+      .leftJoinAndSelect('ticket.order_ticket_images', 'orderTicketImage')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.id = :eventId', { eventId })
+      .getMany();
+
+    const totalTickets = await Promise.all(
+      tickets.map(async (ticket) => ({
+        id: ticket.id,
+        name: ticket.name,
+        price: Number(ticket.price),
+        total_checked_in: await this.getTotalTicketCheckIn(
+          ticket.id,
+          eventId,
+          organizeId,
+        ),
+        quantity: await this.getTotalTickets(eventId, ticket.id),
+        // scanned_tickets: ticket.order_ticket_images.filter(
+        //   (image) => image.is_scanned,
+        // ).length,
+      })),
+    );
+
+    return {
+      total_checked_in: totalCheckIn,
+      total_no_check_in: totalNoCheckIn,
+      sold_out_tickets: soldOutTickets,
+      total_tickets: totalTickets,
+    };
+  }
+
+  async getTotalTicketCheckIn(
+    ticketId: string,
+    eventId: any,
+    organizeId: any,
+  ): Promise<any> {
+    const orders = await this.orderRepositoty.find({
+      where: {
+        event: { id: eventId, organization: { id: organizeId } },
+      },
+    });
+    const orderIds = orders.map((order) => order.id);
+    const totalCheckIn = await this.orderTicketImageRepository
+      .createQueryBuilder('orderTicketImage')
+      .andWhere('orderTicketImage.ticket_id = :ticketId', { ticketId })
+      .andWhere('orderTicketImage.order_id IN (:...orderIds)', { orderIds })
+      .andWhere('orderTicketImage.is_scanned = :isScanned', { isScanned: true })
+      .getCount();
+    return totalCheckIn;
+  }
+
+  private async getTotalTickets(
+    eventId: string,
+    ticketId: string,
+  ): Promise<any> {
+    const totalTickets = await this.orderTicketImageRepository.count({
+      where: {
+        order: { event: { id: eventId } },
+        ticket: { id: ticketId },
+      },
+    });
+    return totalTickets;
   }
 }

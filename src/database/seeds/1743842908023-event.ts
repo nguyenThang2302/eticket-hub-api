@@ -5,6 +5,7 @@ import { Organization } from '../entities/organization.entity';
 import { Venue } from '../entities/venue.entity';
 import { nanoid } from 'nanoid';
 import { Category } from '../entities/category.entity';
+import { EVENT_STATUS } from 'src/api/common/constants';
 
 export class Event1743777731297 implements Seeder {
   public async run(
@@ -41,8 +42,9 @@ export class Event1743777731297 implements Seeder {
           'https://salt.tkbcdn.com/ts/ds/7c/18/6f/b32013793b1dbda15606e1cca4ab40ac.jpg',
         poster_url:
           'https://salt.tkbcdn.com/ts/ds/7c/18/6f/b32013793b1dbda15606e1cca4ab40ac.jpg',
-        start_datetime: new Date('2023-12-01T09:00:00'),
-        status: 'active',
+        start_datetime: new Date(),
+        end_datetime: new Date(new Date().setDate(new Date().getDate() + 5)),
+        status: EVENT_STATUS.ACTIVE,
         organization: organizations[0],
         venue: venues[0],
         lang_code: 'vi',
@@ -56,9 +58,10 @@ export class Event1743777731297 implements Seeder {
           'https://salt.tkbcdn.com/ts/ds/88/e2/26/921b29e67158c9ccd7a382d422b796d1.jpg',
         poster_url:
           'https://salt.tkbcdn.com/ts/ds/88/e2/26/921b29e67158c9ccd7a382d422b796d1.jpg',
-        start_datetime: new Date('2023-12-15T18:00:00'),
-        status: 'active',
-        organization: organizations[1],
+        start_datetime: new Date(),
+        end_datetime: new Date(new Date().setDate(new Date().getDate() + 5)),
+        status: EVENT_STATUS.ACTIVE,
+        organization: organizations[0],
         venue: venues[1],
         lang_code: 'vi',
         category: categories[1],

@@ -239,4 +239,22 @@ export class OrganizeController {
     const organizeId = organizer.organizeId;
     return this.organizeService.getSummaryTickets(organizeId, eventId);
   }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.OK)
+  @Get('events/:event_id/check-in-reports')
+  async getCheckInEventReport(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.getCheckInEventReport(organizeId, eventId);
+  }
 }

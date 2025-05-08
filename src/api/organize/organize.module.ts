@@ -11,6 +11,8 @@ import { TicketEvent } from 'src/database/entities/ticket_event.entity';
 import { Venue } from 'src/database/entities/venue.entity';
 import { Category } from 'src/database/entities/category.entity';
 import { MediaModule } from '../media/media.module';
+import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
+import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { Order } from 'src/database/entities/order.entity';
 
 @Module({
@@ -23,6 +25,8 @@ import { Order } from 'src/database/entities/order.entity';
       TicketEvent,
       Venue,
       Category,
+      OrderTicketImage,
+      EventSeat,
       Order,
     ]),
     UserModule,
