@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import * as _ from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
@@ -255,39 +256,26 @@ export class OrganizeService {
       await this.mediaService.uploadEventImage(file, event.id);
     }
 
-    if (event.ticketEvents.length > 0) {
-      const tickets = event.ticketEvents.map((ticketEvent) => ({
-        id: ticketEvent.ticket.id,
-        name: ticketEvent.ticket.name,
-        price: Number(ticketEvent.ticket.price),
-        quantity: ticketEvent.ticket.quantity,
-        max_quantity: ticketEvent.ticket.max_quantity,
-        min_quantity: ticketEvent.ticket.min_quantity,
-      }));
-      const ticketIds = tickets.map((ticket) => ticket.id);
-      await this.ticketEventRepository.delete({
-        event_id: eventId,
-        ticket_id: In(ticketIds),
-      });
-      await this.ticketRepository.softDelete({
-        id: In(ticketIds),
-      });
+    for (const ticket of data.tickets) {
+      if (!_.isNull(ticket.id)) {
+        const { id, ...updateTicket } = ticket;
+        await this.ticketRepository.update(id, updateTicket);
+      } else {
+        const createTicket = this.ticketRepository.create({
+          name: ticket.name,
+          price: ticket.price,
+          quantity: ticket.quantity,
+          max_quantity: ticket.max_quantity,
+          min_quantity: ticket.min_quantity,
+        });
+        await this.ticketRepository.save(createTicket);
+        const createTicketEvent = this.ticketEventRepository.create({
+          event: event,
+          ticket: createTicket,
+        });
+        await this.ticketEventRepository.save(createTicketEvent);
+      }
     }
-    data.tickets.forEach(async (ticket) => {
-      const createTicket = this.ticketRepository.create({
-        name: ticket.name,
-        price: ticket.price,
-        quantity: ticket.quantity,
-        max_quantity: ticket.max_quantity,
-        min_quantity: ticket.min_quantity,
-      });
-      await this.ticketRepository.save(createTicket);
-      const createTicketEvent = this.ticketEventRepository.create({
-        event: event,
-        ticket: createTicket,
-      });
-      await this.ticketEventRepository.save(createTicketEvent);
-    });
 
     const venueId = event.venue.id;
     const updateVenue = {
