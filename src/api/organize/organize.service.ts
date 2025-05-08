@@ -461,7 +461,19 @@ export class OrganizeService {
       .getManyAndCount(); // Get both the results and the total count
 
     if (!orders.length) {
-      throw new BadRequestException('ORDERS_NOT_FOUND');
+      return {
+        items: [],
+        paginations: {
+          total,
+          limit: parseInt(limit, 10),
+          page: parseInt(page, 10),
+          current_page: parseInt(page, 10),
+          total_page: 0,
+          has_next_page: false,
+          has_previous_page: false,
+          next_page: null,
+        },
+      };
     }
 
     // Map orders into the response DTO

@@ -10,6 +10,14 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
@@ -21,16 +29,34 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtPayload } from 'jsonwebtoken';
 import { GoogleOauthGuard } from '../common/guard/google-oauth.guard';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'User registered successfully',
+  })
+  @ApiBody({ type: CreateAuthDto })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('/register')
   async registerUser(@Body() createAuthDto: CreateAuthDto) {
     await this.authService.register(createAuthDto);
   }
 
+  @ApiOperation({ summary: 'Verify email during registration' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Email verified successfully',
+  })
+  @ApiQuery({
+    name: 'token',
+    type: String,
+    required: true,
+    description: 'Verification token',
+  })
   @HttpCode(HttpStatus.OK)
   @Get('/verify-email')
   async verificationEmailRegister(@Query() params: any) {
@@ -38,12 +64,26 @@ export class AuthController {
     return await this.authService.verifyTokenEmailRegister(tokenRegister);
   }
 
+  @ApiOperation({ summary: 'Login a user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User logged in successfully',
+    type: TokenDto,
+  })
+  @ApiBody({ type: LoginDto })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() body: LoginDto): Promise<TokenDto> {
     return plainToInstance(TokenDto, await this.authService.login(body));
   }
 
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token refreshed successfully',
+    type: TokenDto,
+  })
+  @ApiBearerAuth()
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
@@ -54,6 +94,12 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({ summary: 'Logout a user' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'User logged out successfully',
+  })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
@@ -61,13 +107,23 @@ export class AuthController {
     this.authService.logout(user.jti);
   }
 
+  @ApiOperation({ summary: 'Initiate Google OAuth login' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Redirect to Google login',
+  })
   @Get('google')
   @UseGuards(GoogleOauthGuard)
   async googleLogin() {}
 
-  @Get('google/callback')
+  @ApiOperation({ summary: 'Handle Google OAuth callback' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Google OAuth callback handled successfully',
+  })
   @HttpCode(HttpStatus.OK)
   @UseGuards(GoogleOauthGuard)
+  @Get('google/callback')
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     const { access_token, refresh_token } = await this.authService.signInGoogle(
       req.user,

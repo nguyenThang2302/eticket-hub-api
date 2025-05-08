@@ -49,8 +49,6 @@ export class EventService {
       ],
     });
 
-    console.log('event', event);
-
     if (!event) {
       throw new BadRequestException('EVENT_NOT_FOUND');
     }
