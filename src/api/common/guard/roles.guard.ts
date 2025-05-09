@@ -35,7 +35,7 @@ export class RolesGuard implements CanActivate {
       !currentUser ||
       !requiredRoles.some((role) => currentUser.role?.includes(role))
     )
-      throw new ForbiddenException('CUS-0402');
+      throw new ForbiddenException('CANNOT_ACCESS_RESOURCE');
 
     return true;
   }

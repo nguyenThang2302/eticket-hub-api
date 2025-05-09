@@ -21,10 +21,10 @@ export class UserService {
   async getCurrentUser(userId: string): Promise<User> {
     const user = await this.findUserById(userId);
 
-    if (!user) throw new UnauthorizedException('AUTH-0504');
+    if (!user) throw new UnauthorizedException('INVALID_USER_INFO');
 
     if (user.is_verified === false)
-      throw new UnauthorizedException('AUTH-0503');
+      throw new UnauthorizedException('EMAIL_NOT_VERIFIED');
 
     return user;
   }
@@ -80,7 +80,7 @@ export class UserService {
 
     const user = await this.findUserById(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('USER_NOT_FOUND');
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -88,7 +88,7 @@ export class UserService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException('INVALID_CURRENT_PASSWORD');
     }
 
     const hashedPassword = await bcrypt.hash(new_password, 10);
@@ -100,11 +100,7 @@ export class UserService {
   }
 
   async updateUserInfo(id: string, body: any) {
-    try {
-      await this.usersRepository.update(id, body);
-    } catch (error) {
-      console.log(error);
-    }
+    await this.usersRepository.update(id, body);
     return {
       message: 'Success',
     };

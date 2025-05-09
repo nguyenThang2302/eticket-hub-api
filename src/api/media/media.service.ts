@@ -13,7 +13,7 @@ export class MediaService {
   async uploadProfileAvater(file: Express.Multer.File, userId: string) {
     const user = await this.userService.findUserById(userId);
     if (!user) {
-      throw new ForbiddenException('CUS-0402');
+      throw new ForbiddenException('CANNOT_ACCESS_RESOURCE');
     }
     await this.imageQueue.add('UploadAvatarToCloudinary', {
       file,

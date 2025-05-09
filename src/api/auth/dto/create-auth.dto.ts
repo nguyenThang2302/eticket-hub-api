@@ -8,18 +8,18 @@ export class CreateAuthDto {
     description: 'Email address of the user',
     example: 'user@example.com',
   })
-  @IsNotEmpty({ message: 'FIELD-0001' })
-  @IsEmail({}, { message: 'FIELD-0003' })
+  @IsNotEmpty({ message: 'FIELD_REQUIRED' })
+  @IsEmail({}, { message: 'INVALID_EMAIL' })
   email: string;
 
   @ApiProperty({ description: 'Password of the user', example: 'P@ssw0rd!' })
-  @IsNotEmpty({ message: 'FIELD-0001' })
+  @IsNotEmpty({ message: 'FIELD_REQUIRED' })
   @IsString({ message: 'FIELD-0002' })
   @IsValidPassword()
   password: string;
 
   @ApiProperty({ description: 'Full name of the user', example: 'John Doe' })
-  @IsNotEmpty({ message: 'FIELD-0001' })
+  @IsNotEmpty({ message: 'FIELD_REQUIRED' })
   @IsString({ message: 'FIELD-0002' })
   name: string;
 
@@ -28,7 +28,7 @@ export class CreateAuthDto {
     enum: ROLE,
     example: ROLE.USER,
   })
-  @IsNotEmpty({ message: 'FIELD-0001' })
+  @IsNotEmpty({ message: 'FIELD_REQUIRED' })
   @IsString({ message: 'FIELD-0002' })
   role: ROLE;
 }

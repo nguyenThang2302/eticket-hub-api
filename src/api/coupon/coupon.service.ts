@@ -78,10 +78,9 @@ export class CouponService {
         coupon: coupon,
       },
     });
-    if (!eventCoupon) {
-      throw new Error('EVENT_COUPON_NOT_FOUND');
+    if (eventCoupon) {
+      await this.eventCouponRepository.delete(eventCoupon.id);
     }
-    await this.eventCouponRepository.delete(eventCoupon.id);
     await this.couponRepository.update(coupon.id, {
       status: COUPON_STATUS.INACTIVE,
     });

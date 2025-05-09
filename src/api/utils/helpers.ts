@@ -13,7 +13,7 @@ export function IsValidPassword(validationOptions?: ValidationOptions) {
       target: object.constructor,
       propertyName: propertyName,
       options: {
-        message: 'FIELD-0004',
+        message: 'INVALID_PASSWORD',
         ...validationOptions,
       },
       validator: {

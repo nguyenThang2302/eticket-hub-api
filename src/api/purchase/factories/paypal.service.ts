@@ -87,7 +87,7 @@ export class PaypalService implements IPayment {
         !this.configService.get<string>('paypal.paypal_client_id') ||
         !this.configService.get<string>('paypal.paypal_client_secret')
       ) {
-        throw new ServiceUnavailableException('PAY-0001');
+        throw new ServiceUnavailableException('PAYMENT_FAILED');
       }
 
       const auth = Buffer.from(
@@ -110,7 +110,7 @@ export class PaypalService implements IPayment {
       const data = await response.json();
       return data.access_token;
     } catch (error) {
-      throw new BadRequestException('PAY-0001');
+      throw new BadRequestException('PAYMENT_FAILED');
     }
   }
 
@@ -196,7 +196,7 @@ export class PaypalService implements IPayment {
         order_id: order.id,
       };
     } else {
-      throw new BadRequestException('PAY-0002');
+      throw new BadRequestException('PAYPAL_ERROR_GATEWAY');
     }
   }
 

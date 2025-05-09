@@ -38,7 +38,7 @@ export class UserEventOrganizeGuard implements CanActivate {
       },
     });
     if (_.isEmpty(userInOrganize) || _.isEmpty(eventInOrganize)) {
-      throw new ForbiddenException('CUS-0402');
+      throw new ForbiddenException('CANNOT_ACCESS_RESOURCE');
     }
     return true;
   }

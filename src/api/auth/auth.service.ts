@@ -46,7 +46,7 @@ export class AuthService {
     const { name: fullName, email, password, role } = body;
 
     const existingUser = await this.userService.findExistingEmail(email);
-    if (existingUser) throw new BadRequestException('FIELD-0010');
+    if (existingUser) throw new BadRequestException('ALREADY_EXIST_EMAIL');
 
     const hashPassword = await this.hashPassword(password);
 
@@ -93,7 +93,7 @@ export class AuthService {
       const typeToken: string = payloadVerificationEmail.type;
 
       if (typeToken !== jwtConstants.type.register) {
-        throw new BadRequestException('AUTH-0506');
+        throw new BadRequestException('INVALID_TYPE_TOKEN');
       }
 
       const userId = payloadVerificationEmail.sub;
@@ -110,7 +110,7 @@ export class AuthService {
   async login(body: LoginDto): Promise<TokenDto> {
     const user = await this.validateUser(body);
 
-    if (!user.is_verified) throw new UnauthorizedException('AUTH-0503');
+    if (!user.is_verified) throw new UnauthorizedException('EMAIL_NOT_VERIFIED');
 
     const { access_token_id, refresh_token_id } = await this.saveToken(user.id);
 
@@ -196,7 +196,7 @@ export class AuthService {
     if (user && (await bcrypt.compare(body.password, user.password)))
       return user;
 
-    throw new BadRequestException('AUTH-0502');
+    throw new BadRequestException('INVALID_ACCOUNT');
   }
 
   private async generateAccessToken(payload: JwtPayload): Promise<string> {
@@ -249,7 +249,7 @@ export class AuthService {
     const { email } = user;
     const existingUser = await this.userService.findExistingEmail(email);
     if (existingUser && existingUser.provider !== PROVIDER.GOOGLE) {
-      throw new BadRequestException('AUTH-0504');
+      throw new BadRequestException('INVALID_USER_INFO');
     }
     if (existingUser && existingUser.provider === PROVIDER.GOOGLE) {
       const { access_token_id, refresh_token_id } = await this.saveToken(

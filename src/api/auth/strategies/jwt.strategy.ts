@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       id: payload.jti,
     });
 
-    if (!token) throw new UnauthorizedException('AUTH-0504');
+    if (!token) throw new UnauthorizedException('INVALID_USER_INFO');
 
     return payload;
   }

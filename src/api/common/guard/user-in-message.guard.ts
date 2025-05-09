@@ -18,7 +18,7 @@ export class UserInMessage implements CanActivate {
     const isUserInMessage = userId === receiverId || userId === senderId;
 
     if (!isUserInMessage) {
-      throw new UnauthorizedException('AUTH-0504');
+      throw new UnauthorizedException('INVALID_USER_INFO');
     }
 
     return true;
