@@ -13,7 +13,7 @@ export class RefreshGuard extends AuthGuard('refresh-token') {
 
   handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
-      throw err || new UnauthorizedException('AUTH-0505');
+      throw err || new UnauthorizedException('SESSION_EXPIRED');
     }
 
     return user;

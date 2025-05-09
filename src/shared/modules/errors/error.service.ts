@@ -13,20 +13,20 @@ export class ErrorService {
       case 'Internal Server Error':
         return this.combine(err['message'], i18n);
       case 'Not Found':
-        return this.combine('CUS-0403', i18n);
+        return this.combine('PAGE_NOT_FOUND', i18n);
       case 'Unauthorized':
         return this.combine(err['message'], i18n);
       case 'Unprocessable Entity':
         return this.handleUnprocessEntity(err, i18n);
       default:
-        return this.combine('CUS-0405', i18n);
+        return this.combine('INTERNAL_SERVICE_ERROR', i18n);
     }
   }
 
   private handleUnprocessEntity(error: string | object, i18n: I18nContext) {
     const transformedError = this.transform(error['message'], i18n).flat();
 
-    return this.combine('CUS-0401', i18n, transformedError);
+    return this.combine('INVALID_INPUT_FIELDS', i18n, transformedError);
   }
 
   private transform(errors: ValidationError[], i18n: I18nContext) {

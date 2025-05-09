@@ -1,63 +1,57 @@
 {
-  "CUS-0401": {
-    "error_id": "CUS-0401",
+  "INVALID_INPUT_FIELDS": {
+    "error_id": "INVALID_INPUT_FIELDS",
     "title": "Bad Request",
     "message": "One or more field input values are invalid"
   },
-  "CUS-0402": {
-    "error_id": "CUS-0402",
+  "CANNOT_ACCESS_RESOURCE": {
+    "error_id": "CANNOT_ACCESS_RESOURCE",
     "title": "Forbidden",
     "message": "You can't access this resource"
   },
-  "CUS-0403": {
-    "error_id": "CUS-0403",
+  "PAGE_NOT_FOUND": {
+    "error_id": "PAGE_NOT_FOUND",
     "title": "Not Found",
     "message": "Page not found"
   },
-  "CUS-0404": {
-    "error_id": "CUS-0404",
-    "title": "Bad Request",
-    "message": "No results found"
-  },
-  "CUS-0405": {
-    "error_id": "CUS-0405",
+  "INTERNAL_SERVICE_ERROR": {
+    "error_id": "INTERNAL_SERVICE_ERROR",
     "title": "Internal Server Error",
     "message": "An internal server error occurred. Please contact us if the problem is not solved"
   },
-  "CUS-0406": {
-    "error_id": "CUS-0406",
+  "TIME_OUT": {
+    "error_id": "TIME_OUT",
     "title": "Timeout",
     "message": "Request timeout, please try again"
   },
 
-  "AUTH-0502": {
-    "error_id": "AUTH-0502",
+  "INVALID_ACCOUNT": {
+    "error_id": "INVALID_ACCOUNT",
     "title": "Unauthorized",
     "message": "You have entered wrong email or password"
   },
-  "AUTH-0503": {
-    "error_id": "AUTH-0503",
+  "EMAIL_NOT_VERIFIED": {
+    "error_id": "EMAIL_NOT_VERIFIED",
     "title": "Unauthorized",
     "message": "Your email is not verified"
   },
-  "AUTH-0504": {
-    "error_id": "AUTH-0504",
+  "INVALID_USER_INFO": {
+    "error_id": "INVALID_USER_INFO",
     "title": "Unauthorized",
     "message": "Invalid user information"
   },
-  "AUTH-0505": {
-    "error_id": "AUTH-0505",
+  "SESSION_EXPIRED": {
+    "error_id": "SESSION_EXPIRED",
     "title": "Unauthorized",
     "message": "Session expired"
   },
-  "AUTH-0506": {
-    "error_id": "AUTH-0506",
+  "INVALID_TYPE_TOKEN": {
+    "error_id": "INVALID_TYPE_TOKEN",
     "title": "Unauthorized",
     "message": "There is an error when verify your email, please try again"
   },
-
-  "FIELD-0001": {
-    "error_id": "FIELD-0001",
+  "FIELD_REQUIRED": {
+    "error_id": "FIELD_REQUIRED",
     "title": "Invalid Parameter",
     "message": "This field is required"
   },
@@ -66,43 +60,18 @@
     "title": "Invalid Parameter",
     "message": "You have entered wrong value format"
   },
-  "FIELD-0003": {
-    "error_id": "FIELD-0003",
+  "INVALID_EMAIL": {
+    "error_id": "INVALID_EMAIL",
     "title": "Invalid Parameter",
     "message": "You have entered invalid email"
   },
-  "FIELD-0004": {
-    "error_id": "FIELD-0004",
+  "INVALID_PASSWORD": {
+    "error_id": "INVALID_PASSWORD",
     "title": "Invalid Parameter",
     "message": "Your password must be least 8 characters with 1 number, 1 lowercase, 1 uppercase"
   },
-  "FIELD-0005": {
-    "error_id": "FIELD-0005",
-    "title": "Invalid Parameter",
-    "message": "Your field not reached minimum requirement"
-  },
-  "FIELD-0006": {
-    "error_id": "FIELD-0006",
-    "title": "Invalid Parameter",
-    "message": "Your field reached maximum requirement"
-  },
-  "FIELD-0007": {
-    "error_id": "FIELD-0007",
-    "title": "Bad Request",
-    "message": "The coupon has expired or invalid"
-  },
-  "FIELD-0008": {
-    "error_id": "FIELD-0008",
-    "title": "Bad Request",
-    "message": "You have entered invalid email"
-  },
-  "FIELD-0009": {
-    "error_id": "FIELD-0009",
-    "title": "Bad Request",
-    "message": "Someone has booked this car during this time period"
-  },
-  "FIELD-0010": {
-    "error_id": "FIELD-0010",
+  "ALREADY_EXIST_EMAIL": {
+    "error_id": "ALREADY_EXIST_EMAIL",
     "title": "Bad Request",
     "message": "This email has already been registered"
   },
@@ -122,14 +91,104 @@
     "message": "Invalid date"
   },
 
-  "PAY-0001": {
-    "error_id": "PAY-0001",
+  "PAYMENT_FAILED": {
+    "error_id": "PAYMENT_FAILED",
     "title": "Bad Request",
     "message": "Payment failed. Please try again"
   },
-  "PAY-0002": {
-    "error_id": "PAY-0002",
+  "PAYPAL_ERROR_GATEWAY": {
+    "error_id": "PAYPAL_ERROR_GATEWAY",
     "title": "Bad Request",
     "message": "Unpaid user error on Paypal payment gateway. Please try again"
+  },
+  "EVENT_NOT_FOUND": {
+    "error_id": "EVENT_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Event not found"
+  },
+  "COUPON_NOT_FOUND": {
+    "error_id": "COUPON_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Coupon not found"
+  },
+  "CATEGORY_NOT_FOUND": {
+    "error_id": "CATEGORY_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Category not found"
+  },
+  "ORGANIZER_NOT_FOUND": {
+    "error_id": "ORGANIZER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Organizer not found"
+  },
+  "ORDER_NOT_FOUND": {
+    "error_id": "ORDER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Order not found"
+  },
+  "PAYMENT_METHOD_NOT_FOUND": {
+    "error_id": "PAYMENT_METHOD_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Payment method not found"
+  },
+  "PAYMENT_ORDER_NOT_FOUND": {
+    "error_id": "PAYMENT_ORDER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Payment order not found"
+  },
+  "SEAT_NOT_AVAILABLE": {
+    "error_id": "SEAT_NOT_AVAILABLE",
+    "title": "Bad Request",
+    "message": "Seat not available"
+  },
+  "COUPON_NOT_AVAILABLE": {
+    "error_id": "COUPON_NOT_AVAILABLE",
+    "title": "Bad Request",
+    "message": "Coupon not available"
+  },
+  "PURCHASE_INAVAILABLE": {
+    "error_id": "PURCHASE_INAVAILABLE",
+    "title": "Bad Request",
+    "message": "You cannot purchase this ticket"
+  },
+  "ORDER_INVALID": {
+    "error_id": "ORDER_INVALID",
+    "title": "Bad Request",
+    "message": "Order invalid"
+  },
+  "TICKET_NOT_FOUND": {
+    "error_id": "TICKET_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Ticket not found"
+  },
+  "TICKET_SCAN_TIME_INVALID": {
+    "error_id": "TICKET_SCAN_TIME_INVALID",
+    "title": "Bad Request",
+    "message": "Ticket scan time invalid"
+  },
+  "TICKET_NOT_ALLOW_SCAN": {
+    "error_id": "TICKET_NOT_ALLOW_SCAN",
+    "title": "Bad Request",
+    "message": "Ticket not allow scan"
+  },
+  "TICKET_ALREADY_SCANNED": {
+    "error_id": "TICKET_ALREADY_SCANNED",
+    "title": "Bad Request",
+    "message": "Ticket already scanned"
+  },
+  "USER_NOT_FOUND": {
+    "error_id": "USER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "User not found"
+  },
+  "INVALID_CURRENT_PASSWORD": {
+    "error_id": "INVALID_CURRENT_PASSWORD",
+    "title": "Bad Request",
+    "message": "Current password is incorrect"
+  },
+  "ORDER_IS_PAID": {
+    "error_id": "ORDER_IS_PAID",
+    "title": "Bad Request",
+    "message": "Order is already paid"
   }
 }

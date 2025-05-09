@@ -32,13 +32,13 @@ export class OrganizeGuard implements CanActivate {
       null,
     );
     if (_.isEmpty(organizeIdInHeader)) {
-      throw new UnauthorizedException('AUTH-0504');
+      throw new UnauthorizedException('INVALID_USER_INFO');
     }
     const organize =
       await this.organizeService.getOrganizationById(organizeIdInHeader);
 
     if (_.isEmpty(organize)) {
-      throw new UnauthorizedException('AUTH-0504');
+      throw new UnauthorizedException('INVALID_USER_INFO');
     }
 
     request['auth'] = {

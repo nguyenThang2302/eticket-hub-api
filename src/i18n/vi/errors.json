@@ -1,63 +1,58 @@
 {
-  "CUS-0401": {
-    "error_id": "CUS-0401",
+  "INVALID_INPUT_FIELDS": {
+    "error_id": "INVALID_INPUT_FIELDS",
     "title": "Bad Request",
     "message": "Thông tin không hợp lệ, vui lòng kiểm tra lại"
   },
-  "CUS-0402": {
-    "error_id": "CUS-0402",
+  "CANNOT_ACCESS_RESOURCE": {
+    "error_id": "CANNOT_ACCESS_RESOURCE",
     "title": "Forbidden",
     "message": "Tài nguyên không được phép truy cập"
   },
-  "CUS-0403": {
-    "error_id": "CUS-0403",
+  "PAGE_NOT_FOUND": {
+    "error_id": "PAGE_NOT_FOUND",
     "title": "Not Found",
     "message": "Trang không tìm thấy"
   },
-  "CUS-0404": {
-    "error_id": "CUS-0404",
-    "title": "Bad Request",
-    "message": "Không tìm thấy kết quả"
-  },
-  "CUS-0405": {
-    "error_id": "CUS-0405",
+  "INTERNAL_SERVICE_ERROR": {
+    "error_id": "INTERNAL_SERVICE_ERROR",
     "title": "Internal Server Error",
     "message": "Hệ thống xảy ra sự cố, vui lòng thử lại sau"
   },
-  "CUS-0406": {
-    "error_id": "CUS-0406",
+  "TIME_OUT": {
+    "error_id": "TIME_OUT",
     "title": "Timeout",
     "message": "Yêu cầu hết hạn, vui lòng thử lại"
   },
 
-  "AUTH-0502": {
-    "error_id": "AUTH-0502",
+  "INVALID_ACCOUNT": {
+    "error_id": "INVALID_ACCOUNT",
     "title": "Unauthorized",
     "message": "Sai email hoặc mật khẩu"
   },
-  "AUTH-0503": {
-    "error_id": "AUTH-0503",
+  "EMAIL_NOT_VERIFIED": {
+    "error_id": "EMAIL_NOT_VERIFIED",
     "title": "Unauthorized",
     "message": "Email chưa được xác thực"
   },
-  "AUTH-0504": {
-    "error_id": "AUTH-0504",
+  "INVALID_USER_INFO": {
+    "error_id": "INVALID_USER_INFO",
     "title": "Unauthorized",
     "message": "Thông tin người dùng không hợp lệ"
   },
-  "AUTH-0505": {
-    "error_id": "AUTH-0505",
+  "SESSION_EXPIRED": {
+    "error_id": "SESSION_EXPIRED",
     "title": "Unauthorized",
     "message": "Phiên đăng nhập đã hết hạn"
   },
-  "AUTH-0506": {
-    "error_id": "AUTH-0506",
+  "INVALID_TYPE_TOKEN": {
+    "error_id": "INVALID_TYPE_TOKEN",
     "title": "Unauthorized",
     "message": "Có lỗĩ khi xác thực email, vui lòng thử lại"
   },
 
-  "FIELD-0001": {
-    "error_id": "FIELD-0001",
+  "FIELD_REQUIRED": {
+    "error_id": "FIELD_REQUIRED",
     "title": "Invalid Parameter",
     "message": "Thông tin bắt buộc điền"
   },
@@ -66,43 +61,18 @@
     "title": "Invalid Parameter",
     "message": "Bạn đã nhập sai định dạng"
   },
-  "FIELD-0003": {
-    "error_id": "FIELD-0003",
+  "INVALID_EMAIL": {
+    "error_id": "INVALID_EMAIL",
     "title": "Invalid Parameter",
     "message": "Bạn đã nhập sai định dạng email"
   },
-  "FIELD-0004": {
-    "error_id": "FIELD-0004",
+  "INVALID_PASSWORD": {
+    "error_id": "INVALID_PASSWORD",
     "title": "Invalid Parameter",
     "message": "Mật khẩu phải có ít nhất 1 kí tự thường, 1 kí tự hoa và 1 chữ số"
   },
-  "FIELD-0005": {
-    "error_id": "FIELD-0005",
-    "title": "Invalid Parameter",
-    "message": "Chưa đủ yêu cầu tối thiểu"
-  },
-  "FIELD-0006": {
-    "error_id": "FIELD-0006",
-    "title": "Invalid Parameter",
-    "message": "Vượt quá yêu cầu tối đa"
-  },
-  "FIELD-0007": {
-    "error_id": "FIELD-0007",
-    "title": "Bad Request",
-    "message": "Mã giảm giá đã hết hạn hoặc không hợp lệ"
-  },
-  "FIELD-0008": {
-    "error_id": "FIELD-0008",
-    "title": "Bad Request",
-    "message": "Hiện tại xe chưa được phép thuê ở vị trí này"
-  },
-  "FIELD-0009": {
-    "error_id": "FIELD-0009",
-    "title": "Bad Request",
-    "message": "Đã có người đặt xe trong khoảng thời gian này"
-  },
-  "FIELD-0010": {
-    "error_id": "FIELD-0010",
+  "ALREADY_EXIST_EMAIL": {
+    "error_id": "ALREADY_EXIST_EMAIL",
     "title": "Bad Request",
     "message": "Email đã được đăng ký"
   },
@@ -122,14 +92,104 @@
     "message": "Ngày tháng không hợp lệ"
   },
 
-  "PAY-0001": {
-    "error_id": "PAY-0001",
+  "PAYMENT_FAILED": {
+    "error_id": "PAYMENT_FAILED",
     "title": "Bad Request",
     "message": "Thanh toán không thành công. Vui lòng thử lại"
   },
-  "PAY-0002": {
-    "error_id": "PAY-0002",
+  "PAYPAL_ERROR_GATEWAY": {
+    "error_id": "PAYPAL_ERROR_GATEWAY",
     "title": "Bad Request",
     "message": "Lỗi người dùng chưa thanh toán trên cổng thanh toán Paypal. Vui lòng thử lại"
+  },
+  "EVENT_NOT_FOUND": {
+    "error_id": "EVENT_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy sự kiện"
+  },
+  "COUPON_NOT_FOUND": {
+    "error_id": "COUPON_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy mã giảm giá"
+  },
+  "CATEGORY_NOT_FOUND": {
+    "error_id": "CATEGORY_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy danh mục"
+  },
+  "ORGANIZER_NOT_FOUND": {
+    "error_id": "ORGANIZER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy nhà tổ chức"
+  },
+  "ORDER_NOT_FOUND": {
+    "error_id": "ORDER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy đơn hàng"
+  },
+  "PAYMENT_METHOD_NOT_FOUND": {
+    "error_id": "PAYMENT_METHOD_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy phương thức thanh toán"
+  },
+  "PAYMENT_ORDER_NOT_FOUND": {
+    "error_id": "PAYMENT_ORDER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy đơn hàng thanh toán"
+  },
+  "SEAT_NOT_AVAILABLE": {
+    "error_id": "SEAT_NOT_AVAILABLE",
+    "title": "Bad Request",
+    "message": "Ghế không khả dụng"
+  },
+  "COUPON_NOT_AVAILABLE": {
+    "error_id": "COUPON_NOT_AVAILABLE",
+    "title": "Bad Request",
+    "message": "Mã giảm giá không khả dụng"
+  },
+  "PURCHASE_INAVAILABLE": {
+    "error_id": "PURCHASE_INAVAILABLE",
+    "title": "Bad Request",
+    "message": "Không thể thực hiện giao dịch"
+  },
+  "ORDER_INVALID": {
+    "error_id": "ORDER_INVALID",
+    "title": "Bad Request",
+    "message": "Đơn hàng không hợp lệ"
+  },
+  "TICKET_NOT_FOUND": {
+    "error_id": "TICKET_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy vé"
+  }, 
+  "TICKET_SCAN_TIME_INVALID": {
+    "error_id": "TICKET_SCAN_TIME_INVALID",
+    "title": "Bad Request",
+    "message": "Thời gian quét vé không hợp lệ"
+  },
+  "TICKET_NOT_ALLOW_SCAN": {
+    "error_id": "TICKET_NOT_ALLOW_SCAN",
+    "title": "Bad Request",
+    "message": "Vé không được phép quét"
+  }, 
+  "TICKET_ALREADY_SCANNED": {
+    "error_id": "TICKET_ALREADY_SCANNED",
+    "title": "Bad Request",
+    "message": "Vé đã được quét"
+  }, 
+  "USER_NOT_FOUND": {
+    "error_id": "USER_NOT_FOUND",
+    "title": "Not Found",
+    "message": "Không tìm thấy người dùng"
+  }, 
+  "INVALID_CURRENT_PASSWORD": {
+    "error_id": "INVALID_CURRENT_PASSWORD",
+    "title": "Bad Request",
+    "message": "Mật khẩu hiện tại không chính xác"
+  },
+  "ORDER_IS_PAID": {
+    "error_id": "ORDER_IS_PAID",
+    "title": "Bad Request",
+    "message": "Đơn hàng đã được thanh toán"
   }
 }
