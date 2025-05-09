@@ -203,7 +203,7 @@ export class EventService {
         id: event.id,
         name: event.name,
         start_time: event.start_datetime,
-        logo_url: event.logo_url,
+        logo_url: event.logo_url || event.poster_url,
         price: this.calculateLowestTicketPrice(event),
         venue: event.venue.name,
       })),

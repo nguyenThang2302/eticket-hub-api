@@ -1,0 +1,45 @@
+name: Notify Teams
+
+on:
+  push: 
+    branches:
+      - '**'
+    tags:
+      - '**'
+  pull_request: 
+    types: [opened, closed]
+  workflow_run: 
+    workflows: ["build_and_test", "deploy"]
+    types:
+      - completed
+
+jobs:
+  notify-teams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send notification to Teams
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          EVENT_TYPE="${{ github.event_name }}"
+          EVENT_ACTION="${{ github.event.action || 'N/A' }}"
+          PAYLOAD=$(cat <<EOF
+          {
+            "text": "GitHub Notification",
+            "sections": [
+              {
+                "activityTitle": "Event: $EVENT_TYPE - $EVENT_ACTION",
+                "facts": [
+                  {"name": "Repository", "value": "${{ github.repository }}"},
+                  {"name": "Branch/Tag", "value": "${{ github.ref }}"},
+                  {"name": "Actor", "value": "${{ github.actor }}"},
+                  {"name": "Action URL", "value": "${{ github.event.pull_request.html_url || github.event.head_commit.url || '' }}"}
+                ],
+                "markdown": true
+              }
+            ]
+          }
+          EOF
+          )
+          curl -H "Content-Type: application/json" -d "$PAYLOAD" $TEAMS_WEBHOOK_URL
