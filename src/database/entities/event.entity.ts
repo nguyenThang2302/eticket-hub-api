@@ -27,16 +27,14 @@ export class Event extends SoftDeleteBaseEntity {
   description: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'text',
     nullable: true,
     comment: 'URL of the event logo',
   })
   logo_url: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'text',
     nullable: true,
     comment: 'URL of the event poster',
   })

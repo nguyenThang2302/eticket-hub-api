@@ -531,13 +531,13 @@ table "events" {
   }
 
   column "logo_url" {
-    type    = varchar(255)
+    type    = text
     null    = true
     comment = "URL of the event's logo"
   }
 
   column "poster_url" {
-    type    = varchar(255)
+    type    = text
     null    = true
     comment = "URL of the event's poster"
   }

@@ -25,34 +25,19 @@ export class TicketEvent1743778167571 implements Seeder {
     const eventIds = events.map((event) => event.id);
     const ticketIds = tickets.map((ticket) => ticket.id);
 
-    const ticketEvents = [
-      {
+    const ticketEvents = eventIds.flatMap((eventId) =>
+      ticketIds.map((ticketId) => ({
         id: nanoid(16),
-        event_id: eventIds[0],
-        ticket_id: ticketIds[0],
-      },
-      {
-        id: nanoid(16),
-        event_id: eventIds[0],
-        ticket_id: ticketIds[1],
-      },
-      {
-        id: nanoid(16),
-        event_id: eventIds[1],
-        ticket_id: ticketIds[0],
-      },
-      {
-        id: nanoid(16),
-        event_id: eventIds[1],
-        ticket_id: ticketIds[1],
-      },
-    ];
+        event_id: eventId,
+        ticket_id: ticketId,
+      })),
+    );
 
     await ticketEventRepository.insert(ticketEvents);
     const ticketsWithEvents = await ticketRepository
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
-      .where('ticketEvent.event_id = :eventId', { eventId: eventIds[0] })
+      .where('ticketEvent.event_id IN (:...eventIds)', { eventIds })
       .orderBy('ticket.price', 'DESC')
       .getMany();
     const ticketWithEventIds = ticketsWithEvents.map((ticket) => ticket.id);
