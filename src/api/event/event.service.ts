@@ -173,15 +173,18 @@ export class EventService {
         name: params.cate,
       },
     });
+    const category = await this.categoryRepository.findOneBy({
+      name: params.cate,
+    });
 
-    const { cate, page = 1, limit = 4 } = params;
+    const { page = 1, limit = 4 } = params;
     const events = await this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.category', 'category')
       .innerJoinAndSelect('event.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.ticket', 'ticket')
       .innerJoinAndSelect('event.venue', 'venue')
-      .where('category.name = :categoryName', { categoryName: cate })
+      .where('category.id = :categoryId', { categoryId: category.id })
       .limit(parseInt(limit))
       .offset(parseInt(limit) * (parseInt(page) - 1))
       .getMany();

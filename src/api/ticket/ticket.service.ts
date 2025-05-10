@@ -4,7 +4,7 @@ import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { Repository } from 'typeorm';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export class TicketService {
