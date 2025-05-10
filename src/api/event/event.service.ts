@@ -459,4 +459,21 @@ export class EventService {
 
     return { items, paginations };
   }
+
+  async getSpecialEvents() {
+    const events = await this.eventRepository
+      .createQueryBuilder('event')
+      .where('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .orderBy('event.start_datetime', 'DESC')
+      .take(13)
+      .getMany();
+
+    return {
+      items: events.map((event) => ({
+        id: event.id,
+        name: event.name,
+        poster_url: event.poster_url,
+      })),
+    };
+  }
 }

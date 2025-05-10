@@ -41,6 +41,12 @@ import { ApiCommonHeaders } from '../common/decorators/api-common-header.decorat
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
+  @Get('specials')
+  @HttpCode(HttpStatus.OK)
+  async getSpecialEvents() {
+    return await this.eventService.getSpecialEvents();
+  }
+
   @Post()
   @Roles(ROLE.PROMOTER)
   @ApiCommonHeaders()
