@@ -476,4 +476,30 @@ export class EventService {
       })),
     };
   }
+
+  async getTrendingEvents() {
+    const eventTrendings = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin('event.orders', 'order')
+      .select('event.id', 'id')
+      .addSelect('event.name', 'name')
+      .addSelect('event.poster_url', 'poster_url')
+      .addSelect('event.start_datetime', 'start_datetime')
+      .addSelect('COUNT(order.id)', 'orderCount')
+      .where('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .groupBy('event.id')
+      .addGroupBy('event.name')
+      .addGroupBy('event.start_datetime')
+      .orderBy('orderCount', 'DESC')
+      .limit(10)
+      .getRawMany();
+
+    return {
+      items: eventTrendings.map((event) => ({
+        id: event.id,
+        name: event.name,
+        poster_url: event.poster_url,
+      })),
+    };
+  }
 }

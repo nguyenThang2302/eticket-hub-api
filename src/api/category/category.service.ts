@@ -22,6 +22,8 @@ export class CategoryService {
       query.where('category.lang_code = :lang', { lang });
     }
 
+    query.orderBy('category.created_at', 'ASC');
+
     const categories = await query.getMany();
 
     const items = plainToInstance(ListCategoryResponseDto, categories, {

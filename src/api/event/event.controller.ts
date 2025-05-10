@@ -47,6 +47,12 @@ export class EventController {
     return await this.eventService.getSpecialEvents();
   }
 
+  @Get('trendings')
+  @HttpCode(HttpStatus.OK)
+  async getTrendingEvents() {
+    return await this.eventService.getTrendingEvents();
+  }
+
   @Post()
   @Roles(ROLE.PROMOTER)
   @ApiCommonHeaders()
