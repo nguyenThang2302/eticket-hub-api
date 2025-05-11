@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Event } from 'src/database/entities/event.entity';
-import { MoreThan, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateEventRequestDto } from './dto/create-event-request.dto';
@@ -168,13 +168,19 @@ export class EventService {
   }
 
   async searchEvents(params: any): Promise<any> {
+    const cates = await this.categoryRepository.find({
+      select: ['name'],
+      where: {
+        lang_code: 'en',
+      },
+    });
     const totalEvents = await this.eventRepository.countBy({
       category: {
-        name: params.cate,
+        name: params.cate || In(cates.map((cate) => cate.name)),
       },
     });
     const category = await this.categoryRepository.findOneBy({
-      name: params.cate,
+      name: params.cate || In(cates.map((cate) => cate.name)),
     });
 
     const { page = 1, limit = 4 } = params;
