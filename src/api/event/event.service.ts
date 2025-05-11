@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
@@ -168,6 +169,16 @@ export class EventService {
   }
 
   async searchEvents(params: any): Promise<any> {
+    const {
+      cate,
+      start_date: startDate,
+      end_date: endDate,
+      local,
+      is_free: isFree,
+      page = 1,
+      limit = 4,
+    } = params;
+    const cateParams = !_.isEmpty(cate) ? cate.split(',') : null;
     const cates = await this.categoryRepository.find({
       select: ['name'],
       where: {
@@ -176,21 +187,32 @@ export class EventService {
     });
     const totalEvents = await this.eventRepository.countBy({
       category: {
-        name: params.cate || In(cates.map((cate) => cate.name)),
+        name: In(cateParams || cates.map((cate) => cate.name)),
       },
     });
-    const category = await this.categoryRepository.findOneBy({
-      name: params.cate || In(cates.map((cate) => cate.name)),
+
+    const categories = await this.categoryRepository.find({
+      where: {
+        name: In(cateParams || cates.map((cate) => cate.name)),
+      },
     });
 
-    const { page = 1, limit = 4 } = params;
+    const categoryIds = categories.map((category) => category.id);
+
     const events = await this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.category', 'category')
       .innerJoinAndSelect('event.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.ticket', 'ticket')
       .innerJoinAndSelect('event.venue', 'venue')
-      .where('category.id = :categoryId', { categoryId: category.id })
+      .where('category.id IN (:...categoryIds)', { categoryIds: categoryIds })
+      .orWhere('event.start_datetime >= :startDate', { startDate })
+      .orWhere('event.end_datetime <= :endDate', { endDate })
+      .orWhere('ticket.price = 0', { isFree })
+      .orWhere(
+        'SUBSTRING_INDEX(SUBSTRING_INDEX(venue.address, ",", 4), ",", -1) = :local',
+        { local },
+      )
       .limit(parseInt(limit))
       .offset(parseInt(limit) * (parseInt(page) - 1))
       .getMany();
