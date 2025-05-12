@@ -103,8 +103,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
-  logout(@CurrentUser() user: JwtPayload): void {
-    this.authService.logout(user.jti);
+  async logout(@CurrentUser() user: JwtPayload): Promise<void> {
+    return await this.authService.logout(user.jti);
   }
 
   @ApiOperation({ summary: 'Initiate Google OAuth login' })

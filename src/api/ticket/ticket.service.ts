@@ -90,12 +90,11 @@ export class TicketService {
     };
   }
 
-  async getTickets(organizeId: string, eventId: string) {
+  async getTickets(eventId: string) {
     const tickets = await this.ticketRepository
       .createQueryBuilder('ticket')
       .innerJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.event', 'event')
-      .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.id = :eventId', { eventId })
       .getMany();
 
