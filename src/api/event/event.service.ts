@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Event } from 'src/database/entities/event.entity';
-import { In, MoreThan, Repository } from 'typeorm';
+import { Brackets, In, MoreThan, Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateEventRequestDto } from './dto/create-event-request.dto';
@@ -170,52 +170,78 @@ export class EventService {
 
   async searchEvents(params: any): Promise<any> {
     const {
+      q = null,
       cate,
       start_date: startDate,
       end_date: endDate,
       local,
-      is_free: isFree,
+      is_free: isFreeString,
       page = 1,
       limit = 4,
     } = params;
-    const cateParams = !_.isEmpty(cate) ? cate.split(',') : null;
+
+    const cateParams = cate ? cate.split(',') : null;
+    const isFree = isFreeString === 'true';
+
     const cates = await this.categoryRepository.find({
       select: ['name'],
-      where: {
-        lang_code: 'en',
-      },
+      where: { lang_code: 'en' },
     });
-    const totalEvents = await this.eventRepository.countBy({
-      category: {
-        name: In(cateParams || cates.map((cate) => cate.name)),
-      },
-    });
+
+    const categoryNames = cateParams || cates.map((cate) => cate.name);
 
     const categories = await this.categoryRepository.find({
-      where: {
-        name: In(cateParams || cates.map((cate) => cate.name)),
-      },
+      where: { name: In(categoryNames) },
     });
-
     const categoryIds = categories.map((category) => category.id);
 
-    const events = await this.eventRepository
+    const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.category', 'category')
       .innerJoinAndSelect('event.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.ticket', 'ticket')
       .innerJoinAndSelect('event.venue', 'venue')
-      .where('category.id IN (:...categoryIds)', { categoryIds: categoryIds })
-      .orWhere('event.start_datetime >= :startDate', { startDate })
-      .orWhere('event.end_datetime <= :endDate', { endDate })
-      .orWhere('ticket.price = 0', { isFree })
-      .orWhere(
-        'SUBSTRING_INDEX(SUBSTRING_INDEX(venue.address, ",", 4), ",", -1) = :local',
-        { local },
-      )
+      .where('category.id IN (:...categoryIds)', { categoryIds });
+
+    if (q) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('category.name LIKE :q', { q: `%${q}%` })
+            .orWhere('ticket.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
+
+    if (startDate) {
+      queryBuilder.andWhere('event.start_datetime >= :startDate', {
+        startDate,
+      });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('event.end_datetime <= :endDate', { endDate });
+    }
+
+    if (isFree) {
+      queryBuilder.andWhere('ticket.price = 0');
+    }
+
+    if (local && local !== 'Other locations') {
+      queryBuilder.andWhere(
+        'SUBSTRING_INDEX(SUBSTRING_INDEX(venue.address, ",", 4), ",", -1) LIKE :local',
+        { local: `%${local}%` },
+      );
+    }
+
+    queryBuilder
       .limit(parseInt(limit))
-      .offset(parseInt(limit) * (parseInt(page) - 1))
-      .getMany();
+      .offset(parseInt(limit) * (parseInt(page) - 1));
+
+    const events = await queryBuilder.getMany();
+    const totalEvents = await queryBuilder.getCount();
 
     const totalPages = Math.ceil(totalEvents / parseInt(limit));
 
@@ -229,17 +255,17 @@ export class EventService {
       has_previous_page: parseInt(page) > 1,
       next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
     };
-    return {
-      items: events.map((event) => ({
-        id: event.id,
-        name: event.name,
-        start_time: event.start_datetime,
-        logo_url: event.logo_url || event.poster_url,
-        price: this.calculateLowestTicketPrice(event),
-        venue: event.venue.name,
-      })),
-      paginations: paginations,
-    };
+
+    const items = events.map((event) => ({
+      id: event.id,
+      name: event.name,
+      start_time: event.start_datetime,
+      logo_url: event.logo_url || event.poster_url,
+      price: this.calculateLowestTicketPrice(event),
+      venue: event.venue.name,
+    }));
+
+    return { items, paginations };
   }
 
   async createEvent(
