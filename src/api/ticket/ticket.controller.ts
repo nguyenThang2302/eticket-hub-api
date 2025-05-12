@@ -13,7 +13,6 @@ import { ROLE } from '../common/constants';
 import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { UserEventOrganizeGuard } from '../common/guard/user-event-organize.guard';
 import { TicketService } from './ticket.service';
-import { CurrentOrganizer } from '../common/decorators/current-organizer.decorator';
 
 @Controller('tickets')
 export class TicketController {
@@ -29,14 +28,8 @@ export class TicketController {
   }
 
   @Get(':event_id')
-  @Roles(ROLE.PROMOTER)
-  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
   @HttpCode(HttpStatus.OK)
-  async getTickets(
-    @CurrentOrganizer() organizer: any,
-    @Param('event_id') eventId: string,
-  ) {
-    const organizeId = organizer.organizeId;
-    return await this.ticketService.getTickets(organizeId, eventId);
+  async getTickets(@Param('event_id') eventId: string) {
+    return await this.ticketService.getTickets(eventId);
   }
 }

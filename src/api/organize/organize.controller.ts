@@ -33,6 +33,18 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class OrganizeController {
   constructor(private readonly organizeService: OrganizeService) {}
 
+  @Get('tickets/:event_id')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard, UserEventOrganizeGuard)
+  @HttpCode(HttpStatus.OK)
+  async getTickets(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+  ) {
+    const organizeId = organizer.organizeId;
+    return await this.organizeService.getTickets(organizeId, eventId);
+  }
+
   @Roles(ROLE.PROMOTER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.CREATED)
