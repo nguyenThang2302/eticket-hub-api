@@ -14,9 +14,11 @@ import { MediaModule } from '../media/media.module';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { Order } from 'src/database/entities/order.entity';
+import { CloudinaryModule } from '../media/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
+    CloudinaryModule,
     TypeOrmModule.forFeature([
       Organization,
       Group,

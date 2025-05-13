@@ -36,4 +36,11 @@ export class MediaService {
       eventId,
     });
   }
+
+  async uploadLogoOrganizer(file: Express.Multer.File, organizeId: string) {
+    await this.imageQueue.add('UploadLogoOrganizerToCloudinary', {
+      file,
+      organizeId,
+    });
+  }
 }

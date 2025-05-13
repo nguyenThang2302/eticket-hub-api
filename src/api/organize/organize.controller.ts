@@ -45,20 +45,30 @@ export class OrganizeController {
     return await this.organizeService.getTickets(organizeId, eventId);
   }
 
-  @Roles(ROLE.PROMOTER)
+  @Roles(ROLE.PROMOTER, ROLE.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.CREATED)
-  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('registration')
   async registerOrganization(
     @Req() req: Request,
-    @Body() body: CreateOrganizeDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('data') data: string,
   ): Promise<any> {
+    const parsedData = JSON.parse(data);
+    const dto = plainToInstance(CreateOrganizeDto, parsedData);
+
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
     const promoterId = req.user['sub'];
-    const languageCode = req.headers['accept-language'];
+    const languageCode = req.headers['accept-language'] || 'en';
     return this.organizeService.registerOrganization(
       promoterId,
       languageCode,
-      body,
+      parsedData,
+      file,
     );
   }
 

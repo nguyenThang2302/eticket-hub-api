@@ -7,12 +7,13 @@ import { UserModule } from 'src/api/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Event } from 'src/database/entities/event.entity';
+import { Organization } from 'src/database/entities/organization.entity';
 
 @Module({
   imports: [
     ConfigModule,
     UserModule,
-    TypeOrmModule.forFeature([OrderTicketImage, Event]),
+    TypeOrmModule.forFeature([OrderTicketImage, Event, Organization]),
   ],
   providers: [UploadImageProcessor, CloudinaryService, CloudinaryProvider],
   exports: [UploadImageProcessor, CloudinaryService, CloudinaryProvider],
