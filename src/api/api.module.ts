@@ -16,6 +16,7 @@ import { PaymentMethodModule } from './payment-method/payment-method.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { CouponModule } from './coupon/coupon.module';
 import { TicketModule } from './ticket/ticket.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TicketModule } from './ticket/ticket.module';
     PurchaseModule,
     CouponModule,
     TicketModule,
+    RoleModule,
   ],
   providers: [
     IsEmailExistedConstraint,
