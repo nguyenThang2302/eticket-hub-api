@@ -54,9 +54,10 @@ export class OrganizeService {
     promoterId: string,
     languageCode: string,
     body: CreateOrganizeDto,
+    file: Express.Multer.File,
   ): Promise<any> {
     const organization = this.organizeRepository.create({
-      lang_code: languageCode,
+      lang_code: 'en',
       name: body.name,
       description: body.description,
       is_active: false,
@@ -64,6 +65,7 @@ export class OrganizeService {
       logo_url: process.env.ORGANNIZATION_LOGO_URL_DEFAULT,
     });
     const data = await this.organizeRepository.save(organization);
+    await this.mediaService.uploadLogoOrganizer(file, data.id);
     const group = this.groupRepository.create({
       user_id: promoterId,
       organization_id: data.id,
@@ -87,7 +89,6 @@ export class OrganizeService {
       .innerJoin('organization.groups', 'group')
       .where('group.user_id = :userId', { userId })
       .andWhere('organization.lang_code = :languageCode', { languageCode })
-      .andWhere('organization.is_active = :isActive', { isActive: true })
       .select([
         'organization.id',
         'organization.name',
@@ -102,6 +103,7 @@ export class OrganizeService {
     const result = organizations.map((org) => ({
       id: org.organization_id,
       name: org.organization_name,
+      status: org.organization_status,
     }));
     return { items: result };
   }

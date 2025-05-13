@@ -5,6 +5,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { UserService } from 'src/api/user/user.service';
 import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
+import { Organization } from 'src/database/entities/organization.entity';
 import { Readable } from 'stream';
 import { Repository } from 'typeorm';
 
@@ -16,6 +17,8 @@ export class CloudinaryService {
     private readonly orderTicketImageRepository: Repository<OrderTicketImage>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
   async uploadImage(
@@ -101,6 +104,33 @@ export class CloudinaryService {
           const url = result.secure_url;
           await this.eventRepository.update(eventId, {
             poster_url: url,
+          });
+        },
+      );
+
+      const stream = new Readable();
+      stream.push(Buffer.from(file.buffer));
+      stream.push(null);
+
+      stream.pipe(upload);
+    });
+  }
+
+  async uploadLogoOrganizer(
+    file: Express.Multer.File,
+    organizeId: string,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      const upload = cloudinary.uploader.upload_stream(
+        {
+          folder: 'events',
+          public_id: `organizer-logo-${organizeId}-${Date.now()}`,
+        },
+        async (error, result) => {
+          if (error) return reject(error);
+          const url = result.secure_url;
+          await this.organizationRepository.update(organizeId, {
+            logo_url: url,
           });
         },
       );

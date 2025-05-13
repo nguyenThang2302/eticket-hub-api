@@ -42,4 +42,15 @@ export class UploadImageProcessor {
       throw error;
     }
   }
+
+  @Process('UploadLogoOrganizerToCloudinary')
+  async UploadLogoOrganizerToCloudinary(dataJob: Job<any>) {
+    const { file, organizeId } = dataJob.data;
+    try {
+      return await this.cloudinaryService.uploadLogoOrganizer(file, organizeId);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }
