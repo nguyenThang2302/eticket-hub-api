@@ -417,6 +417,7 @@ export class EventService {
       .innerJoin('event.organization', 'organization')
       .where('organization.id = :organizeId', { organizeId })
       .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .orWhere('event.status = :status', { status: EVENT_STATUS.APPROVED })
       .andWhere('event.end_datetime > NOW()')
       .getCount();
 
@@ -429,6 +430,7 @@ export class EventService {
       .innerJoinAndSelect('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
       .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .orWhere('event.status = :status', { status: EVENT_STATUS.APPROVED })
       .andWhere('event.end_datetime > NOW()')
       .orderBy('event.start_datetime', 'ASC')
       .skip(offset)

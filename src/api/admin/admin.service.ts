@@ -77,6 +77,7 @@ export class AdminService {
     const items = events.map((event) => ({
       id: event.id,
       name: event.name,
+      status: event.status,
       start_time: event.start_datetime,
       end_time: event.end_datetime,
       poster_url: event.poster_url,
@@ -87,5 +88,39 @@ export class AdminService {
     }));
 
     return { items: items, paginations };
+  }
+
+  async approveEvent(id: string) {
+    const event = await this.eventRepository.findOne({
+      where: { id },
+    });
+
+    if (!event) {
+      throw new Error('EVENT_NOT_FOUND');
+    }
+
+    event.status = EVENT_STATUS.APPROVED;
+    await this.eventRepository.save(event);
+
+    return {
+      id: event.id,
+    };
+  }
+
+  async rejectEvent(id: string) {
+    const event = await this.eventRepository.findOne({
+      where: { id },
+    });
+
+    if (!event) {
+      throw new Error('EVENT_NOT_FOUND');
+    }
+
+    event.status = EVENT_STATUS.REJECTED;
+    await this.eventRepository.save(event);
+
+    return {
+      id: event.id,
+    };
   }
 }
