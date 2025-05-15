@@ -55,6 +55,7 @@ export enum EVENT_STATUS {
   IN_REVIEW = 'in_review',
   APPROVED = 'approved',
   INACTIVE = 'inactive',
+  REJECTED = 'rejected',
 }
 
 export enum EVENT_PRIVACY {
