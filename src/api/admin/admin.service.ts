@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { Brackets, Repository } from 'typeorm';
+import { EVENT_STATUS } from '../common/constants';
 
 @Injectable()
 export class AdminService {
@@ -46,6 +47,12 @@ export class AdminService {
 
       if (type === 'past') {
         queryBuilder.andWhere('event.start_datetime < NOW()');
+      }
+
+      if (type === 'pending') {
+        queryBuilder.andWhere('event.status = :status', {
+          status: EVENT_STATUS.IN_REVIEW,
+        });
       }
     }
 

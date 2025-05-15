@@ -417,6 +417,7 @@ export class EventService {
       .innerJoin('event.organization', 'organization')
       .where('organization.id = :organizeId', { organizeId })
       .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
+      .andWhere('event.end_datetime > NOW()')
       .getCount();
 
     const totalPages = Math.ceil(totalEvents / pageSize);
