@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 
 @Injectable()
 export class AdminService {
@@ -18,15 +18,21 @@ export class AdminService {
     const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.organization', 'organization')
+      .innerJoinAndSelect('event.category', 'category')
+      .innerJoinAndSelect('event.ticketEvents', 'ticketEvent')
+      .innerJoinAndSelect('ticketEvent.ticket', 'ticket')
       .innerJoinAndSelect('event.venue', 'venue');
 
     if (q) {
-      queryBuilder.andWhere('event.name LIKE :search', {
-        search: `%${q}%`,
-      });
-      queryBuilder.andWhere('venue.name LIKE :search', {
-        search: `%${q}%`,
-      });
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('category.name LIKE :q', { q: `%${q}%` })
+            .orWhere('ticket.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` });
+        }),
+      );
     }
 
     if (status) {
@@ -36,6 +42,10 @@ export class AdminService {
     if (type) {
       if (type === 'upcoming') {
         queryBuilder.andWhere('event.start_datetime > NOW()');
+      }
+
+      if (type === 'past') {
+        queryBuilder.andWhere('event.start_datetime < NOW()');
       }
     }
 
