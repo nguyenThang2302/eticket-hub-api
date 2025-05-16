@@ -360,27 +360,25 @@ export class EventService {
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
-    const totalEvents = await this.eventRepository
-      .createQueryBuilder('event')
-      .innerJoin('event.organization', 'organization')
-      .where('organization.id = :organizeId', { organizeId })
-      .andWhere('event.status = :status', { status: EVENT_STATUS.IN_REVIEW })
-      .getCount();
-
-    const totalPages = Math.ceil(totalEvents / pageSize);
-    const offset = (currentPage - 1) * pageSize;
-
-    const events = await this.eventRepository
+    // Build the base query
+    const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.organization', 'organization')
       .innerJoinAndSelect('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
-      .andWhere('event.status = :status', { status: EVENT_STATUS.IN_REVIEW })
+      .andWhere('event.status = :status', { status: EVENT_STATUS.IN_REVIEW });
+
+    // Get total count
+    const totalEvents = await queryBuilder.getCount();
+
+    // Apply pagination and sorting
+    const events = await queryBuilder
       .orderBy('event.created_at', 'DESC')
-      .skip(offset)
+      .skip((currentPage - 1) * pageSize)
       .take(pageSize)
       .getMany();
 
+    // Map events to response format
     const items = events.map((event) => ({
       id: event.id,
       name: event.name,
@@ -393,6 +391,8 @@ export class EventService {
       },
     }));
 
+    // Calculate pagination details
+    const totalPages = Math.ceil(totalEvents / pageSize);
     const paginations = {
       total: totalEvents,
       limit: pageSize,
@@ -412,31 +412,34 @@ export class EventService {
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
-    const totalEvents = await this.eventRepository
-      .createQueryBuilder('event')
-      .innerJoin('event.organization', 'organization')
-      .where('organization.id = :organizeId', { organizeId })
-      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
-      .orWhere('event.status = :status', { status: EVENT_STATUS.APPROVED })
-      .andWhere('event.end_datetime > NOW()')
-      .getCount();
-
-    const totalPages = Math.ceil(totalEvents / pageSize);
-    const offset = (currentPage - 1) * pageSize;
-
-    const events = await this.eventRepository
+    // Build the base query
+    const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.organization', 'organization')
       .innerJoinAndSelect('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
-      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
-      .orWhere('event.status = :status', { status: EVENT_STATUS.APPROVED })
-      .andWhere('event.end_datetime > NOW()')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('event.status = :activeStatus', {
+            activeStatus: EVENT_STATUS.ACTIVE,
+          }).orWhere('event.status = :approvedStatus', {
+            approvedStatus: EVENT_STATUS.APPROVED,
+          });
+        }),
+      )
+      .andWhere('event.end_datetime > NOW()');
+
+    // Get total count
+    const totalEvents = await queryBuilder.getCount();
+
+    // Apply pagination and sorting
+    const events = await queryBuilder
       .orderBy('event.start_datetime', 'ASC')
-      .skip(offset)
+      .skip((currentPage - 1) * pageSize)
       .take(pageSize)
       .getMany();
 
+    // Map events to response format
     const items = events.map((event) => ({
       id: event.id,
       name: event.name,
@@ -449,6 +452,8 @@ export class EventService {
       },
     }));
 
+    // Calculate pagination details
+    const totalPages = Math.ceil(totalEvents / pageSize);
     const paginations = {
       total: totalEvents,
       limit: pageSize,
@@ -468,29 +473,26 @@ export class EventService {
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
-    const totalEvents = await this.eventRepository
-      .createQueryBuilder('event')
-      .innerJoin('event.organization', 'organization')
-      .where('event.organization_id = :organizeId', { organizeId })
-      .andWhere('event.end_datetime < NOW()')
-      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
-      .getCount();
-
-    const totalPages = Math.ceil(totalEvents / pageSize);
-    const offset = (currentPage - 1) * pageSize;
-
-    const events = await this.eventRepository
+    // Build the base query
+    const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
       .innerJoinAndSelect('event.organization', 'organization')
       .innerJoinAndSelect('event.venue', 'venue')
       .where('event.organization_id = :organizeId', { organizeId })
-      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE })
       .andWhere('event.end_datetime < NOW()')
+      .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE });
+
+    // Get total count
+    const totalEvents = await queryBuilder.getCount();
+
+    // Apply pagination and sorting
+    const events = await queryBuilder
       .orderBy('event.start_datetime', 'ASC')
-      .skip(offset)
+      .skip((currentPage - 1) * pageSize)
       .take(pageSize)
       .getMany();
 
+    // Map events to response format
     const items = events.map((event) => ({
       id: event.id,
       name: event.name,
@@ -503,6 +505,8 @@ export class EventService {
       },
     }));
 
+    // Calculate pagination details
+    const totalPages = Math.ceil(totalEvents / pageSize);
     const paginations = {
       total: totalEvents,
       limit: pageSize,

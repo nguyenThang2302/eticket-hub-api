@@ -129,6 +129,7 @@ export class Event1743777731297 implements Seeder {
       description: `<p><strong>Giới thiệu sự kiện:</strong></p> <p>[T&oacute;m tắt ngắn gọn về sự kiện: Nội dung ch&iacute;nh của sự kiện, điểm đặc sắc nhất v&agrave; l&yacute; do khiến người tham gia kh&ocirc;ng n&ecirc;n bỏ lỡ]</p> <p><strong>Chi tiết sự kiện:</strong></p> <ul> <li><strong>Chương tr&igrave;nh ch&iacute;nh:</strong> [Liệt k&ecirc; những hoạt động nổi bật trong sự kiện: c&aacute;c phần tr&igrave;nh diễn, kh&aacute;ch mời đặc biệt, lịch tr&igrave;nh c&aacute;c tiết mục cụ thể nếu c&oacute;.]</li> <li><strong>Kh&aacute;ch mời:</strong> [Th&ocirc;ng tin về c&aacute;c kh&aacute;ch mời đặc biệt, nghệ sĩ, diễn giả sẽ tham gia sự kiện. C&oacute; thể bao gồm phần m&ocirc; tả ngắn gọn về họ v&agrave; những g&igrave; họ sẽ mang lại cho sự kiện.]</li> <li><strong>Trải nghiệm đặc biệt:</strong> [Nếu c&oacute; c&aacute;c hoạt động đặc biệt kh&aacute;c như workshop, khu trải nghiệm, photo booth, khu vực check-in hay c&aacute;c phần qu&agrave;/ưu đ&atilde;i d&agrave;nh ri&ecirc;ng cho người tham dự.]</li> </ul> <p><strong>Điều khoản v&agrave; điều kiện:</strong></p> <p>[TnC] sự kiện</p> <p>Lưu &yacute; về điều khoản trẻ em</p> <p>Lưu &yacute; về điều khoản VAT</p>`,
       status: EVENT_STATUS.ACTIVE,
       organization: organizations[0],
+      allow_scan_ticket: true,
       venue: venues[0],
       lang_code: 'en',
       category: categoryMusic,
@@ -144,6 +145,7 @@ export class Event1743777731297 implements Seeder {
       status: EVENT_STATUS.ACTIVE,
       organization: organizations[0],
       venue: venues[0],
+      allow_scan_ticket: true,
       lang_code: 'en',
       category: categoryTheater,
     }));
@@ -158,6 +160,7 @@ export class Event1743777731297 implements Seeder {
       status: EVENT_STATUS.ACTIVE,
       organization: organizations[0],
       venue: venues[0],
+      allow_scan_ticket: true,
       lang_code: 'en',
       category: categorySport,
     }));
@@ -171,6 +174,7 @@ export class Event1743777731297 implements Seeder {
       description: `<p><strong>Giới thiệu sự kiện:</strong></p> <p>[T&oacute;m tắt ngắn gọn về sự kiện: Nội dung ch&iacute;nh của sự kiện, điểm đặc sắc nhất v&agrave; l&yacute; do khiến người tham gia kh&ocirc;ng n&ecirc;n bỏ lỡ]</p> <p><strong>Chi tiết sự kiện:</strong></p> <ul> <li><strong>Chương tr&igrave;nh ch&iacute;nh:</strong> [Liệt k&ecirc; những hoạt động nổi bật trong sự kiện: c&aacute;c phần tr&igrave;nh diễn, kh&aacute;ch mời đặc biệt, lịch tr&igrave;nh c&aacute;c tiết mục cụ thể nếu c&oacute;.]</li> <li><strong>Kh&aacute;ch mời:</strong> [Th&ocirc;ng tin về c&aacute;c kh&aacute;ch mời đặc biệt, nghệ sĩ, diễn giả sẽ tham gia sự kiện. C&oacute; thể bao gồm phần m&ocirc; tả ngắn gọn về họ v&agrave; những g&igrave; họ sẽ mang lại cho sự kiện.]</li> <li><strong>Trải nghiệm đặc biệt:</strong> [Nếu c&oacute; c&aacute;c hoạt động đặc biệt kh&aacute;c như workshop, khu trải nghiệm, photo booth, khu vực check-in hay c&aacute;c phần qu&agrave;/ưu đ&atilde;i d&agrave;nh ri&ecirc;ng cho người tham dự.]</li> </ul> <p><strong>Điều khoản v&agrave; điều kiện:</strong></p> <p>[TnC] sự kiện</p> <p>Lưu &yacute; về điều khoản trẻ em</p> <p>Lưu &yacute; về điều khoản VAT</p>`,
       status: EVENT_STATUS.ACTIVE,
       organization: organizations[0],
+      allow_scan_ticket: true,
       venue: venues[0],
       lang_code: 'en',
       category: categoryOther,

@@ -67,12 +67,12 @@ export class TicketService {
     const eventStartTime = moment(event.start_datetime);
     const oneDayBeforeEvent = eventStartTime.clone().subtract(1, 'days');
 
-    if (
-      currentTime.isBefore(oneDayBeforeEvent) ||
-      currentTime.isAfter(eventStartTime)
-    ) {
-      throw new BadRequestException('TICKET_SCAN_TIME_INVALID');
-    }
+    // if (
+    //   currentTime.isBefore(oneDayBeforeEvent) ||
+    //   currentTime.isAfter(eventStartTime)
+    // ) {
+    //   throw new BadRequestException('TICKET_SCAN_TIME_INVALID');
+    // }
 
     ticket.is_scanned = true;
     await this.orderTicketImageRepository.save(ticket);
@@ -96,6 +96,7 @@ export class TicketService {
       .innerJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.event', 'event')
       .andWhere('event.id = :eventId', { eventId })
+      .orderBy('ticket.price', 'DESC')
       .getMany();
 
     const items = tickets.map((ticket) => ({

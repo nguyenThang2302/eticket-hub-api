@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
 import { In, Repository } from 'typeorm';
+import { format } from 'date-fns';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
 import {
   EVENT_STATUS,
@@ -548,9 +549,6 @@ export class OrganizeService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const startDateTime = new Date(startDate);
-    const endDateTime = new Date(endDate);
-
     const ticket = await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.ticketEvents', 'ticket_event')
@@ -567,25 +565,17 @@ export class OrganizeService {
 
     const salesByDay = await this.orderRepositoty
       .createQueryBuilder('orders')
-      .select(
-        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
-        'date',
-      )
-      .addSelect('SUM(orders.total_price)', 'total_price')
+      .select("DATE_FORMAT(orders.created_at, '%Y-%m-%d')", 'date') // Group by date
+      .addSelect('SUM(orders.total_price)', 'total_price') // Aggregate total_price
       .leftJoin('orders.event', 'event')
       .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.id = :eventId', { eventId })
-      .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
-        startDate: startDateTime,
-        endDate: endDateTime,
+      .andWhere('DATE(orders.created_at) BETWEEN :startDate AND :endDate', {
+        startDate: startDate,
+        endDate: endDate,
       })
-      .groupBy(
-        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
-      )
-      .orderBy(
-        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', '+07:00'), '%Y-%m-%d')",
-        'ASC',
-      )
+      .groupBy("DATE_FORMAT(orders.created_at, '%Y-%m-%d')") // Group by formatted date
+      .orderBy("DATE_FORMAT(orders.created_at, '%Y-%m-%d')", 'ASC') // Order by date
       .getRawMany();
 
     if (!salesByDay.length) {
@@ -609,22 +599,19 @@ export class OrganizeService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const startDateTime = new Date(startDate);
-    const endDateTime = new Date(endDate);
-    endDateTime.setHours(23, 59, 59, 999);
     const salesByDay = await this.orderRepositoty
       .createQueryBuilder('orders')
       .leftJoin('orders.event', 'event')
       .select([
         'orders.id AS order_id',
         'orders.seat_info AS seat_info',
-        "DATE_FORMAT(CONVERT_TZ(orders.created_at, '+00:00', @@session.time_zone), '%Y-%m-%d') AS date",
+        "DATE_FORMAT(orders.created_at, '%Y-%m-%d') AS date",
       ])
       .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.id = :eventId', { eventId })
       .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
-        startDate: startDateTime,
-        endDate: endDateTime,
+        startDate: startDate,
+        endDate: endDate,
       })
       .getRawMany();
 
@@ -767,9 +754,6 @@ export class OrganizeService {
           organizeId,
         ),
         quantity: await this.getTotalTickets(eventId, ticket.id),
-        // scanned_tickets: ticket.order_ticket_images.filter(
-        //   (image) => image.is_scanned,
-        // ).length,
       })),
     );
 
@@ -792,6 +776,9 @@ export class OrganizeService {
       },
     });
     const orderIds = orders.map((order) => order.id);
+    if (!orderIds.length) {
+      return 0;
+    }
     const totalCheckIn = await this.orderTicketImageRepository
       .createQueryBuilder('orderTicketImage')
       .andWhere('orderTicketImage.ticket_id = :ticketId', { ticketId })
