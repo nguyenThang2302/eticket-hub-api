@@ -21,5 +21,6 @@ export class Seat1743852724331 implements Seeder {
     }));
 
     await seatRepository.insert(seats);
+    console.log(`✅ Done seeding data for table: ${Seat.name}`);
   }
 }

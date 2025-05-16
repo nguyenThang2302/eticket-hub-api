@@ -15,19 +15,22 @@ export class Ticket1743776196558 implements Seeder {
       'Regular Class (No children under 8 years old)',
     ];
     const prices = [320000, 270000];
+    const quanlities = [105, 84];
 
     for (let i = 0; i < ticketNames.length; i++) {
       await ticketRepository.insert({
         id: nanoid(16),
         name: ticketNames[i],
         price: prices[i],
-        quantity: 100,
+        quantity: quanlities[i],
         min_quantity: 1,
-        max_quantity: 10,
+        max_quantity: 5,
         lang_code: 'en',
         created_at: new Date(),
         updated_at: new Date(),
       });
     }
+
+    console.log(`✅ Done seeding data for table: ${Ticket.name}`);
   }
 }

@@ -19,27 +19,16 @@ export class EventCoupon1744292854893 implements Seeder {
     const events = await eventRepository.find();
     const coupons = await couponRepository.find();
 
-    const eventCoupons = [
-      {
-        id: nanoid(16),
-        event: events[0],
-        coupon: coupons[0],
-      },
-      {
-        id: nanoid(16),
-        event: events[1],
-        coupon: coupons[1],
-      },
-      {
-        id: nanoid(16),
-        event: events[0],
-        coupon: coupons[2],
-      },
-    ];
-
-    for (const eventCoupon of eventCoupons) {
-      const eventCouponData = eventCouponRepository.create(eventCoupon);
-      await eventCouponRepository.save(eventCouponData);
+    for (const event of events) {
+      for (const coupon of coupons) {
+        const eventCoupon = eventCouponRepository.create({
+          id: nanoid(16),
+          event,
+          coupon,
+        });
+        await eventCouponRepository.save(eventCoupon);
+      }
     }
+    console.log(`✅ Done seeding data for table: ${EventCoupon.name}`);
   }
 }

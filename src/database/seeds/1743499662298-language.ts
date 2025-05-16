@@ -26,5 +26,7 @@ export class LanguageSeeder implements Seeder {
         name: language.name,
       });
     }
+
+    console.log(`✅ Done seeding data for table: ${Language.name}`);
   }
 }

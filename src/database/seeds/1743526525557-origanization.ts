@@ -60,5 +60,7 @@ export class Origanization1743526525557 implements Seeder {
         });
       }
     }
+
+    console.log(`✅ Done seeding data for table: ${Organization.name}`);
   }
 }

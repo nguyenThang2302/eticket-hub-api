@@ -38,5 +38,6 @@ export class Coupon1744292273512 implements Seeder {
     ];
 
     await couponRepository.insert(coupons);
+    console.log(`✅ Done seeding data for table: ${Coupon.name}`);
   }
 }

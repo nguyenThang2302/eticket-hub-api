@@ -28,5 +28,7 @@ export class PaymentMethod1744017866585 implements Seeder {
     ];
 
     await paymentMethodRepository.insert(paymentMethods);
+
+    console.log(`✅ Done seeding data for table: ${PaymentMethod.name}`);
   }
 }

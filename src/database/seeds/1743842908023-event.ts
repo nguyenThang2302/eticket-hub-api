@@ -187,5 +187,7 @@ export class Event1743777731297 implements Seeder {
       const eventDataSaved = eventRepository.create(event);
       await eventRepository.save(eventDataSaved);
     }
+
+    console.log(`✅ Done seeding data for table: ${Event.name}`);
   }
 }

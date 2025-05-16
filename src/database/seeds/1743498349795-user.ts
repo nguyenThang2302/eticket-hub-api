@@ -33,5 +33,7 @@ export class User1710214395381 implements Seeder {
         role: roles[i],
       });
     }
+
+    console.log(`✅ Done seeding data for table: ${User.name}`);
   }
 }

@@ -56,5 +56,7 @@ export class Category1743842373238 implements Seeder {
     ];
 
     await categoryRepository.insert(categories);
+
+    console.log(`✅ Done seeding data for table: ${Category.name}`);
   }
 }
