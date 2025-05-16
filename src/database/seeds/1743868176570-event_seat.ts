@@ -52,6 +52,7 @@ export class EventSeat1743868176570 implements Seeder {
           label: seat.label,
           type: seat.type,
           status: SEAT_STATUS.AVAILABLE,
+          background_color: '#2dc275',
           created_at: new Date(),
           updated_at: new Date(),
         };
@@ -67,11 +68,13 @@ export class EventSeat1743868176570 implements Seeder {
           label: seat.label,
           type: seat.type,
           status: SEAT_STATUS.AVAILABLE,
+          background_color: 'rgb(230 239 63)',
           created_at: new Date(),
           updated_at: new Date(),
         };
         await eventSeatRepository.save(eventSeat);
       }
     }
+    console.log(`✅ Done seeding data for table: ${EventSeat.name}`);
   }
 }

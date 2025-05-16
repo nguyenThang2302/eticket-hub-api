@@ -31,5 +31,6 @@ export class Order1746888267634 implements Seeder {
       });
       await orderRepository.save(order);
     }
+    console.log(`✅ Done seeding data for table: ${Order.name}`);
   }
 }

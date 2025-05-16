@@ -30,5 +30,7 @@ export class Venue1743777510405 implements Seeder {
     ];
 
     await venueRepository.insert(venues);
+
+    console.log(`✅ Done seeding data for table: ${Venue.name}`);
   }
 }

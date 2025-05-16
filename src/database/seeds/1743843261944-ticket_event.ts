@@ -78,5 +78,7 @@ export class TicketEvent1743778167571 implements Seeder {
 
       fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), 'utf-8');
     }
+
+    console.log(`✅ Done seeding data for table: ${TicketEvent.name}`);
   }
 }
