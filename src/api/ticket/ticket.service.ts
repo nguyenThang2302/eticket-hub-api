@@ -96,6 +96,7 @@ export class TicketService {
       .innerJoinAndSelect('ticket.ticketEvents', 'ticketEvent')
       .innerJoinAndSelect('ticketEvent.event', 'event')
       .andWhere('event.id = :eventId', { eventId })
+      .orderBy('ticket.price', 'DESC')
       .getMany();
 
     const items = tickets.map((ticket) => ({

@@ -20,6 +20,8 @@ export class Coupon1744292273512 implements Seeder {
         percent: 0.1,
         type: COUPON_TYPE.PERCENTAGE,
         status: COUPON_STATUS.ACTIVE,
+        start_datetime: new Date(),
+        end_datetime: new Date(new Date().setDate(new Date().getDate() + 30)),
       },
       {
         id: nanoid(16),
@@ -27,6 +29,8 @@ export class Coupon1744292273512 implements Seeder {
         percent: 0.05,
         type: COUPON_TYPE.PERCENTAGE,
         status: COUPON_STATUS.ACTIVE,
+        start_datetime: new Date(),
+        end_datetime: new Date(new Date().setDate(new Date().getDate() + 30)),
       },
       {
         id: nanoid(16),
@@ -34,6 +38,8 @@ export class Coupon1744292273512 implements Seeder {
         percent: 10000,
         type: COUPON_TYPE.FIXED,
         status: COUPON_STATUS.ACTIVE,
+        start_datetime: new Date(),
+        end_datetime: new Date(new Date().setDate(new Date().getDate() + 30)),
       },
     ];
 
