@@ -22,7 +22,6 @@ import * as path from 'path';
 import { LoggerService } from './logger/logger.service';
 import { RequestService } from './request/request.service';
 import { LoggerModule } from './logger/logger.module';
-import { ResponseLoggerInterceptor } from './interceptor/response-logger.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import paypalConfig from 'src/config/paypal.config';
 import * as dayjs from 'dayjs';
@@ -91,23 +90,18 @@ import { CacheMiddleware } from './middleware/cache.middleware';
         enabled: configService.get('sentry.sentry_enabled'),
       }),
     }),
-    LoggerModule,
     RedisModule,
     ErrorModule,
+    LoggerModule.register(),
     RedisCacheModule,
   ],
-
+  exports: [LoggerModule],
   providers: [
     LoggerService,
     RequestService,
-    ResponseLoggerInterceptor,
     {
       provide: APP_INTERCEPTOR,
       useClass: SentryInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ResponseLoggerInterceptor,
     },
   ],
 })
