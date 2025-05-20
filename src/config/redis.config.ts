@@ -6,4 +6,5 @@ export default registerAs('redis', () => ({
   user: process.env.RD_USER || '',
   password: process.env.RD_PASSWORD || '',
   url: process.env.REDIS_URL,
+  ttl: parseInt(process.env.REDIS_TTL) || 60,
 }));
