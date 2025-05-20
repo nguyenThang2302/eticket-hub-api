@@ -84,6 +84,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.9.0",
     "nanoid": "^3.3.11",
+    "nest-winston": "^1.10.2",
     "nestjs-i18n": "^10.4.0",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
@@ -97,7 +98,8 @@
     "typeorm": "^0.3.19",
     "typeorm-extension": "^3.5.0",
     "uid-safe": "^2.1.5",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

@@ -32,12 +32,6 @@ export class RequestLoggerMiddleware implements NestMiddleware {
         userID = payload['sub'];
       }
 
-      const instanceLogger = this.loggerService.Logger(requestId);
-      instanceLogger.log(
-        'info',
-        `${req.method} ${req['baseUrl']} ${userID} header=${JSON.stringify(fullMaskingData(req.headers))} body=${JSON.stringify(fullMaskingData(req.body))}`,
-      );
-
       next();
     }
   }

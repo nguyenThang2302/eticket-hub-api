@@ -1,34 +1,75 @@
-import { createLogger, format, transports } from 'winston';
+import {
+  ArgumentsHost,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { Request } from 'express';
+import { v4 } from 'uuid';
 
-const myFormat = format.printf(({ label, level, message, timestamp }) => {
-  return `[${label}] [${timestamp}] [${level}] ${message}`;
-});
+import { LoggerFormat } from './logger.format';
 
+export type RequestWithID = Request & {
+  id?: string;
+};
+
+@Injectable()
 export class LoggerService {
-  constructor() {} // @Inject(RequestService) readonly requestService:RequestService,
+  constructor(
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+  ) {}
 
-  Logger(requestId: string) {
-    // const requestId = this.requestService.getRequestId();
-    if (process.env.NODE_ENV === 'development') {
-      const loggerDev = createLogger({
-        format: format.combine(
-          format.label({ label: requestId }),
-          format.timestamp(),
-          myFormat,
-        ),
-        transports: [new transports.Console()],
+  logRequest(request: RequestWithID) {
+    try {
+      request.id = v4();
+
+      this.logger.log(LoggerFormat.REQUEST, {
+        id: request.id,
+        method: request.method,
+        url: request.originalUrl,
+        headers: request.headers,
+        body: request.body,
       });
-      return loggerDev;
-    } else {
-      const loggerProd = createLogger({
-        format: format.combine(
-          format.label({ label: requestId }),
-          format.timestamp(),
-          myFormat,
-        ),
-        transports: [new transports.File({ filename: 'logs/combine.log' })],
+    } catch (error) {}
+  }
+
+  logResponse(context: ExecutionContext, status: number, body: object) {
+    try {
+      const request = context.switchToHttp().getRequest();
+
+      this.logger.log(LoggerFormat.RESPONSE, {
+        id: request.id,
+        method: request.method,
+        url: request.originalUrl,
+        userId: request?.currentUser?.id?.toString(),
+        status,
+        headers: request.headers,
+        body: request.method == 'GET' ? null : body,
       });
-      return loggerProd;
-    }
+    } catch (error) {}
+  }
+
+  logError(
+    context: ArgumentsHost,
+    status: number,
+    body: object,
+    exception: Error,
+  ) {
+    try {
+      const request = context.switchToHttp().getRequest();
+
+      this.logger.error(LoggerFormat.ERROR, {
+        id: request.id,
+        method: request.method,
+        url: request.originalUrl,
+        userId: request?.currentUser?.id?.toString(),
+        status,
+        headers: request.headers,
+        body,
+        exception,
+      });
+    } catch (error) {}
   }
 }

@@ -38,11 +38,6 @@ export class BadRequestExceptionFilter implements ExceptionFilter {
       userID = payload['sub'];
     }
 
-    const instanceLogger = this.loggerService.Logger(req['requestId']);
-    instanceLogger.error(
-      `${req.method} ${req.url} ${userID} header=${JSON.stringify(fullMaskingData(req.headers))} body=${JSON.stringify(fullMaskingData(req.body))} exception=${JSON.stringify(exception)} trace=${stackTrace}}`,
-    );
-
     res.status(status).json(this.errorService.message(errors, i18n));
   }
 }
