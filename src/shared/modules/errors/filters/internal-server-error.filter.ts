@@ -37,6 +37,7 @@ export class InternalServerErrorExceptionFilter implements ExceptionFilter {
       const payload = this.jwtService.decode(token);
       userID = payload['sub'];
     }
+    this.loggerService.logError(host, status, req.body, exception);
 
     res.status(status).json(this.errorService.message(errors, i18n));
   }

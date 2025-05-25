@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { EventController } from './event.controller';
 import { EventService } from './event.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +13,7 @@ import { Category } from 'src/database/entities/category.entity';
 import { Organization } from 'src/database/entities/organization.entity';
 import { TicketEvent } from 'src/database/entities/ticket_event.entity';
 import { MediaModule } from '../media/media.module';
+import { CacheMiddleware } from 'src/shared/modules/middleware/cache.middleware';
 
 @Module({
   imports: [
@@ -34,4 +35,10 @@ import { MediaModule } from '../media/media.module';
   providers: [EventService],
   exports: [EventService],
 })
-export class EventModule {}
+export class EventModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CacheMiddleware)
+      .forRoutes('events/specials', 'events/trendings');
+  }
+}

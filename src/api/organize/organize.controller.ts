@@ -28,6 +28,7 @@ import { plainToInstance } from 'class-transformer';
 import { UpdateEventRequestDto } from './dto/update-event-organizer.dto';
 import { validate } from 'class-validator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ChangeEventStatusDto } from './dto/change-status-event.dto';
 
 @Controller('organizes')
 export class OrganizeController {
@@ -278,5 +279,28 @@ export class OrganizeController {
   ): Promise<any> {
     const organizeId = organizer.organizeId;
     return this.organizeService.getCheckInEventReport(organizeId, eventId);
+  }
+
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(
+    OrganizeGuard,
+    JwtAuthGuard,
+    RolesGuard,
+    UserInOrganize,
+    UserEventOrganizeGuard,
+  )
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put('events/:event_id/change-status')
+  async changeStatusEvent(
+    @CurrentOrganizer() organizer: any,
+    @Param('event_id') eventId: string,
+    @Body() body: ChangeEventStatusDto,
+  ): Promise<any> {
+    const organizeId = organizer.organizeId;
+    return this.organizeService.changeStatusEvent(
+      organizeId,
+      eventId,
+      body.status,
+    );
   }
 }
