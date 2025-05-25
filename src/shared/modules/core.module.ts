@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from './redis/redis.module';
 import databaseConfig from 'src/config/database.config';
@@ -34,7 +29,6 @@ import sentryConfig from 'src/config/sentry.config';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { SentryInterceptor } from './interceptor/sentry.interceptor';
 import { RedisCacheModule } from './redis/redis-cache.module';
-import { CacheMiddleware } from './middleware/cache.middleware';
 
 @Module({
   imports: [
@@ -105,10 +99,4 @@ import { CacheMiddleware } from './middleware/cache.middleware';
     },
   ],
 })
-export class CoreModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(CacheMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.GET });
-  }
-}
+export class CoreModule {}

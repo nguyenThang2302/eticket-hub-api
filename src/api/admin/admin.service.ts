@@ -43,6 +43,9 @@ export class AdminService {
     if (type) {
       if (type === 'upcoming') {
         queryBuilder.andWhere('event.start_datetime > NOW()');
+        queryBuilder.andWhere('event.status = :status', {
+          status: EVENT_STATUS.ACTIVE,
+        });
       }
 
       if (type === 'past') {
@@ -52,6 +55,12 @@ export class AdminService {
       if (type === 'pending') {
         queryBuilder.andWhere('event.status = :status', {
           status: EVENT_STATUS.IN_REVIEW,
+        });
+      }
+
+      if (type === EVENT_STATUS.REJECTED) {
+        queryBuilder.andWhere('event.status = :status', {
+          status: EVENT_STATUS.REJECTED,
         });
       }
     }

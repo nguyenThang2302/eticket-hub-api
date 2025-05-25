@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
-import { In, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { format } from 'date-fns';
 import { CreateOrganizeDto } from './dto/create-organize.dto';
 import {
@@ -123,19 +123,30 @@ export class OrganizeService {
   }
 
   async getEvents(organizeId: string, params: any): Promise<any> {
-    const totalEvents = await this.eventRepository.countBy({
-      organization: { id: organizeId },
-    });
     const { page = 1, limit = 10 } = params;
+    const parsedPage = parseInt(page);
+    const parsedLimit = parseInt(limit);
+
+    // Fetch paginated events
     const events = await this.eventRepository
       .createQueryBuilder('event')
       .innerJoin('event.organization', 'organization')
       .innerJoin('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
       .andWhere('event.deleted_at IS NULL')
-      .andWhere('event.status = :status', {
-        status: EVENT_STATUS.ACTIVE,
-      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('event.status = :activeStatus', {
+            activeStatus: EVENT_STATUS.ACTIVE,
+          })
+            .orWhere('event.status = :approvedStatus', {
+              approvedStatus: EVENT_STATUS.APPROVED,
+            })
+            .orWhere('event.status = :inReviewStatus', {
+              inReviewStatus: EVENT_STATUS.INACTIVE,
+            });
+        }),
+      )
       .andWhere('event.end_datetime > NOW()')
       .select([
         'event.id',
@@ -146,23 +157,24 @@ export class OrganizeService {
         'venue.name',
         'venue.address',
       ])
-      .limit(parseInt(limit))
-      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .limit(parsedLimit)
+      .offset(parsedLimit * (parsedPage - 1))
       .getMany();
 
-    const totalPages = Math.ceil(totalEvents / parseInt(limit));
-
+    // Calculate pagination details
+    const totalPages = Math.ceil(events.length / parsedLimit);
     const paginations = {
-      total: totalEvents,
-      limit: parseInt(limit),
-      page: parseInt(page),
-      current_page: parseInt(page),
+      total: events.length,
+      limit: parsedLimit,
+      page: parsedPage,
+      current_page: parsedPage,
       total_page: totalPages,
-      has_next_page: parseInt(page) < totalPages,
-      has_previous_page: parseInt(page) > 1,
-      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+      has_next_page: parsedPage < totalPages,
+      has_previous_page: parsedPage > 1,
+      next_page: parsedPage < totalPages ? parsedPage + 1 : null,
     };
 
+    // Map events to the desired format
     const result = events.map((event) => ({
       id: event.id,
       name: event.name,
@@ -174,6 +186,7 @@ export class OrganizeService {
         address: event.venue?.address,
       },
     }));
+
     return { items: result, paginations };
   }
 
@@ -818,5 +831,19 @@ export class OrganizeService {
     }));
 
     return { items: items };
+  }
+
+  async changeStatusEvent(
+    organizeId: string,
+    eventId: string,
+    status: string,
+  ): Promise<any> {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId, organization: { id: organizeId } },
+    });
+    if (!event) {
+      throw new BadRequestException('EVENT_NOT_FOUND');
+    }
+    await this.eventRepository.update(eventId, { status });
   }
 }

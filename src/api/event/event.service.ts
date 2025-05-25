@@ -356,7 +356,7 @@ export class EventService {
   }
 
   async getPendingEvents(organizeId: string, params: any): Promise<any> {
-    const { page = 1, limit = 4 } = params;
+    const { page = 1, limit = 4, q } = params;
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
@@ -367,6 +367,19 @@ export class EventService {
       .innerJoinAndSelect('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
       .andWhere('event.status = :status', { status: EVENT_STATUS.IN_REVIEW });
+
+    if (q) {
+      // Add search functionality
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('organization.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.id LIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
 
     // Get total count
     const totalEvents = await queryBuilder.getCount();
@@ -408,7 +421,7 @@ export class EventService {
   }
 
   async getUpcomingEvents(organizeId: string, params: any): Promise<any> {
-    const { page = 1, limit = 4 } = params;
+    const { page = 1, limit = 4, q } = params;
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
@@ -418,17 +431,33 @@ export class EventService {
       .innerJoinAndSelect('event.organization', 'organization')
       .innerJoinAndSelect('event.venue', 'venue')
       .where('organization.id = :organizeId', { organizeId })
+      .andWhere('event.end_datetime > NOW()')
       .andWhere(
         new Brackets((qb) => {
           qb.where('event.status = :activeStatus', {
             activeStatus: EVENT_STATUS.ACTIVE,
-          }).orWhere('event.status = :approvedStatus', {
-            approvedStatus: EVENT_STATUS.APPROVED,
-          });
+          })
+            .orWhere('event.status = :approvedStatus', {
+              approvedStatus: EVENT_STATUS.APPROVED,
+            })
+            .orWhere('event.status = :inReviewStatus', {
+              inReviewStatus: EVENT_STATUS.INACTIVE,
+            });
         }),
-      )
-      .andWhere('event.end_datetime > NOW()');
+      );
 
+    if (q) {
+      // Add search functionality
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('organization.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.id LIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
     // Get total count
     const totalEvents = await queryBuilder.getCount();
 
@@ -446,6 +475,7 @@ export class EventService {
       start_time: event.start_datetime,
       end_time: event.end_datetime,
       poster_url: event.poster_url,
+      status: event.status,
       venue: {
         name: event.venue.name,
         address: event.venue.address,
@@ -469,7 +499,7 @@ export class EventService {
   }
 
   async getPastEvents(organizeId: string, params: any): Promise<any> {
-    const { page = 1, limit = 4 } = params;
+    const { page = 1, limit = 4, q } = params;
     const currentPage = parseInt(page.toString(), 10);
     const pageSize = parseInt(limit.toString(), 10);
 
@@ -481,6 +511,19 @@ export class EventService {
       .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.end_datetime < NOW()')
       .andWhere('event.status = :status', { status: EVENT_STATUS.ACTIVE });
+
+    if (q) {
+      // Add search functionality
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('organization.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.id LIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
 
     // Get total count
     const totalEvents = await queryBuilder.getCount();
@@ -498,6 +541,73 @@ export class EventService {
       name: event.name,
       start_time: event.start_datetime,
       end_time: event.end_datetime,
+      status: event.status,
+      poster_url: event.poster_url,
+      venue: {
+        name: event.venue.name,
+        address: event.venue.address,
+      },
+    }));
+
+    // Calculate pagination details
+    const totalPages = Math.ceil(totalEvents / pageSize);
+    const paginations = {
+      total: totalEvents,
+      limit: pageSize,
+      page: currentPage,
+      current_page: currentPage,
+      total_page: totalPages,
+      has_next_page: currentPage < totalPages,
+      has_previous_page: currentPage > 1,
+      next_page: currentPage < totalPages ? currentPage + 1 : null,
+    };
+
+    return { items, paginations };
+  }
+
+  async getRejectedEvents(organizeId: string, params: any): Promise<any> {
+    const { page = 1, limit = 4, q } = params;
+    const currentPage = parseInt(page.toString(), 10);
+    const pageSize = parseInt(limit.toString(), 10);
+
+    // Build the base query
+    const queryBuilder = this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoinAndSelect('event.organization', 'organization')
+      .innerJoinAndSelect('event.venue', 'venue')
+      .where('event.organization_id = :organizeId', { organizeId })
+      .andWhere('event.status = :status', { status: EVENT_STATUS.REJECTED });
+
+    if (q) {
+      // Add search functionality
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('event.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.description LIKE :q', { q: `%${q}%` })
+            .orWhere('organization.name LIKE :q', { q: `%${q}%` })
+            .orWhere('venue.name LIKE :q', { q: `%${q}%` })
+            .orWhere('event.id LIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
+
+    // Get total count
+    const totalEvents = await queryBuilder.getCount();
+
+    // Apply pagination and sorting
+    const events = await queryBuilder
+      .orderBy('event.start_datetime', 'ASC')
+      .skip((currentPage - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
+
+    // Map events to response format
+    const items = events.map((event) => ({
+      id: event.id,
+      name: event.name,
+      start_time: event.start_datetime,
+      end_time: event.end_datetime,
+      status: event.status,
       poster_url: event.poster_url,
       venue: {
         name: event.venue.name,

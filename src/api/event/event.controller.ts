@@ -132,6 +132,23 @@ export class EventController {
     return await this.eventService.getPastEvents(organizeId, params);
   }
 
+  @Get('rejected')
+  @Roles(ROLE.PROMOTER)
+  @UseGuards(OrganizeGuard, JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get rejected events' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'List of rejected events',
+  })
+  async getEventRejected(
+    @CurrentOrganizer() organizer: any,
+    @Query() params: any,
+  ) {
+    const organizeId = organizer.organizeId;
+    return await this.eventService.getRejectedEvents(organizeId, params);
+  }
+
   @Get('search')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Search events' })
