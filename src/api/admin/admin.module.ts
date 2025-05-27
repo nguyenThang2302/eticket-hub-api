@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { User } from 'src/database/entities';
 import { UserModule } from '../user/user.module';
+import { Organization } from 'src/database/entities/organization.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, User]), UserModule],
+  imports: [TypeOrmModule.forFeature([Event, User, Organization]), UserModule],
   controllers: [AdminController],
   providers: [AdminService],
 })

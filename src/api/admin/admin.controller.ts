@@ -40,4 +40,12 @@ export class AdminController {
   async getAllEvents(@Query() params: any) {
     return await this.adminService.getAllEvents(params);
   }
+
+  @Get('organizers')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllOrganizers(@Query() params: any) {
+    return await this.adminService.getAllOrganizers(params);
+  }
 }
