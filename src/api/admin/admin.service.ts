@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { Brackets, Repository } from 'typeorm';
 import { EVENT_STATUS } from '../common/constants';
 import { Organization } from 'src/database/entities/organization.entity';
+import { Order } from 'src/database/entities/order.entity';
+import { plainToClass } from 'class-transformer';
+import { GetOrderDetailResponseDto } from '../purchase/dto/get-order-detail-response.dto';
+import { maskEmail, maskPhoneNumber } from '../utils/helpers';
 
 @Injectable()
 export class AdminService {
@@ -12,6 +16,8 @@ export class AdminService {
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    @InjectRepository(Order)
+    private readonly orderRepositoty: Repository<Order>,
   ) {}
 
   async getAllEvents(params: any) {
@@ -177,5 +183,223 @@ export class AdminService {
     };
 
     return { items: organizers, paginations };
+  }
+
+  async getAllOrders(params: any) {
+    const totalOrders = await this.orderRepositoty.count();
+    const { page = 1, limit = 10 } = params;
+
+    const orders = await this.orderRepositoty
+      .createQueryBuilder('order')
+      .innerJoinAndSelect('order.event', 'event')
+      .leftJoinAndSelect('order.coupon', 'coupon')
+      .where('order.status IS NOT NULL')
+      .select([
+        'order.id',
+        'order.seat_info',
+        'order.status',
+        'order.total_price',
+        'event.id',
+        'coupon.code',
+      ])
+      .orderBy('order.created_at', 'DESC')
+      .limit(parseInt(limit))
+      .offset(parseInt(limit) * (parseInt(page) - 1))
+      .getMany();
+
+    const totalPages = Math.ceil(totalOrders / parseInt(limit));
+
+    const paginations = {
+      total: totalOrders,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+    };
+
+    const result = orders.map((order) => ({
+      id: order.id,
+      ticket: order.seat_info
+        ? JSON.parse(order.seat_info).map((ticket: any) => ({
+            id: ticket.id,
+            row: ticket.row,
+            label: ticket.label,
+          }))
+        : {},
+      total_price: order.total_price || 0,
+      coupon: order.coupon || null,
+    }));
+    return { items: result, paginations };
+  }
+
+  async getOrderById(id: string) {
+    const order = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
+      .leftJoinAndSelect('orders.event', 'event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('orders.coupon', 'coupon')
+      .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
+      .where('orders.id = :id', { id })
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException('ORDER_NOT_FOUND');
+    }
+
+    // Map seat information from ticket images
+    const seatInfo = order.order_ticket_images.map((ticket) => ({
+      location: ticket.seat_location,
+      ticket_name: ticket.ticket_name,
+      ticket_price: ticket.price,
+      ticket_url: ticket.qr_ticket_url,
+      ticket_code: ticket.code,
+    }));
+
+    // Transform the order into the response DTO
+    const response = plainToClass(GetOrderDetailResponseDto, {
+      id: order.id,
+      tracking_user: order.user_id, // Assuming tracking order is the same as order ID
+      payment_method_name: order.paymet_method?.name || null,
+      coupon: order.coupon
+        ? {
+            code: order.coupon.code,
+            percent: order.coupon.percent,
+          }
+        : null,
+      receive_infos: order.receive_info
+        ? {
+            name: order.receive_info.name,
+            email: maskEmail(order.receive_info.email),
+            phone_number: maskPhoneNumber(order.receive_info.phone_number),
+          }
+        : null,
+      discount_price: order.discount_price,
+      sub_total_price: order.sub_total_price,
+      total_price: order.total_price,
+      event: order.event
+        ? {
+            name: order.event.name,
+            start_time: order.event.start_datetime,
+            venue: order.event.venue
+              ? {
+                  name: order.event.venue.name,
+                  address: order.event.venue.address,
+                }
+              : null,
+          }
+        : null,
+      seat_info: seatInfo,
+      status: order.status,
+      created_at: order.created_at,
+    });
+
+    return response;
+  }
+
+  async getAllTickets(params: any) {
+    const { page = 1, limit = 10 } = params;
+
+    const [orders, total] = await this.orderRepositoty
+      .createQueryBuilder('orders')
+      .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
+      .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
+      .leftJoinAndSelect('orders.event', 'event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('orders.coupon', 'coupon')
+      .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
+      .where('orders.status IS NOT NULL')
+      .take(limit) // Limit the number of results
+      .skip((page - 1) * limit) // Skip results for pagination
+      .getManyAndCount(); // Get both the results and the total count
+
+    if (!orders.length) {
+      return {
+        items: [],
+        paginations: {
+          total,
+          limit: parseInt(limit, 10),
+          page: parseInt(page, 10),
+          current_page: parseInt(page, 10),
+          total_page: 0,
+          has_next_page: false,
+          has_previous_page: false,
+          next_page: null,
+        },
+      };
+    }
+
+    // Map orders into the response DTO
+    const response = orders.map((order) => {
+      const seatInfo = order.order_ticket_images.map((ticket) => ({
+        location: ticket.seat_location,
+        ticket_name: ticket.ticket_name,
+        ticket_price: ticket.price,
+        ticket_url: ticket.qr_ticket_url,
+        ticket_code: ticket.code,
+      }));
+
+      return plainToClass(GetOrderDetailResponseDto, {
+        id: order.id,
+        tracking_user: order.user_id,
+        payment_method_name: order.paymet_method?.name || null,
+        coupon: order.coupon
+          ? {
+              code: order.coupon.code,
+              percent: order.coupon.percent,
+            }
+          : null,
+        receive_infos: order.receive_info
+          ? {
+              name: order.receive_info.name,
+              email: maskEmail(order.receive_info.email),
+              phone_number: maskPhoneNumber(order.receive_info.phone_number),
+            }
+          : null,
+        discount_price: order.discount_price,
+        sub_total_price: order.sub_total_price,
+        total_price: order.total_price,
+        event: order.event
+          ? {
+              name: order.event.name,
+              start_time: order.event.start_datetime,
+              venue: order.event.venue
+                ? {
+                    name: order.event.venue.name,
+                    address: order.event.venue.address,
+                  }
+                : null,
+            }
+          : null,
+        seat_info: seatInfo,
+        status: order.status,
+        created_at: order.created_at,
+      });
+    });
+
+    // Calculate pagination details
+    const totalPage = Math.ceil(total / limit);
+    const currentPage = parseInt(page, 10);
+    const hasNextPage = currentPage < totalPage;
+    const hasPreviousPage = currentPage > 1;
+    const nextPage = hasNextPage ? currentPage + 1 : null;
+
+    return {
+      items: response,
+      paginations: {
+        total,
+        limit: parseInt(limit, 10),
+        page: currentPage,
+        current_page: currentPage,
+        total_page: totalPage,
+        has_next_page: hasNextPage,
+        has_previous_page: hasPreviousPage,
+        next_page: nextPage,
+      },
+    };
   }
 }
