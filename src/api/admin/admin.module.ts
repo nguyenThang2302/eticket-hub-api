@@ -6,9 +6,13 @@ import { Event } from 'src/database/entities/event.entity';
 import { User } from 'src/database/entities';
 import { UserModule } from '../user/user.module';
 import { Organization } from 'src/database/entities/organization.entity';
+import { Order } from 'src/database/entities/order.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, User, Organization]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([Event, User, Organization, Order]),
+    UserModule,
+  ],
   controllers: [AdminController],
   providers: [AdminService],
 })

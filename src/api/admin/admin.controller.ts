@@ -48,4 +48,28 @@ export class AdminController {
   async getAllOrganizers(@Query() params: any) {
     return await this.adminService.getAllOrganizers(params);
   }
+
+  @Get('orders')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllOrders(@Query() params: any) {
+    return await this.adminService.getAllOrders(params);
+  }
+
+  @Get('orders/:id')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getOrderById(@Param('id') id: string) {
+    return await this.adminService.getOrderById(id);
+  }
+
+  @Get('tickets')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllTickets(@Query() params: any) {
+    return await this.adminService.getAllTickets(params);
+  }
 }
