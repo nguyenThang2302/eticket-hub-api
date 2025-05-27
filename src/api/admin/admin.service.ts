@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { Brackets, Repository } from 'typeorm';
 import { EVENT_STATUS } from '../common/constants';
+import { Organization } from 'src/database/entities/organization.entity';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
   async getAllEvents(params: any) {
@@ -131,5 +134,48 @@ export class AdminService {
     return {
       id: event.id,
     };
+  }
+
+  async getAllOrganizers(params: any) {
+    const { page = 1, limit = 10, q } = params;
+    const currentPage = parseInt(page.toString(), 10);
+    const pageSize = parseInt(limit.toString(), 10);
+
+    const queryBuilder = this.organizationRepository
+      .createQueryBuilder('organization')
+      .select([
+        'organization.id',
+        'organization.name',
+        'organization.description',
+        'organization.logo_url',
+        'organization.is_active',
+        'organization.status',
+        'organization.created_at',
+      ])
+      .where('organization.lang_code = :langCode', { langCode: 'en' });
+
+    if (q) {
+      queryBuilder.andWhere('organization.name LIKE :q', { q: `%${q}%` });
+    }
+
+    const totalOrganizers = await queryBuilder.getCount();
+    const offset = (currentPage - 1) * pageSize;
+
+    const organizers = await queryBuilder.skip(offset).take(pageSize).getMany();
+
+    const totalPages = Math.ceil(totalOrganizers / parseInt(limit));
+
+    const paginations = {
+      total: totalOrganizers,
+      limit: parseInt(limit),
+      page: parseInt(page),
+      current_page: parseInt(page),
+      total_page: totalPages,
+      has_next_page: parseInt(page) < totalPages,
+      has_previous_page: parseInt(page) > 1,
+      next_page: parseInt(page) < totalPages ? parseInt(page) + 1 : null,
+    };
+
+    return { items: organizers, paginations };
   }
 }
