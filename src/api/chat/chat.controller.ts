@@ -15,6 +15,8 @@ import { OrganizeGuard } from '../common/guard/organnize.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ROLE } from '../common/constants';
 import { ChatService } from './chat.service';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Controller('chats')
 export class ChatController {
@@ -27,6 +29,15 @@ export class ChatController {
   async getAllChatsOrganizer(@Req() req: Request) {
     const organizerId = _.get(req.headers, 'x-api-organize-id', null);
     return await this.chatService.getMessagesOrganizer(organizerId);
+  }
+
+  @Get('users')
+  @Roles(ROLE.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllChatsUser(@CurrentUser() user: JwtPayload) {
+    const userId = _.get(user, 'sub', null);
+    return await this.chatService.getMessagesUser(userId);
   }
 
   @Get('details/:receiver_id/:sender_id')

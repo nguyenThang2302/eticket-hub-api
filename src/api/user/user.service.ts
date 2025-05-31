@@ -47,7 +47,9 @@ export class UserService {
       email: userGoogleInfos.email,
       password: null,
       avatar_url: userGoogleInfos.picture,
+      is_verified: true,
       provider: PROVIDER.GOOGLE,
+      role: ROLE.USER,
     });
 
     return await this.usersRepository.save(user);

@@ -8,6 +8,7 @@ import { Order } from 'src/database/entities/order.entity';
 import { plainToClass } from 'class-transformer';
 import { GetOrderDetailResponseDto } from '../purchase/dto/get-order-detail-response.dto';
 import { maskEmail, maskPhoneNumber } from '../utils/helpers';
+import { Category } from 'src/database/entities/category.entity';
 
 @Injectable()
 export class AdminService {
@@ -18,6 +19,8 @@ export class AdminService {
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(Order)
     private readonly orderRepositoty: Repository<Order>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async getAllEvents(params: any) {
@@ -401,5 +404,39 @@ export class AdminService {
         next_page: nextPage,
       },
     };
+  }
+
+  async getAnalyticsEventCategories(params: any) {
+    const { year } = params;
+    const totalEvents = await this.eventRepository.count({
+      where: [
+        {
+          status: EVENT_STATUS.APPROVED,
+        },
+        {
+          status: EVENT_STATUS.ACTIVE,
+        },
+      ],
+    });
+    const categoriesWithEventCount = await this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.events', 'event')
+      .select([
+        'category.id AS categoryId',
+        'category.name AS categoryName',
+        'COUNT(event.id) AS eventCount',
+      ])
+      .where('YEAR(event.created_at) = :year', { year })
+      .andWhere('event.status IN (:...statuses)', {
+        statuses: [EVENT_STATUS.APPROVED, EVENT_STATUS.ACTIVE],
+      })
+      .groupBy('category.id')
+      .getRawMany();
+    const items = categoriesWithEventCount.map((item) => ({
+      id: item.categoryId,
+      name: item.categoryName,
+      event_count: parseInt(item.eventCount, 10),
+    }));
+    return { items, total_events: totalEvents };
   }
 }

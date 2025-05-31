@@ -159,4 +159,78 @@ export class ChatService {
 
     return { items };
   }
+
+  async getMessagesUser(userId: string) {
+    console.log('getMessagesUser', userId);
+    const data = await this.messageModel
+      .aggregate([
+        {
+          $match: {
+            $or: [{ senderId: userId }, { receiverId: userId }],
+          },
+        },
+        {
+          $sort: {
+            timestamp: -1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              otherParty: {
+                $cond: {
+                  if: { $eq: ['$senderId', userId] },
+                  then: '$receiverId',
+                  else: '$senderId',
+                },
+              },
+            },
+            latestMessage: { $first: '$$ROOT' },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$latestMessage' },
+        },
+      ])
+      .exec();
+    
+    console.log('data', data);
+
+    const items = await Promise.all(
+      data.reverse().map(async (message) => {
+        let senderInfo = {};
+        if (message.isOrganizer) {
+          senderInfo = await this.userRepository.findOne({
+            where: { id: message.receiverId },
+            select: {
+              id: true,
+              name: true,
+              avatar_url: true,
+            },
+          });
+        } else {
+          senderInfo = await this.userRepository.findOne({
+            where: { id: message.senderId },
+            select: {
+              id: true,
+              name: true,
+              avatar_url: true,
+            },
+          });
+        }
+
+        return {
+          id: message._id,
+          sender_id: message.senderId,
+          receiver_id: message.receiverId,
+          message: message.message,
+          is_organizer: message.isOrganizer,
+          created_at: message.timestamp,
+          sender_info: senderInfo,
+        };
+      }),
+    );
+
+    return { items };
+  }
 }

@@ -5,12 +5,11 @@ import {
   Inject,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ErrorService } from '../error.service';
 import { I18nContext } from 'nestjs-i18n';
 import { LoggerService } from '../../logger/logger.service';
 import { JwtService } from '@nestjs/jwt';
-import { fullMaskingData } from 'src/api/utils/helpers';
 
 @Catch(InternalServerErrorException)
 export class InternalServerErrorExceptionFilter implements ExceptionFilter {
@@ -22,22 +21,13 @@ export class InternalServerErrorExceptionFilter implements ExceptionFilter {
 
   catch(exception: InternalServerErrorException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
     const status = exception.getStatus();
     const errors = exception.getResponse();
     const i18n = I18nContext.current(host);
-    const stackTrace = exception.stack;
+    const body = ctx.getRequest().body;
 
-    let userID: string;
-    if (!req.headers['authorization']) {
-      userID = ' ';
-    } else {
-      const token = req.headers['authorization'].split(' ')[1];
-      const payload = this.jwtService.decode(token);
-      userID = payload['sub'];
-    }
-    this.loggerService.logError(host, status, req.body, exception);
+    this.loggerService.logError(host, status, body, exception);
 
     res.status(status).json(this.errorService.message(errors, i18n));
   }

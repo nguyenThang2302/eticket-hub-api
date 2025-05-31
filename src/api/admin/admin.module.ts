@@ -7,10 +7,11 @@ import { User } from 'src/database/entities';
 import { UserModule } from '../user/user.module';
 import { Organization } from 'src/database/entities/organization.entity';
 import { Order } from 'src/database/entities/order.entity';
+import { Category } from 'src/database/entities/category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Event, User, Organization, Order]),
+    TypeOrmModule.forFeature([Event, User, Organization, Order, Category]),
     UserModule,
   ],
   controllers: [AdminController],
