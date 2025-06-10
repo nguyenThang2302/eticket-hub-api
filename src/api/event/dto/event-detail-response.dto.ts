@@ -77,6 +77,13 @@ export class EventDetailResponseDto {
   @Expose()
   start_time: string;
 
+  @ApiProperty({
+    description: 'End time of the event',
+    example: '2023-11-01T23:00:00Z',
+  })
+  @Expose()
+  end_time: string;
+
   @ApiProperty({ description: 'Venue details of the event', type: Venue })
   @Expose()
   @Type(() => Venue)

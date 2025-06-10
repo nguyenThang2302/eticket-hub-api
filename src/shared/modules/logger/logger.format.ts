@@ -2,6 +2,7 @@ import { format } from 'winston';
 import { Format } from 'logform';
 
 import { LogContent } from './logger.type';
+import { fullMaskingData } from 'src/api/utils/helpers';
 
 export class LoggerFormat {
   static REQUEST = 'REQUEST';
@@ -33,8 +34,8 @@ export class LoggerFormat {
     const level = logContent.level.toUpperCase();
     const { timestamp, message, context } = logContent;
     const { id, method, url } = context;
-    const headers = JSON.stringify(context.headers);
-    const body = JSON.stringify(context.body);
+    const headers = JSON.stringify(fullMaskingData(context.headers));
+    const body = JSON.stringify(fullMaskingData(context.body));
 
     return `${level}\t ${timestamp}\t ${message}\t ${id}\t ${method}\t ${url}\t headers=${headers}\t body=${body}`;
   }
@@ -43,8 +44,8 @@ export class LoggerFormat {
     const level = logContent.level.toUpperCase();
     const { timestamp, message, context } = logContent;
     const { id, method, url, userId, status } = context;
-    const headers = JSON.stringify(context.headers);
-    const body = JSON.stringify(context.body);
+    const headers = JSON.stringify(fullMaskingData(context.headers));
+    const body = JSON.stringify(fullMaskingData(context.body));
 
     return `${level}\t ${timestamp}\t ${message}\t ${id}\t ${method}\t ${url}\t ${userId}\t ${status}\t headers=${headers}\t body=${body}`;
   }
@@ -57,8 +58,8 @@ export class LoggerFormat {
       stack: [context],
     } = logContent;
     const { id, method, url, userId, status } = context;
-    const headers = JSON.stringify(context.headers);
-    const body = JSON.stringify(context.body);
+    const headers = JSON.stringify(fullMaskingData(context.headers));
+    const body = JSON.stringify(fullMaskingData(context.body));
     const exception = JSON.stringify(
       context.exception,
       Object.getOwnPropertyNames(context.exception),

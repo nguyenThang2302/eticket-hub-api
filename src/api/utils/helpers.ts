@@ -7,7 +7,7 @@ import { COUPON_TYPE } from '../common/constants';
 import { apiSkipLogs, isFieldMask } from 'src/config/helpers.config';
 
 export function IsValidPassword(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isValidPassword',
       target: object.constructor,

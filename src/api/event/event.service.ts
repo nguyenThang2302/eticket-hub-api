@@ -39,8 +39,6 @@ export class EventService {
     const event = await this.eventRepository.findOne({
       where: {
         id: eventId,
-        status: EVENT_STATUS.ACTIVE,
-        end_datetime: MoreThan(new Date()),
       },
       relations: [
         'ticketEvents',
@@ -58,6 +56,7 @@ export class EventService {
       id: event.id,
       name: event.name,
       start_time: event.start_datetime.toISOString(),
+      end_time: event.end_datetime.toISOString(),
       venue: event.venue
         ? {
             name: event.venue.name,

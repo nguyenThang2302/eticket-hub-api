@@ -106,7 +106,6 @@ export class ChatGateway
           where: { id: data.senderId },
         });
       }
-      console.log(sender);
       client.to(receiver.socketId).emit('privateMessage', {
         senderId: data.senderId,
         message: data.message,
