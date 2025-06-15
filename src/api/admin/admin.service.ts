@@ -439,4 +439,189 @@ export class AdminService {
     }));
     return { items, total_events: totalEvents };
   }
+
+  async getAnalyticsEventStatus(params: any) {
+    const { year } = params;
+
+    const countEventsByStatus = async (status: string | string[]) => {
+      const query = this.eventRepository
+        .createQueryBuilder('event')
+        .andWhere('YEAR(event.start_datetime) = :year', { year });
+
+      if (Array.isArray(status)) {
+        query.andWhere('event.status IN (:...status)', { status });
+      } else {
+        query.andWhere('event.status = :status', { status });
+      }
+
+      return query.getCount();
+    };
+
+    // Count events for each status
+    const [
+      countActiveEvent,
+      countInActiveEvent,
+      countInReviewEvent,
+      countRejectedEvent,
+    ] = await Promise.all([
+      countEventsByStatus([EVENT_STATUS.ACTIVE, EVENT_STATUS.APPROVED]),
+      countEventsByStatus(EVENT_STATUS.IN_REVIEW),
+      countEventsByStatus(EVENT_STATUS.IN_REVIEW),
+      countEventsByStatus(EVENT_STATUS.REJECTED),
+    ]);
+
+    return {
+      active_event: countActiveEvent,
+      in_active_event: countInActiveEvent,
+      in_review_event: countInReviewEvent,
+      rejected_event: countRejectedEvent,
+    };
+  }
+
+  async getAnalyticsTicketSales(params: any) {
+    const { year } = params;
+
+    const queryEvents = async (
+      selectFields: string[],
+      whereConditions: { [key: string]: any },
+      groupByFields: string[] = [],
+      orderByField: string,
+      orderDirection: 'ASC' | 'DESC',
+      limit: number,
+      join?: { alias: string; relation: string },
+      aggregation?: string,
+    ) => {
+      const query = this.eventRepository.createQueryBuilder('event');
+
+      if (join) {
+        query.innerJoin(join.relation, join.alias);
+      }
+
+      selectFields.forEach((field) => query.addSelect(field));
+
+      Object.entries(whereConditions).forEach(([key, value]) => {
+        query.andWhere(key, value);
+      });
+
+      groupByFields.forEach((field) => query.addGroupBy(field));
+
+      query.orderBy(orderByField, orderDirection).limit(limit);
+
+      return aggregation ? query.getRawMany() : query.getMany();
+    };
+
+    const eventTrendings = await queryEvents(
+      [
+        'event.id AS id',
+        'event.name AS name',
+        'event.poster_url AS poster_url',
+        'event.start_datetime AS start_datetime',
+        'COUNT(order.id) AS orderCount',
+      ],
+      {
+        'event.status = :status': { status: EVENT_STATUS.ACTIVE },
+        'YEAR(event.start_datetime) = :year': { year },
+      },
+      ['event.id', 'event.name', 'event.start_datetime'],
+      'orderCount',
+      'DESC',
+      10,
+      { alias: 'order', relation: 'event.orders' },
+      'COUNT(order.id)',
+    );
+
+    const eventSpecials = await queryEvents(
+      ['event.id', 'event.name', 'event.poster_url', 'event.start_datetime'],
+      {
+        'event.status = :status': { status: EVENT_STATUS.ACTIVE },
+        'YEAR(event.start_datetime) = :year': { year },
+      },
+      [],
+      'event.start_datetime',
+      'DESC',
+      10,
+    );
+
+    const topGrossingEvents = await queryEvents(
+      [
+        'event.id AS id',
+        'event.name AS name',
+        'event.poster_url AS poster_url',
+        'event.start_datetime AS start_datetime',
+        'SUM(order.total_price) AS totalRevenue',
+      ],
+      {
+        'event.status = :status': { status: EVENT_STATUS.ACTIVE },
+        'YEAR(event.start_datetime) = :year': { year },
+      },
+      ['event.id', 'event.name', 'event.start_datetime'],
+      'totalRevenue',
+      'DESC',
+      10,
+      { alias: 'order', relation: 'event.orders' },
+      'SUM(order.total_price)',
+    );
+
+    const listItemEventTrendings = eventTrendings.map((event) => ({
+      id: event.id,
+      name: event.name,
+    }));
+
+    const listItemEventSpecials = eventSpecials.map((event) => ({
+      id: event.id,
+      name: event.name,
+    }));
+
+    const listItemTopGrossingEvents = topGrossingEvents.map((event) => ({
+      id: event.id,
+      name: event.name,
+      total_revenue: parseFloat(event.totalRevenue),
+    }));
+
+    return {
+      event_trendings: listItemEventTrendings,
+      event_specials: listItemEventSpecials,
+      top_grossing_events: listItemTopGrossingEvents,
+    };
+  }
+
+  async getAnalyticsEventSales(params: any) {
+    const { year } = params;
+
+    const monthlyRevenue = await this.orderRepositoty
+      .createQueryBuilder('order')
+      .select('MONTH(order.created_at)', 'month')
+      .addSelect('SUM(order.total_price)', 'totalRevenue')
+      .where('YEAR(order.created_at) = :year', { year })
+      .groupBy('MONTH(order.created_at)')
+      .orderBy('month', 'ASC')
+      .getRawMany();
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    const revenueByMonth = Array.from({ length: 12 }, (_, index) => ({
+      month: monthNames[index],
+      total_revenue: 0,
+    }));
+
+    monthlyRevenue.forEach((data) => {
+      const monthIndex = parseInt(data.month, 10) - 1;
+      revenueByMonth[monthIndex].total_revenue = parseFloat(data.totalRevenue);
+    });
+
+    return revenueByMonth;
+  }
 }
