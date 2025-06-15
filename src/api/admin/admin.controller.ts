@@ -132,7 +132,7 @@ export class AdminController {
     return await this.adminService.getAllTickets(params);
   }
 
-  @Get('analytics/even-categories')
+  @Get('analytics/event-categories')
   @Roles(ROLE.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
@@ -143,5 +143,44 @@ export class AdminController {
   })
   async getAnalyticsEventCategories(@Query() params: any) {
     return await this.adminService.getAnalyticsEventCategories(params);
+  }
+
+  @Get('analytics/event-status')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get analytics event status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Analytics event status retrieved successfully',
+  })
+  async getAnalyticsEventStatus(@Query() params: any) {
+    return await this.adminService.getAnalyticsEventStatus(params);
+  }
+
+  @Get('analytics/ticket-sales')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get analytics ticket sales' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Analytics ticket sales retrieved successfully',
+  })
+  async getAnalyticsTicketSales(@Query() params: any) {
+    return await this.adminService.getAnalyticsTicketSales(params);
+  }
+
+  @Get('analytics/event-sales')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get analytics event sales' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Analytics event sales retrieved successfully',
+  })
+  async getAnalyticsEventSales(@Query() params: any) {
+    return await this.adminService.getAnalyticsEventSales(params);
   }
 }
