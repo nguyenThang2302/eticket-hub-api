@@ -7,7 +7,10 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: '*' });
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
   app.setGlobalPrefix('api');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
