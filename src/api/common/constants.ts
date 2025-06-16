@@ -37,6 +37,7 @@ export enum REGISTER_ORGANIZATION_STATUS {
   WAITING = 'waiting',
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  ACTIVE = 'active',
 }
 
 export enum SEAT_STATUS {
