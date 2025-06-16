@@ -61,8 +61,8 @@ export class OrganizeService {
       lang_code: 'en',
       name: body.name,
       description: body.description,
-      is_active: false,
-      status: REGISTER_ORGANIZATION_STATUS.WAITING,
+      is_active: true,
+      status: REGISTER_ORGANIZATION_STATUS.ACTIVE,
       logo_url: process.env.ORGANNIZATION_LOGO_URL_DEFAULT,
     });
     const data = await this.organizeRepository.save(organization);

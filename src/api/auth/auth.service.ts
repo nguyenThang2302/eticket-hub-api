@@ -54,7 +54,7 @@ export class AuthService {
       name: fullName,
       email,
       password: hashPassword,
-      role: ROLE[`${role}`],
+      role: role,
     };
 
     const data = await this.userService.create(createUserDto);
@@ -79,7 +79,7 @@ export class AuthService {
     const dtoSendVerificationEmail: SendVerificationEmailDto = {
       from: this.configService.get<object>('nestmailer.fromMailVerification'),
       recipients: [{ name: fullName, address: email }],
-      subject: 'Verification Account Morent Website',
+      subject: 'Verification Account eTicketHub Website',
       context: contextMailVerification,
       template: 'send-verification-email',
     };
