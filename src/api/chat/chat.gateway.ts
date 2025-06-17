@@ -115,12 +115,6 @@ export class ChatGateway
           avatar_url: _.get(sender, 'avatar_url', null),
         },
       });
-    } else {
-      await this.chatQueue.add('sendNotification', {
-        senderId: data.senderId,
-        receiverId: data.receiverId,
-        message: data.message,
-      });
     }
   }
 }

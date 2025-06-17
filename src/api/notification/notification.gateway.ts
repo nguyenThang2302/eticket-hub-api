@@ -2,8 +2,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
   SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
@@ -31,20 +29,12 @@ export class NotificationGateway
     this.connectedClients.delete(client.id);
   }
 
-  @SubscribeMessage('sendNotification')
-  handleSendNotification(
-    @MessageBody() data: any,
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log(`Received notification:`, data);
-    this.server.emit('receiveNotification', data); // Broadcast to all clients
+  sendNotification(userId: string, payload: any) {
+    this.server.to(userId).emit('notification', payload);
   }
 
-  sendNotificationToUser(userId: string, message: string) {
-    for (const [clientId, socket] of this.connectedClients) {
-      if (socket.handshake.auth.userId === userId) {
-        socket.emit('receiveNotification', { message });
-      }
-    }
+  @SubscribeMessage('subscribeToNotifications')
+  handleSubscribe(client: Socket, userId: string) {
+    client.join(userId); // Join room by userId
   }
 }

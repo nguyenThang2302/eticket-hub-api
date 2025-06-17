@@ -93,6 +93,16 @@ export class OrganizeController {
   }
 
   @Roles(ROLE.PROMOTER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get(':organize_id')
+  async getOrganizationDetails(
+    @Param('organize_id') organizeId: string,
+  ): Promise<any> {
+    return this.organizeService.getOrganizationDetails(organizeId);
+  }
+
+  @Roles(ROLE.PROMOTER)
   @UseGuards(
     OrganizeGuard,
     JwtAuthGuard,
