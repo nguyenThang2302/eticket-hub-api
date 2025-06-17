@@ -161,7 +161,6 @@ export class ChatService {
   }
 
   async getMessagesUser(userId: string) {
-    console.log('getMessagesUser', userId);
     const data = await this.messageModel
       .aggregate([
         {
@@ -193,30 +192,30 @@ export class ChatService {
         },
       ])
       .exec();
-    
-    console.log('data', data);
 
     const items = await Promise.all(
       data.reverse().map(async (message) => {
         let senderInfo = {};
         if (message.isOrganizer) {
-          senderInfo = await this.userRepository.findOne({
-            where: { id: message.receiverId },
-            select: {
-              id: true,
-              name: true,
-              avatar_url: true,
-            },
-          });
-        } else {
-          senderInfo = await this.userRepository.findOne({
+          senderInfo = await this.organizationRepository.findOne({
             where: { id: message.senderId },
             select: {
               id: true,
               name: true,
-              avatar_url: true,
+              logo_url: true,
             },
           });
+          senderInfo['avatar_url'] = senderInfo['logo_url'];
+        } else {
+          senderInfo = await this.organizationRepository.findOne({
+            where: { id: message.receiverId },
+            select: {
+              id: true,
+              name: true,
+              logo_url: true,
+            },
+          });
+          senderInfo['avatar_url'] = senderInfo['logo_url'];
         }
 
         return {

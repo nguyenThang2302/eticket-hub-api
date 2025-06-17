@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as _ from 'lodash';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from 'src/database/entities/organization.entity';
 import { Brackets, In, Repository } from 'typeorm';
@@ -107,6 +111,23 @@ export class OrganizeService {
       status: org.organization_status,
     }));
     return { items: result };
+  }
+
+  async getOrganizationDetails(organizeId: string): Promise<any> {
+    const organization = await this.organizeRepository
+      .createQueryBuilder('organization')
+      .where('organization.id = :organizeId', { organizeId })
+      .select(['id', 'name', 'description', 'logo_url'])
+      .getRawOne();
+    if (!organization) {
+      throw new NotFoundException('ORGANIZATION_NOT_FOUND');
+    }
+    return {
+      id: organization.id,
+      name: organization.name,
+      description: organization.description,
+      logo_url: organization.logo_url,
+    };
   }
 
   async checkUserInOrganize(
