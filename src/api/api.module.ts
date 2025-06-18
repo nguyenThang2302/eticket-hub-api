@@ -18,6 +18,7 @@ import { CouponModule } from './coupon/coupon.module';
 import { TicketModule } from './ticket/ticket.module';
 import { RoleModule } from './role/role.module';
 import { AdminModule } from './admin/admin.module';
+import { HealthCheckModule } from './health-check/health-check.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AdminModule } from './admin/admin.module';
     TicketModule,
     RoleModule,
     AdminModule,
+    HealthCheckModule,
   ],
   providers: [
     IsEmailExistedConstraint,

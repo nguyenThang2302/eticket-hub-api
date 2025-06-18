@@ -152,8 +152,10 @@ export class MomoService implements IPayment {
   async captureOrder(orderID: string, orderPaymentID: string, userID: string) {
     const order = await this.orderReposioty
       .createQueryBuilder('orders')
-      .innerJoin('orders.payment_orders', 'payment_orders')
+      .innerJoin('orders.payment_orders', 'payment_orders') // Join with payment_orders
       .innerJoin('orders.receive_info', 'receive_info') // Join with receive_info
+      .innerJoinAndSelect('orders.event', 'event') // Join with event
+      .innerJoinAndSelect('event.organization', 'organization') // Join with organization
       .where('orders.id = :orderID', { orderID })
       .andWhere('orders.user_id = :userID', { userID })
       .andWhere('payment_orders.payment_order_id = :orderPaymentID', {
@@ -164,8 +166,11 @@ export class MomoService implements IPayment {
         'receive_info.name',
         'receive_info.phone_number',
         'receive_info.email',
+        'event.name',
+        'organization.id',
       ])
       .getOne();
+
     order.status = ORDER_STATUS.PAID;
     const seatInfo = JSON.parse(order.seat_info);
     const seatIds = seatInfo.map((seat: any) => seat.id);
@@ -215,6 +220,8 @@ export class MomoService implements IPayment {
     await this.emailQueue.add('SendEmailConfirmOrder', emailContent);
     return {
       order_id: order.id,
+      event_name: order.event.name,
+      organizer_id: order.event.organization.id,
     };
   }
 
