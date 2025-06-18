@@ -1,10 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/database/entities/event.entity';
 import { OrderTicketImage } from 'src/database/entities/order_ticket_image.entity';
 import { Ticket } from 'src/database/entities/ticket.entity';
 import { Repository } from 'typeorm';
-import * as moment from 'moment';
 
 @Injectable()
 export class TicketService {
@@ -37,12 +40,27 @@ export class TicketService {
     return totalPrice;
   }
 
-  async verifyQRTicket(code: string) {
+  async verifyQRTicket(organizeId: string, code: string) {
     const ticket = await this.orderTicketImageRepository
       .createQueryBuilder('ticket')
       .innerJoinAndSelect('ticket.order', 'order')
+      .innerJoinAndSelect('order.event', 'event')
       .where('ticket.code = :code', { code })
       .getOne();
+
+    const eventId = ticket?.order?.event?.id;
+
+    const checkPermissionScan = await this.eventRepository.findOne({
+      where: {
+        id: eventId,
+        organization: {
+          id: organizeId,
+        },
+      },
+    });
+    if (!checkPermissionScan) {
+      throw new ForbiddenException('CANNOT_ACCESS_RESOURCE');
+    }
 
     if (!ticket) {
       throw new BadRequestException('TICKET_NOT_FOUND');
@@ -62,17 +80,6 @@ export class TicketService {
     if (!event.allow_scan_ticket) {
       throw new BadRequestException('TICKET_NOT_ALLOW_SCAN');
     }
-
-    const currentTime = moment();
-    const eventStartTime = moment(event.start_datetime);
-    const oneDayBeforeEvent = eventStartTime.clone().subtract(1, 'days');
-
-    // if (
-    //   currentTime.isBefore(oneDayBeforeEvent) ||
-    //   currentTime.isAfter(eventStartTime)
-    // ) {
-    //   throw new BadRequestException('TICKET_SCAN_TIME_INVALID');
-    // }
 
     ticket.is_scanned = true;
     await this.orderTicketImageRepository.save(ticket);

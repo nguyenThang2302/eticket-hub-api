@@ -47,6 +47,15 @@ export class NotificationController {
     return { items: notifications, un_read_count: unreadCount };
   }
 
+  @Get('admin')
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getAdminNotifications(@Query() query: any) {
+    const { notifications, unreadCount } =
+      await this.notificationService.getNotifications('admin', query);
+    return { items: notifications, un_read_count: unreadCount };
+  }
+
   @Patch('read/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
