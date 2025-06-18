@@ -97,6 +97,7 @@ export class AdminService {
 
     const items = events.map((event) => ({
       id: event.id,
+      organizer_id: event.organization.id,
       name: event.name,
       status: event.status,
       start_time: event.start_datetime,
