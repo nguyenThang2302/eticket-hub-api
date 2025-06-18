@@ -23,7 +23,7 @@ export class NotificationService {
   }
 
   async getNotifications(userId: string, query: any) {
-    const { page = 1, limit = 10 } = query;
+    const { page = 1, limit = 100 } = query;
 
     const skip = (page - 1) * limit;
 
