@@ -191,6 +191,7 @@ export class EventService {
     const categories = await this.categoryRepository.find({
       where: { name: In(categoryNames) },
     });
+
     const categoryIds = categories.map((category) => category.id);
 
     const queryBuilder = this.eventRepository
@@ -234,18 +235,18 @@ export class EventService {
       );
     }
 
-    queryBuilder
-      .limit(parseInt(limit))
-      .offset(parseInt(limit) * (parseInt(page) - 1));
+    const take = parseInt(limit);
+    const skip = take * (parseInt(page) - 1);
 
-    const events = await queryBuilder.getMany();
-    const totalEvents = await queryBuilder.getCount();
+    queryBuilder.skip(skip).take(take);
 
-    const totalPages = Math.ceil(totalEvents / parseInt(limit));
+    const [events, totalEvents] = await queryBuilder.getManyAndCount();
+
+    const totalPages = Math.ceil(totalEvents / take);
 
     const paginations = {
       total: totalEvents,
-      limit: parseInt(limit),
+      limit: take,
       page: parseInt(page),
       current_page: parseInt(page),
       total_page: totalPages,
