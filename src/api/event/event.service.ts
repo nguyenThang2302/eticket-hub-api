@@ -1,9 +1,8 @@
-import * as _ from 'lodash';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Event } from 'src/database/entities/event.entity';
-import { Brackets, In, MoreThan, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { EventDetailResponseDto } from './dto/event-detail-response.dto';
 import { EventSeat } from 'src/database/entities/event_seat.entity';
 import { CreateEventRequestDto } from './dto/create-event-request.dto';
@@ -259,6 +258,7 @@ export class EventService {
       id: event.id,
       name: event.name,
       start_time: event.start_datetime,
+      end_time: event.end_datetime,
       logo_url: event.logo_url || event.poster_url,
       price: this.calculateLowestTicketPrice(event),
       venue: event.venue.name,

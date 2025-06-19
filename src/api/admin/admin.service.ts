@@ -54,14 +54,24 @@ export class AdminService {
 
     if (type) {
       if (type === 'upcoming') {
-        queryBuilder.andWhere('event.start_datetime > NOW()');
-        queryBuilder.andWhere('event.status = :status', {
-          status: EVENT_STATUS.ACTIVE,
-        });
+        queryBuilder.andWhere('event.end_datetime > NOW()');
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            qb.where('event.status = :activeStatus', {
+              activeStatus: EVENT_STATUS.ACTIVE,
+            })
+              .orWhere('event.status = :approvedStatus', {
+                approvedStatus: EVENT_STATUS.APPROVED,
+              })
+              .orWhere('event.status = :inReviewStatus', {
+                inReviewStatus: EVENT_STATUS.INACTIVE,
+              });
+          }),
+        );
       }
 
       if (type === 'past') {
-        queryBuilder.andWhere('event.start_datetime < NOW()');
+        queryBuilder.andWhere('event.end_datetime < NOW()');
       }
 
       if (type === 'pending') {
