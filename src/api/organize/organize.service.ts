@@ -144,7 +144,7 @@ export class OrganizeService {
   }
 
   async getEvents(organizeId: string, params: any): Promise<any> {
-    const { page = 1, limit = 10 } = params;
+    const { page = 1, limit = 100 } = params;
     const parsedPage = parseInt(page);
     const parsedLimit = parseInt(limit);
 

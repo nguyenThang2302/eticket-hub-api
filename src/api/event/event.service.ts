@@ -215,13 +215,15 @@ export class EventService {
     }
 
     if (startDate) {
-      queryBuilder.andWhere('event.start_datetime >= :startDate', {
+      queryBuilder.andWhere('DATE(event.start_datetime) >= :startDate', {
         startDate,
       });
     }
 
     if (endDate) {
-      queryBuilder.andWhere('event.end_datetime <= :endDate', { endDate });
+      queryBuilder.andWhere('DATE(event.end_datetime) <= :endDate', {
+        endDate,
+      });
     }
 
     if (isFree) {

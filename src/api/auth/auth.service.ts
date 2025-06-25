@@ -1,9 +1,5 @@
 import * as _ from 'lodash';
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -110,8 +106,7 @@ export class AuthService {
   async login(body: LoginDto): Promise<TokenDto> {
     const user = await this.validateUser(body);
 
-    if (!user.is_verified)
-      throw new UnauthorizedException('EMAIL_NOT_VERIFIED');
+    if (!user.is_verified) throw new BadRequestException('EMAIL_NOT_VERIFIED');
 
     const { access_token_id, refresh_token_id } = await this.saveToken(user.id);
 

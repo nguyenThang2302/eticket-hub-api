@@ -316,9 +316,9 @@ export class AdminService {
   }
 
   async getAllTickets(params: any) {
-    const { page = 1, limit = 10 } = params;
+    const { page = 1, limit = 10, all = false } = params;
 
-    const [orders, total] = await this.orderRepositoty
+    const queryBuilder = this.orderRepositoty
       .createQueryBuilder('orders')
       .leftJoinAndSelect('orders.paymet_method', 'paymentMethod')
       .leftJoinAndSelect('orders.receive_info', 'receiveInfo')
@@ -326,10 +326,13 @@ export class AdminService {
       .leftJoinAndSelect('event.venue', 'venue')
       .leftJoinAndSelect('orders.coupon', 'coupon')
       .leftJoinAndSelect('orders.order_ticket_images', 'ticketImages')
-      .where('orders.status IS NOT NULL')
-      .take(limit) // Limit the number of results
-      .skip((page - 1) * limit) // Skip results for pagination
-      .getManyAndCount(); // Get both the results and the total count
+      .where('orders.status IS NOT NULL');
+
+    if (!all) {
+      queryBuilder.take(limit).skip((page - 1) * limit); // Apply pagination only if all = false
+    }
+
+    const [orders, total] = await queryBuilder.getManyAndCount();
 
     if (!orders.length) {
       return {
@@ -396,19 +399,19 @@ export class AdminService {
     });
 
     // Calculate pagination details
-    const totalPage = Math.ceil(total / limit);
+    const totalPage = all ? 1 : Math.ceil(total / limit);
     const currentPage = parseInt(page, 10);
-    const hasNextPage = currentPage < totalPage;
-    const hasPreviousPage = currentPage > 1;
+    const hasNextPage = !all && currentPage < totalPage;
+    const hasPreviousPage = !all && currentPage > 1;
     const nextPage = hasNextPage ? currentPage + 1 : null;
 
     return {
       items: response,
       paginations: {
         total,
-        limit: parseInt(limit, 10),
-        page: currentPage,
-        current_page: currentPage,
+        limit: all ? total : parseInt(limit, 10),
+        page: all ? 1 : currentPage,
+        current_page: all ? 1 : currentPage,
         total_page: totalPage,
         has_next_page: hasNextPage,
         has_previous_page: hasPreviousPage,
