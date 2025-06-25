@@ -643,7 +643,7 @@ export class OrganizeService {
       ])
       .where('event.organization_id = :organizeId', { organizeId })
       .andWhere('event.id = :eventId', { eventId })
-      .andWhere('orders.created_at BETWEEN :startDate AND :endDate', {
+      .andWhere('DATE(orders.created_at) BETWEEN :startDate AND :endDate', {
         startDate: startDate,
         endDate: endDate,
       })
